@@ -158,6 +158,11 @@ AC_ARG_ENABLE(etnaviv-experimental-api,
 	      [Enable support for etnaviv's experimental API (default: disabled)]),
 	      [ETNAVIV=$enableval], [ETNAVIV=no])
 
+AC_ARG_ENABLE(gsgpu,
+	      AS_HELP_STRING([--disable-gsgpu],
+	      [Enable support for gsgpu's KMS API (default: auto)]),
+	      [GSGPU=$enableval], [GSGPU=auto])
+
 AC_ARG_ENABLE(install-test-programs,
 		  AS_HELP_STRING([--enable-install-test-programs],
 		  [Install test programs (default: no)]),
@@ -307,6 +312,9 @@ if test "x$drm_cv_atomic_primitives" = "xnone"; then
 
 	LIBDRM_ATOMICS_NOT_FOUND_MSG($ETNAVIV, etnaviv, Vivante, etnaviv-experimental-api)
 	ETNAVIV=no
+
+	LIBDRM_ATOMICS_NOT_FOUND_MSG($GSGPU, gsgpu, LOONGSON, gsgpu)
+	GSGPU=no
 else
 	if test "x$INTEL" = xauto; then
 		case $host_cpu in
@@ -334,6 +342,9 @@ else
 			arm*|aarch64)	VC4=yes ;;
 			*)		VC4=no ;;
 		esac
+	fi
+	if test "x$GSGPU" = xauto; then
+		GSGPU=yes
 	fi
 fi
 
@@ -411,7 +422,7 @@ else
 	AC_DEFINE(HAVE_RADEON, 0)
 fi
 
-if test "x$AMDGPU" != xno; then
+if test "x$AMDGPU" != xno || test "x$GSGPU" != xno; then
 	# Detect cunit library
 	PKG_CHECK_MODULES([CUNIT], [cunit >= 2.1], [have_cunit=yes], [have_cunit=no])
 	# If pkg-config does not find cunit, check it using AC_CHECK_LIB.  We
@@ -429,6 +440,7 @@ if test "x$AMDGPU" != xno; then
 else
 	have_cunit=no
 fi
+
 AM_CONDITIONAL(HAVE_CUNIT, [test "x$have_cunit" != "xno"])
 
 AM_CONDITIONAL(HAVE_AMDGPU, [test "x$AMDGPU" = xyes])
@@ -452,6 +464,17 @@ else
 fi
 
 AM_CONDITIONAL(HAVE_ETNAVIV, [test "x$ETNAVIV" = xyes])
+
+AM_CONDITIONAL(HAVE_GSGPU, [test "x$GSGPU" = xyes])
+if test "x$GSGPU" = xyes; then
+	AC_DEFINE(HAVE_GSGPU, 1, [Have gsgpu support])
+
+	if test "x$have_cunit" = "xno"; then
+		AC_MSG_WARN([Could not find cunit library. Disabling gsgpu tests])
+	fi
+else
+	AC_DEFINE(HAVE_GSGPU, 0)
+fi
 
 AM_CONDITIONAL(HAVE_INSTALL_TESTS, [test "x$INSTALL_TESTS" = xyes])
 
@@ -561,6 +584,8 @@ AC_CONFIG_FILES([
 	vc4/libdrm_vc4.pc
 	etnaviv/Makefile
 	etnaviv/libdrm_etnaviv.pc
+	gsgpu/Makefile
+	gsgpu/libdrm_gsgpu.pc
 	tests/Makefile
 	tests/modeprint/Makefile
 	tests/modetest/Makefile
@@ -575,6 +600,7 @@ AC_CONFIG_FILES([
 	tests/nouveau/Makefile
 	tests/etnaviv/Makefile
 	tests/util/Makefile
+	tests/gsgpu/Makefile
 	man/Makefile
 	libdrm.pc])
 AC_OUTPUT
@@ -594,4 +620,5 @@ echo "  Freedreno API  $FREEDRENO (kgsl: $FREEDRENO_KGSL)"
 echo "  Tegra API      $TEGRA"
 echo "  VC4 API        $VC4"
 echo "  Etnaviv API    $ETNAVIV"
+echo "  GSGPU  API     $GSGPU"
 echo ""

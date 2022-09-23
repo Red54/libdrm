@@ -30,6 +30,12 @@ if HAVE_NOUVEAU
 SUBDIRS += nouveau
 endif
 
+if HAVE_GSGPU
+if HAVE_CUNIT
+SUBDIRS += gsgpu
+endif
+endif
+
 AM_CFLAGS = \
 	$(WARN_CFLAGS)\
 	-I $(top_srcdir)/include/drm \

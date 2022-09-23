@@ -18,18 +18,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-if with_amdgpu
-  install_data(
-    'amdgpu.ids',
-    install_mode : 'rw-r--r--',
-    install_dir : datadir_amdgpu,
-  )
-endif
-
-if with_gsgpu
-  install_data(
-    'gsgpu.ids',
-    install_mode : 'rw-r--r--',
-    install_dir : datadir_gsgpu,
+if dep_cunit.found()
+  gsgpu_test = executable(
+    'gsgpu_test',
+    files(
+      'gsgpu_test.c', 'basic_tests.c', 'bo_tests.c',
+      'deadlock_tests.c', 'vm_tests.c','dma_tests.c'
+    ),
+    dependencies : [dep_cunit, dep_threads],
+    include_directories : [inc_root, inc_drm, include_directories('../../gsgpu')],
+    link_with : [libdrm, libdrm_gsgpu],
+    install : with_install_tests,
   )
 endif

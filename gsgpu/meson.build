@@ -18,72 +18,49 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-inc_tests = include_directories('.')
 
-subdir('util')
-subdir('kms')
-subdir('modeprint')
-subdir('proptest')
-subdir('modetest')
-subdir('vbltest')
-if with_libkms
-  subdir('kmstest')
-endif
-if with_radeon
-  subdir('radeon')
-endif
-if with_amdgpu
-  subdir('amdgpu')
-endif
-if with_exynos
-  subdir('exynos')
-endif
-if with_tegra
-  subdir('tegra')
-endif
-if with_etnaviv
-  subdir('etnaviv')
-endif
-if with_nouveau
-  subdir('nouveau')
-endif
-if with_gsgpu
-  subdir('gsgpu')
-endif
+datadir_gsgpu = join_paths(get_option('prefix'), get_option('datadir'), 'libdrm')
 
-drmsl = executable(
-  'drmsl',
-  files('drmsl.c'),
+libdrm_gsgpu = shared_library(
+  'drm_gsgpu',
+  [
+    files(
+      'gsgpu_asic_id.c', 'gsgpu_bo.c', 'gsgpu_cs.c', 'gsgpu_device.c',
+      'gsgpu_gpu_info.c', 'gsgpu_vamgr.c', 'gsgpu_vm.c', 'util_hash.c',
+      'util_hash_table.c', 'gsgpu_hw_sema.c',
+    ),
+    config_file,
+  ],
+  c_args : [
+    warn_c_args,
+    '-DGSGPU_ASIC_ID_TABLE="@0@"'.format(join_paths(datadir_gsgpu, 'gsgpu.ids')),
+  ],
   include_directories : [inc_root, inc_drm],
   link_with : libdrm,
-  c_args : warn_c_args,
+  dependencies : dep_pthread_stubs,
+  version : '1.0.0',
+  install : true,
 )
 
-hash = executable(
-  'hash',
-  files('hash.c'),
-  include_directories : [inc_root, inc_drm],
-  link_with : libdrm,
-  c_args : warn_c_args,
+install_headers('gsgpu.h', subdir : 'libdrm')
+
+pkg.generate(
+  name : 'libdrm_gsgpu',
+  libraries : libdrm_gsgpu,
+  subdirs : ['.', 'libdrm'],
+  version : meson.project_version(),
+  requires_private : 'libdrm',
+  description : 'Userspace interface to kernel DRM services for gsgpu',
 )
 
-random = executable(
-  'random',
-  files('random.c'),
-  include_directories : [inc_root, inc_drm],
-  link_with : libdrm,
-  c_args : warn_c_args,
+ext_libdrm_gsgpu = declare_dependency(
+  link_with : [libdrm, libdrm_gsgpu],
+  include_directories : [inc_drm, include_directories('.')],
 )
 
-drmdevice = executable(
-  'drmdevice',
-  files('drmdevice.c'),
-  include_directories : [inc_root, inc_drm],
-  link_with : libdrm,
-  c_args : warn_c_args,
+test(
+  'gsgpu-symbol-check',
+  prog_bash,
+  env : env_test,
+  args : [files('gsgpu-symbol-check'), libdrm_gsgpu]
 )
-
-test('random', random, timeout : 240)
-test('hash', hash)
-test('drmsl', drmsl)
-test('drmdevice', drmdevice)

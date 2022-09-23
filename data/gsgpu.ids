@@ -1,0 +1,7 @@
+# List of GSGPU IDs
+#
+# Syntax:
+# device_id,	revision_id,	product_name        <-- single tab after comma
+
+1.0.0
+7A25,	1,	LOONGSON LoongGPU (TM) LG110

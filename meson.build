@@ -95,6 +95,15 @@ if _amdgpu != 'false'
   with_amdgpu = true
 endif
 
+with_gsgpu = false
+_gsgpu = get_option('gsgpu')
+if _gsgpu != 'false'
+  if _gsgpu == 'true' and not with_atomics
+    error('libdrm_gsgpu requires atomics.')
+  endif
+  with_gsgpu = true or ['loongarch64', 'mips64'].contains(host_machine.cpu_family())
+endif
+
 with_nouveau = false
 _nouveau = get_option('nouveau')
 if _nouveau != 'false'
@@ -318,6 +327,7 @@ install_headers(
   'include/drm/amdgpu_drm.h', 'include/drm/savage_drm.h',
   'include/drm/sis_drm.h', 'include/drm/tegra_drm.h', 'include/drm/vc4_drm.h',
   'include/drm/via_drm.h', 'include/drm/virtgpu_drm.h',
+  'include/drm/gsgpu_drm.h',
   subdir : 'libdrm',
 )
 if with_vmwgfx
@@ -368,6 +378,9 @@ endif
 if with_etnaviv
   subdir('etnaviv')
 endif
+if with_gsgpu
+  subdir('gsgpu')
+endif
 if with_man_pages
   subdir('man')
 endif
@@ -389,4 +402,5 @@ message('  Freedreno API  @0@ (kgsl: @1@)'.format(with_freedreno, with_freedreno
 message('  Tegra API      @0@'.format(with_tegra))
 message('  VC4 API        @0@'.format(with_vc4))
 message('  Etnaviv API    @0@'.format(with_etnaviv))
+message('  GSGPU API      @0@'.format(with_gsgpu))
 message('')
