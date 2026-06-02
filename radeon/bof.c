@@ -468,10 +468,12 @@ int bof_dump_file(bof_t *bof, const char *filename)
 	for (i = 0; i < bof->array_size; i++) {
 		r = bof_file_write(bof->array[i], bof->file);
 		if (r)
-			return r;
+			goto out_err;
 	}
 out_err:
-	fclose(bof->file);
-	bof->file = NULL;
+	if (bof->file) {
+		fclose(bof->file);
+		bof->file = NULL;
+	}
 	return r;
 }
