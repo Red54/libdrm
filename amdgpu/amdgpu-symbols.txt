@@ -90,3 +90,6 @@ amdgpu_create_userqueue
 amdgpu_free_userqueue
 amdgpu_userq_signal
 amdgpu_userq_wait
+amdgpu_svm_set_attr
+amdgpu_svm_get_attr
+amdgpu_svm_reset_attr
