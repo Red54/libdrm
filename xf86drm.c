@@ -3954,37 +3954,68 @@ static int drmParsePciDeviceInfo(int maj, int min,
         return -EINVAL;
 
     fd = open("/dev/pci", O_RDONLY);
-    if (fd < 0)
-        return -errno;
+    if (fd >= 0) {
+        bzero(&patterns, sizeof(patterns));
+        patterns[0].pc_sel.pc_domain = info.domain;
+        patterns[0].pc_sel.pc_bus = info.bus;
+        patterns[0].pc_sel.pc_dev = info.dev;
+        patterns[0].pc_sel.pc_func = info.func;
+        patterns[0].flags = PCI_GETCONF_MATCH_DOMAIN | PCI_GETCONF_MATCH_BUS
+                          | PCI_GETCONF_MATCH_DEV | PCI_GETCONF_MATCH_FUNC;
+        bzero(&pc, sizeof(struct pci_conf_io));
+        pc.num_patterns = 1;
+        pc.pat_buf_len = sizeof(patterns);
+        pc.patterns = patterns;
+        pc.match_buf_len = sizeof(results);
+        pc.matches = results;
 
-    bzero(&patterns, sizeof(patterns));
-    patterns[0].pc_sel.pc_domain = info.domain;
-    patterns[0].pc_sel.pc_bus = info.bus;
-    patterns[0].pc_sel.pc_dev = info.dev;
-    patterns[0].pc_sel.pc_func = info.func;
-    patterns[0].flags = PCI_GETCONF_MATCH_DOMAIN | PCI_GETCONF_MATCH_BUS
-                      | PCI_GETCONF_MATCH_DEV | PCI_GETCONF_MATCH_FUNC;
-    bzero(&pc, sizeof(struct pci_conf_io));
-    pc.num_patterns = 1;
-    pc.pat_buf_len = sizeof(patterns);
-    pc.patterns = patterns;
-    pc.match_buf_len = sizeof(results);
-    pc.matches = results;
-
-    if (ioctl(fd, PCIOCGETCONF, &pc) || pc.status == PCI_GETCONF_ERROR) {
-        error = errno;
+        if (ioctl(fd, PCIOCGETCONF, &pc) || pc.status == PCI_GETCONF_ERROR) {
+            error = errno;
+            close(fd);
+            return -error;
+        }
         close(fd);
+
+        device->vendor_id = results[0].pc_vendor;
+        device->device_id = results[0].pc_device;
+        device->subvendor_id = results[0].pc_subvendor;
+        device->subdevice_id = results[0].pc_subdevice;
+        device->revision_id = results[0].pc_revid;
+
+        return 0;
+    } else {
+        char dname[SPECNAMELEN];
+        char pci_id[64];
+        char mib[32];
+        size_t sz;
+        int unit;
+        unsigned int vid, did;
+
+        /*
+         * /dev/pci is not accessible, which might be the case in a jail without
+         * devfs. Read the PCI vendor:device values from the
+         * dev.drm.<minor>.PCI_ID sysctl.
+         */
+        devname_r(makedev(maj, min), S_IFCHR, dname, sizeof(dname));
+        if (sscanf(dname, "drm/%d", &unit) == 1) {
+            snprintf(mib, sizeof(mib), "dev.drm.%d.PCI_ID", unit);
+            sz = sizeof(pci_id);
+
+            if (sysctlbyname(mib, pci_id, &sz, NULL, 0) == 0 &&
+                    sscanf(pci_id, "%x:%x", &vid, &did) == 2) {
+                device->vendor_id = vid;
+                device->device_id = did;
+                device->subvendor_id = 0;
+                device->subdevice_id = 0;
+                device->revision_id = 0;
+
+                return 0;
+            }
+        }
+
+        error = errno;
         return -error;
     }
-    close(fd);
-
-    device->vendor_id = results[0].pc_vendor;
-    device->device_id = results[0].pc_device;
-    device->subvendor_id = results[0].pc_subvendor;
-    device->subdevice_id = results[0].pc_subdevice;
-    device->revision_id = results[0].pc_revid;
-
-    return 0;
 #else
 #warning "Missing implementation of drmParsePciDeviceInfo"
     return -EINVAL;
