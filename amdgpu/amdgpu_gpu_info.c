@@ -28,7 +28,12 @@
 #include "amdgpu.h"
 #include "amdgpu_drm.h"
 #include "amdgpu_internal.h"
+#include "util_math.h"
 #include "xf86drm.h"
+
+#ifndef ARRAY_SIZE
+#define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
+#endif
 
 drm_public int amdgpu_query_info(amdgpu_device_handle dev, unsigned info_id,
 				 unsigned size, void *value)
@@ -185,7 +190,10 @@ drm_private int amdgpu_query_gpu_info_init(amdgpu_device_handle dev)
 	dev->info.pci_rev_id = dev->dev_info.pci_rev;
 
 	if (dev->info.family_id < AMDGPU_FAMILY_AI) {
-		for (i = 0; i < (int)dev->info.num_shader_engines; i++) {
+		unsigned nse = MIN2(dev->info.num_shader_engines,
+				    ARRAY_SIZE(dev->info.backend_disable));
+
+		for (i = 0; i < (int)nse; i++) {
 			unsigned instance = (i << AMDGPU_INFO_MMR_SE_INDEX_SHIFT) |
 					    (AMDGPU_INFO_MMR_SH_INDEX_MASK <<
 					     AMDGPU_INFO_MMR_SH_INDEX_SHIFT);
