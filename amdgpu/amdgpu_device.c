@@ -262,6 +262,11 @@ static int _amdgpu_device_initialize(int fd,
 	atomic_set(&dev->refcount, 1);
 
 	version = drmGetVersion(fd);
+	if (!version) {
+		fprintf(stderr, "%s: drmGetVersion failed\n", __func__);
+		r = -EBADF;
+		goto cleanup;
+	}
 	if (version->version_major != 3) {
 		fprintf(stderr, "%s: DRM version is %d.%d.%d but this driver is "
 			"only compatible with 3.x.x.\n",
