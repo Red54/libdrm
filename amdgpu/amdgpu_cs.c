@@ -39,6 +39,16 @@
 static int amdgpu_cs_unreference_sem(amdgpu_semaphore_handle sem);
 static int amdgpu_cs_reset_sem(amdgpu_semaphore_handle sem);
 
+/*
+ * Upper bound for caller-controlled counts that are used to size on-stack
+ * alloca() buffers.  Without a cap a large count produces a multi-megabyte
+ * allocation that can skip the stack guard page (stack clash), and on 32-bit
+ * the size multiplication can overflow, yielding a tiny buffer that is then
+ * overrun by the full-count copy.  The number of IBs has its own, tighter
+ * limit (AMDGPU_CS_MAX_IBS_PER_SUBMIT).
+ */
+#define AMDGPU_CS_MAX_ALLOCA_COUNT 4096
+
 /**
  * Create command submission context
  *
@@ -271,6 +281,10 @@ static int amdgpu_cs_submit_one(amdgpu_context_handle context,
 	if (ibs_request->ip_instance >= AMDGPU_HW_IP_INSTANCE_MAX_COUNT)
 		return -EINVAL;
 	if (ibs_request->ring >= AMDGPU_CS_MAX_RINGS)
+		return -EINVAL;
+	if (ibs_request->number_of_ibs > AMDGPU_CS_MAX_IBS_PER_SUBMIT)
+		return -EINVAL;
+	if (ibs_request->number_of_dependencies > AMDGPU_CS_MAX_ALLOCA_COUNT)
 		return -EINVAL;
 	if (ibs_request->number_of_ibs == 0) {
 		ibs_request->seq_no = AMDGPU_NULL_SUBMIT_SEQ;
@@ -522,6 +536,8 @@ static int amdgpu_ioctl_wait_fences(struct amdgpu_cs_fence *fences,
 	int r;
 	uint32_t i;
 
+	if (fence_count > AMDGPU_CS_MAX_ALLOCA_COUNT)
+		return -EINVAL;
 	drm_fences = alloca(sizeof(struct drm_amdgpu_fence) * fence_count);
 	for (i = 0; i < fence_count; i++) {
 		drm_fences[i].ctx_id = fences[i].context->id;
@@ -909,7 +925,7 @@ drm_public int amdgpu_cs_submit_raw(amdgpu_device_handle dev,
 	union drm_amdgpu_cs cs;
 	uint64_t *chunk_array;
 	int i, r;
-	if (num_chunks == 0)
+	if (num_chunks < 1 || num_chunks > AMDGPU_CS_MAX_ALLOCA_COUNT)
 		return -EINVAL;
 
 	memset(&cs, 0, sizeof(cs));
@@ -940,6 +956,9 @@ drm_public int amdgpu_cs_submit_raw2(amdgpu_device_handle dev,
 	union drm_amdgpu_cs cs;
 	uint64_t *chunk_array;
 	int i, r;
+
+	if (num_chunks < 1 || num_chunks > AMDGPU_CS_MAX_ALLOCA_COUNT)
+		return -EINVAL;
 
 	memset(&cs, 0, sizeof(cs));
 	chunk_array = alloca(sizeof(uint64_t) * num_chunks);
