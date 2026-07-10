@@ -268,6 +268,8 @@ static int amdgpu_cs_submit_one(amdgpu_context_handle context,
 
 	if (ibs_request->ip_type >= AMDGPU_HW_IP_NUM)
 		return -EINVAL;
+	if (ibs_request->ip_instance >= AMDGPU_HW_IP_INSTANCE_MAX_COUNT)
+		return -EINVAL;
 	if (ibs_request->ring >= AMDGPU_CS_MAX_RINGS)
 		return -EINVAL;
 	if (ibs_request->number_of_ibs == 0) {
@@ -604,6 +606,8 @@ drm_public int amdgpu_cs_signal_semaphore(amdgpu_context_handle ctx,
 		return -EINVAL;
 	if (ip_type >= AMDGPU_HW_IP_NUM)
 		return -EINVAL;
+	if (ip_instance >= AMDGPU_HW_IP_INSTANCE_MAX_COUNT)
+		return -EINVAL;
 	if (ring >= AMDGPU_CS_MAX_RINGS)
 		return -EINVAL;
 
@@ -634,6 +638,8 @@ drm_public int amdgpu_cs_wait_semaphore(amdgpu_context_handle ctx,
 	if (!ctx || !sem)
 		return -EINVAL;
 	if (ip_type >= AMDGPU_HW_IP_NUM)
+		return -EINVAL;
+	if (ip_instance >= AMDGPU_HW_IP_INSTANCE_MAX_COUNT)
 		return -EINVAL;
 	if (ring >= AMDGPU_CS_MAX_RINGS)
 		return -EINVAL;
