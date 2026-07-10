@@ -213,6 +213,10 @@ static char **split_env_var(const char *env_var_content)
 		return NULL;
 	}
 	ret = malloc(sizeof(char *) * (elements + 1));
+	if (!ret) {
+		free(dup_env_val);
+		return NULL;
+	}
 	ret[0] = dup_env_val;
 	for(char *p = (char *)dup_env_val; *p; p++) {
 		if (*p == ':') {
