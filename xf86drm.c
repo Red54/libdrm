@@ -119,6 +119,9 @@ struct drm_pciinfo {
 
 #define DRM_MSG_VERBOSITY 3
 
+#define DRM_UDEV_RETRY_COUNT 50
+#define DRM_UDEV_RETRY_DELAY_USEC 20
+
 #define memclear(s) memset(&s, 0, sizeof(s))
 
 static drmServerInfoPtr drm_server_info;
@@ -894,19 +897,19 @@ static int drmOpenDevice(dev_t dev, int minor, int type)
         int udev_count = 0;
 wait_for_udev:
         if (stat(DRM_DIR_NAME, &st)) {
-            usleep(20);
+            usleep(DRM_UDEV_RETRY_DELAY_USEC);
             udev_count++;
 
-            if (udev_count == 50)
+            if (udev_count == DRM_UDEV_RETRY_COUNT)
                 return -1;
             goto wait_for_udev;
         }
 
         if (stat(buf, &st)) {
-            usleep(20);
+            usleep(DRM_UDEV_RETRY_DELAY_USEC);
             udev_count++;
 
-            if (udev_count == 50)
+            if (udev_count == DRM_UDEV_RETRY_COUNT)
                 return -1;
             goto wait_for_udev;
         }
@@ -1093,6 +1096,7 @@ static const char *drmGetMinorName(int type)
 static int drmOpenByBusid(const char *busid, int type)
 {
     int        i, pci_domain_ok = 1;
+    int        attempt = 0;
     int        fd;
     const char *buf;
     drmSetVersion sv;
@@ -1101,9 +1105,14 @@ static int drmOpenByBusid(const char *busid, int type)
     if (base < 0)
         return -1;
 
+    /* When udev manages device nodes, avoid drmOpenDevice()'s wait for each
+     * absent minor.  Retry the complete non-creating scan instead so a node
+     * appearing shortly after the first scan can still be found.
+     */
     drmMsg("drmOpenByBusid: Searching for BusID %s\n", busid);
+retry:
     for (i = base; i < base + DRM_MAX_MINOR; i++) {
-        fd = drmOpenMinor(i, 1, type);
+        fd = drmOpenMinor(i, !UDEV, type);
         drmMsg("drmOpenByBusid: drmOpenMinor returns %d\n", fd);
         if (fd >= 0) {
             /* We need to try for 1.4 first for proper PCI domain support
@@ -1135,6 +1144,12 @@ static int drmOpenByBusid(const char *busid, int type)
             close(fd);
         }
     }
+
+    if (UDEV && attempt++ < DRM_UDEV_RETRY_COUNT) {
+        usleep(DRM_UDEV_RETRY_DELAY_USEC);
+        goto retry;
+    }
+
     return -1;
 }
 
@@ -1157,6 +1172,7 @@ static int drmOpenByBusid(const char *busid, int type)
 static int drmOpenByName(const char *name, int type)
 {
     int           i;
+    int           attempt = 0;
     int           fd;
     drmVersionPtr version;
     char *        id;
@@ -1168,9 +1184,12 @@ static int drmOpenByName(const char *name, int type)
     /*
      * Open the first minor number that matches the driver name and isn't
      * already in use.  If it's in use it will have a busid assigned already.
+     * When udev manages device nodes, retry complete non-creating scans rather
+     * than waiting for every absent minor in drmOpenDevice().
      */
+retry:
     for (i = base; i < base + DRM_MAX_MINOR; i++) {
-        if ((fd = drmOpenMinor(i, 1, type)) >= 0) {
+        if ((fd = drmOpenMinor(i, !UDEV, type)) >= 0) {
             if ((version = drmGetVersion(fd))) {
                 if (!strcmp(version->name, name)) {
                     drmFreeVersion(version);
@@ -1189,6 +1208,11 @@ static int drmOpenByName(const char *name, int type)
             }
             close(fd);
         }
+    }
+
+    if (UDEV && attempt++ < DRM_UDEV_RETRY_COUNT) {
+        usleep(DRM_UDEV_RETRY_DELAY_USEC);
+        goto retry;
     }
 
 #ifdef __linux__
