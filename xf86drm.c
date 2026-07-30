@@ -1012,8 +1012,9 @@ static int drmGetMinorBase(int type)
 static int drmGetMinorType(int major, int minor)
 {
 #ifdef __FreeBSD__
-    char name[SPECNAMELEN];
-    int id;
+    char name[SPECNAMELEN], mib[32];
+    int id, type;
+    size_t sz = sizeof(type);
 
     if (!devname_r(makedev(major, minor), S_IFCHR, name, sizeof(name)))
         return -1;
@@ -1026,6 +1027,10 @@ static int drmGetMinorType(int major, int minor)
            return DRM_NODE_RENDER;
         return -1;
     }
+
+    snprintf(mib, sizeof(mib), "dev.drm.%d.type", id);
+    if (sysctlbyname(mib, &type, &sz, NULL, 0) == 0)
+        return type;
 
     minor = id;
 #endif
