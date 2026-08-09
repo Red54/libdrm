@@ -332,6 +332,46 @@ drm_public void amdgpu_va_manager_init(struct amdgpu_va_manager *va_mgr,
 				virtual_address_alignment, 0);
 }
 
+/* Preferred control bit for the PRT workaround VA reservation.
+ *
+ * The control bit selects between an allocation and its always-mapped
+ * mirror. The mirror VA of a sparse allocation is application-visible
+ * (it is what vkGetBufferDeviceAddress returns), and some applications
+ * mishandle device addresses that are 2^46 bytes away from every other
+ * allocation. Preferring a low control bit keeps sparse VAs within a
+ * few TiB of regular allocations, in the same overall shape, while
+ * still leaving a 2 TiB window for regular allocations.
+ */
+#define VA_PRT_WA_PREFERRED_CONTROL_BIT 41
+
+/* Reserve a mirror window for the PRT workaround: limit the allocatable
+ * range to [va_min, va_min + (1 << bit)) so that the mirror window
+ * [va_min + (1 << bit), va_min + (2 << bit)) is never allocated from.
+ * Returns the control bit and stores the new allocatable end in
+ * *alloc_max.
+ *
+ * Falls back to splitting the range in two equal halves at its top bit
+ * when the range is too small or not sufficiently aligned for the
+ * preferred control bit.
+ */
+static unsigned amdgpu_vamgr_reserve_prt_wa_range(uint64_t va_min,
+						  uint64_t va_max,
+						  uint64_t *alloc_max)
+{
+	unsigned natural_bit = util_last_bit64(va_min ^ va_max) - 1;
+	unsigned bit = VA_PRT_WA_PREFERRED_CONTROL_BIT;
+
+	if (bit < natural_bit &&
+	    !(va_min & ((2ull << bit) - 1)) &&
+	    va_max - va_min >= 2ull << bit) {
+		*alloc_max = va_min + (1ull << bit);
+		return bit;
+	}
+
+	*alloc_max = va_max ^ (1ull << natural_bit);
+	return natural_bit;
+}
+
 drm_public void amdgpu_va_manager_init2(struct amdgpu_va_manager *va_mgr,
 					uint64_t low_va_offset, uint64_t low_va_max,
 					uint64_t high_va_offset, uint64_t high_va_max,
@@ -349,12 +389,11 @@ drm_public void amdgpu_va_manager_init2(struct amdgpu_va_manager *va_mgr,
 
 	start = max;
 	if ((flags & AMDGPU_VA_MGR_RESERVE_HALF_VA_FOR_PRT) && !high_va_max) {
-		/* Reserve the half VA range for PRT by splitting it in two
-		 * equal halves where one bit controls whether it's the LOW or
-		 * HIGH half.
+		/* Reserve a VA range for PRT where one bit controls whether
+		 * it's the LOW (allocatable) or HIGH (mirror) part.
 		 */
-		va_mgr->address_prt_wa_control_bit = util_last_bit64(low_va_offset ^ low_va_max) - 1;
-		max = low_va_max ^ (1ull << va_mgr->address_prt_wa_control_bit);
+		va_mgr->address_prt_wa_control_bit =
+			amdgpu_vamgr_reserve_prt_wa_range(low_va_offset, low_va_max, &max);
 	} else {
 		max = MAX2(low_va_max, 0x100000000ULL);
 	}
@@ -369,12 +408,11 @@ drm_public void amdgpu_va_manager_init2(struct amdgpu_va_manager *va_mgr,
 
 	start = max;
 	if ((flags & AMDGPU_VA_MGR_RESERVE_HALF_VA_FOR_PRT) && high_va_max) {
-		/* Reserve the half VA range for PRT by splitting it in two
-		 * equal halves where one bit controls whether it's the LOW or
-		 * HIGH half.
+		/* Reserve a VA range for PRT where one bit controls whether
+		 * it's the LOW (allocatable) or HIGH (mirror) part.
 		 */
-		va_mgr->address_prt_wa_control_bit = util_last_bit64(high_va_offset ^ high_va_max) - 1;
-		max = high_va_max ^ (1ull << va_mgr->address_prt_wa_control_bit);
+		va_mgr->address_prt_wa_control_bit =
+			amdgpu_vamgr_reserve_prt_wa_range(high_va_offset, high_va_max, &max);
 	} else {
 		max = MAX2(high_va_max, (start & ~0xffffffffULL) + 0x100000000ULL);
 	}
