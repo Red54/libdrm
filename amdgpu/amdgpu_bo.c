@@ -381,10 +381,14 @@ free_bo_handle:
 	if (flink_name && open_arg.handle)
 		drmCloseBufferHandle(dev->flink_fd, open_arg.handle);
 
+	/* Drop the lock before amdgpu_bo_free(), which re-acquires the same
+	 * non-recursive mutex and would otherwise self-deadlock. */
+	pthread_mutex_unlock(&dev->bo_table_mutex);
 	if (bo)
 		amdgpu_bo_free(bo);
 	else
 		drmCloseBufferHandle(dev->fd, handle);
+	return r;
 unlock:
 	pthread_mutex_unlock(&dev->bo_table_mutex);
 	return r;
