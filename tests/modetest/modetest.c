@@ -1508,11 +1508,11 @@ static int pipe_attempt_connector(struct device *dev, drmModeConnector *con,
 	char *con_str;
 	int i;
 
-	con_str = calloc(8, sizeof(char));
+	con_str = calloc(12, sizeof(char));
 	if (!con_str)
 		return -1;
 
-	sprintf(con_str, "%d", con->connector_id);
+	snprintf(con_str, 12, "%u", con->connector_id);
 	strcpy(pipe->format_str, "XR24");
 	pipe->fourcc = util_format_fourcc(pipe->format_str);
 	pipe->num_cons = 1;
