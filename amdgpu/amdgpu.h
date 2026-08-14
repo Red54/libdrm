@@ -46,6 +46,7 @@ struct drm_amdgpu_info_uq_fw_areas;
 struct drm_amdgpu_bo_list_entry;
 struct drm_amdgpu_userq_signal;
 struct drm_amdgpu_userq_wait;
+struct drm_amdgpu_svm_attribute;
 
 /*--------------------------------------------------------------------------*/
 /* --------------------------- Defines ------------------------------------ */
@@ -2096,6 +2097,52 @@ int amdgpu_userq_signal(amdgpu_device_handle dev,
 int amdgpu_userq_wait(amdgpu_device_handle dev,
 		      struct drm_amdgpu_userq_wait *wait_data);
 
+/**
+ * Set SVM attributes for a memory range
+ *
+ * \param dev        - \c [in] Device handle. See #amdgpu_device_initialize()
+ * \param start_addr - \c [in] Start address of the memory range
+ * \param size       - \c [in] Size of the memory range in bytes
+ * \param nattr      - \c [in] Number of attributes in the array
+ * \param attrs      - \c [in] Array of SVM attributes to set
+ *
+ * \return   0 on success\n
+ *          <0 - Negative POSIX Error code
+ */
+int amdgpu_svm_set_attr(amdgpu_device_handle dev,
+			 uint64_t start_addr,
+			 uint64_t size, uint32_t nattr,
+			 struct drm_amdgpu_svm_attribute *attrs);
+
+/**
+ * Get SVM attributes for a memory range
+ *
+ * \param dev        - \c [in] Device handle. See #amdgpu_device_initialize()
+ * \param start_addr - \c [in] Start address of the memory range
+ * \param size       - \c [in] Size of the memory range in bytes
+ * \param nattr      - \c [in] Number of attributes in the array
+ * \param attrs      - \c [in/out] Array of SVM attributes to query
+ *
+ * \return   0 on success\n
+ *          <0 - Negative POSIX Error code
+ */
+int amdgpu_svm_get_attr(amdgpu_device_handle dev,
+			 uint64_t start_addr,
+			 uint64_t size, uint32_t nattr,
+			 struct drm_amdgpu_svm_attribute *attrs);
+
+/**
+ * Reset SVM attributes to defaults for a memory range
+ *
+ * \param dev        - \c [in] Device handle. See #amdgpu_device_initialize()
+ * \param start_addr - \c [in] Start address of the memory range
+ * \param size       - \c [in] Size of the memory range in bytes
+ *
+ * \return   0 on success\n
+ *          <0 - Negative POSIX Error code
+ */
+int amdgpu_svm_reset_attr(amdgpu_device_handle dev,
+			  uint64_t start_addr, uint64_t size);
 #ifdef __cplusplus
 }
 #endif
