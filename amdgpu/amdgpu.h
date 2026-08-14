@@ -2075,6 +2075,15 @@ int amdgpu_create_userqueue(amdgpu_device_handle dev,
 int amdgpu_free_userqueue(amdgpu_device_handle dev, uint32_t queue_id);
 
 /**
+ * QUERY USERQUEUE
+ * \param   dev		- \c [in] device handle
+ * \param   queue_id	- \c [in]  queue id
+ *
+ * \return  0 on success otherwise POSIX Error code
+ */
+int amdgpu_query_userqueue(amdgpu_device_handle dev, uint32_t queue_id);
+
+/**
  * Signal USERQUEUE
  * \param   dev               - \c [in] device handle
  * \param   signal_data       - \c [in] pointer to struct drm_amdgpu_userq_signal
