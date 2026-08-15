@@ -224,9 +224,9 @@ int loonggpu_device_initialize(int fd,
 	atomic_set(&dev->refcount, 1);
 
 	version = drmGetVersion(fd);
-	if (version->version_major != 0) {
+	if (version->version_major != 1) {
 		fprintf(stderr, "%s: DRM version is %d.%d.%d but this driver is "
-			"only compatible with 0.x.x.\n",
+			"only compatible with 1.x.x.\n",
 			__func__,
 			version->version_major,
 			version->version_minor,
