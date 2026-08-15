@@ -261,7 +261,7 @@ static int loonggpu_open_devices(int open_render_node)
 			continue;
 		}
 
-		if (strcmp(version->name, "loonggpu")) {
+		if (strcmp(version->name, "gsgpu") && strcmp(version->name, "loonggpu")) {
 			/* This is not LOONGGPU driver, skip.*/
 			drmFreeVersion(version);
 			close(fd);

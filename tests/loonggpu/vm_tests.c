@@ -46,7 +46,7 @@ CU_BOOL suite_vm_tests_enable(void)
 				     &minor_version, &device_handle))
 		return CU_FALSE;
 
-	if (device_handle->info.family_id == LOONGGPU_FAMILY_GS) {
+	if (device_handle->info.family_id == LOONGGPU_FAMILY_SI) {
 		printf("\n\nCurrently hangs the CP on this ASIC, VM suite disabled\n");
 		enable = CU_FALSE;
 	}
