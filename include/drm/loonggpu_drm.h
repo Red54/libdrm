@@ -1,6 +1,9 @@
 /* loonggpu_drm.h -- Public header for the loonggpu driver -*- linux-c -*-
  *
- * Copyright (C) 2021, Loongson Technology Corporation Limited, Inc
+ * Copyright 2000 Precision Insight, Inc., Cedar Park, Texas.
+ * Copyright 2000 VA Linux Systems, Inc., Fremont, California.
+ * Copyright 2002 Tungsten Graphics, Inc., Cedar Park, Texas.
+ * Copyright 2014 Advanced Micro Devices, Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -20,12 +23,16 @@
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  *
+ * Authors:
+ *    Kevin E. Martin <martin@valinux.com>
+ *    Gareth Hughes <gareth@valinux.com>
+ *    Keith Whitwell <keith@tungstengraphics.com>
  */
 
 #ifndef __LOONGGPU_DRM_H__
 #define __LOONGGPU_DRM_H__
 
-#include "drm.h"
+#include <drm/drm.h>
 
 #if defined(__cplusplus)
 extern "C" {
@@ -38,7 +45,7 @@ extern "C" {
 #define DRM_LOONGGPU_CS			0x04
 #define DRM_LOONGGPU_INFO			0x05
 #define DRM_LOONGGPU_GEM_METADATA		0x06
-#define DRM_LOONGGPU_GEM_WAIT_IDLE		0x07
+#define DRM_LOONGGPU_GEM_WAIT_IDLE	0x07
 #define DRM_LOONGGPU_GEM_VA		0x08
 #define DRM_LOONGGPU_WAIT_CS		0x09
 #define DRM_LOONGGPU_GEM_OP		0x10
@@ -49,30 +56,77 @@ extern "C" {
 #define DRM_LOONGGPU_SCHED			0x15
 #define DRM_LOONGGPU_HWSEMA_OP		0x16
 
+#define DRM_LOONGGPU_LAYER_DISPLAY	0x17
+#define DRM_LOONGGPU_LAYER_ZOOM		0x18
+#define DRM_LOONGGPU_LAYER_TILE		0x19
+#define DRM_LOONGGPU_LAYER_ROTATE	0x1a
+#define DRM_LOONGGPU_VIDEO_GAMMA	0x20
+#define DRM_LOONGGPU_GET_META		0x21
+#define DRM_LOONGGPU_SET_META		0x22
+
 #define DRM_IOCTL_LOONGGPU_GEM_CREATE	DRM_IOWR(DRM_COMMAND_BASE + DRM_LOONGGPU_GEM_CREATE, union drm_loonggpu_gem_create)
 #define DRM_IOCTL_LOONGGPU_GEM_MMAP	DRM_IOWR(DRM_COMMAND_BASE + DRM_LOONGGPU_GEM_MMAP, union drm_loonggpu_gem_mmap)
 #define DRM_IOCTL_LOONGGPU_CTX		DRM_IOWR(DRM_COMMAND_BASE + DRM_LOONGGPU_CTX, union drm_loonggpu_ctx)
-#define DRM_IOCTL_LOONGGPU_BO_LIST		DRM_IOWR(DRM_COMMAND_BASE + DRM_LOONGGPU_BO_LIST, union drm_loonggpu_bo_list)
+#define DRM_IOCTL_LOONGGPU_BO_LIST	DRM_IOWR(DRM_COMMAND_BASE + DRM_LOONGGPU_BO_LIST, union drm_loonggpu_bo_list)
 #define DRM_IOCTL_LOONGGPU_CS		DRM_IOWR(DRM_COMMAND_BASE + DRM_LOONGGPU_CS, union drm_loonggpu_cs)
 #define DRM_IOCTL_LOONGGPU_INFO		DRM_IOW(DRM_COMMAND_BASE + DRM_LOONGGPU_INFO, struct drm_loonggpu_info)
 #define DRM_IOCTL_LOONGGPU_GEM_METADATA	DRM_IOWR(DRM_COMMAND_BASE + DRM_LOONGGPU_GEM_METADATA, struct drm_loonggpu_gem_metadata)
 #define DRM_IOCTL_LOONGGPU_GEM_WAIT_IDLE	DRM_IOWR(DRM_COMMAND_BASE + DRM_LOONGGPU_GEM_WAIT_IDLE, union drm_loonggpu_gem_wait_idle)
 #define DRM_IOCTL_LOONGGPU_GEM_VA		DRM_IOW(DRM_COMMAND_BASE + DRM_LOONGGPU_GEM_VA, struct drm_loonggpu_gem_va)
-#define DRM_IOCTL_LOONGGPU_WAIT_CS		DRM_IOWR(DRM_COMMAND_BASE + DRM_LOONGGPU_WAIT_CS, union drm_loonggpu_wait_cs)
+#define DRM_IOCTL_LOONGGPU_WAIT_CS	DRM_IOWR(DRM_COMMAND_BASE + DRM_LOONGGPU_WAIT_CS, union drm_loonggpu_wait_cs)
 #define DRM_IOCTL_LOONGGPU_GEM_OP		DRM_IOWR(DRM_COMMAND_BASE + DRM_LOONGGPU_GEM_OP, struct drm_loonggpu_gem_op)
 #define DRM_IOCTL_LOONGGPU_GEM_USERPTR	DRM_IOWR(DRM_COMMAND_BASE + DRM_LOONGGPU_GEM_USERPTR, struct drm_loonggpu_gem_userptr)
 #define DRM_IOCTL_LOONGGPU_WAIT_FENCES	DRM_IOWR(DRM_COMMAND_BASE + DRM_LOONGGPU_WAIT_FENCES, union drm_loonggpu_wait_fences)
 #define DRM_IOCTL_LOONGGPU_VM		DRM_IOWR(DRM_COMMAND_BASE + DRM_LOONGGPU_VM, union drm_loonggpu_vm)
 #define DRM_IOCTL_LOONGGPU_FENCE_TO_HANDLE DRM_IOWR(DRM_COMMAND_BASE + DRM_LOONGGPU_FENCE_TO_HANDLE, union drm_loonggpu_fence_to_handle)
 #define DRM_IOCTL_LOONGGPU_SCHED		DRM_IOW(DRM_COMMAND_BASE + DRM_LOONGGPU_SCHED, union drm_loonggpu_sched)
-#define DRM_IOCTL_LOONGGPU_HWSEMA_OP       DRM_IOWR(DRM_COMMAND_BASE + DRM_LOONGGPU_HWSEMA_OP, struct drm_loonggpu_hw_sema)
+#define DRM_IOCTL_LOONGGPU_HWSEMA_OP	DRM_IOWR(DRM_COMMAND_BASE + DRM_LOONGGPU_HWSEMA_OP, struct drm_loonggpu_hw_sema)
 
+#define DRM_IOCTL_LOONGGPU_LAYER_DISPLAY	DRM_IOWR(DRM_COMMAND_BASE + DRM_LOONGGPU_LAYER_DISPLAY, struct drm_loonggpu_layer_display)
+#define DRM_IOCTL_LOONGGPU_LAYER_ZOOM	DRM_IOWR(DRM_COMMAND_BASE + DRM_LOONGGPU_LAYER_ZOOM, struct drm_loonggpu_layer_zoom)
+#define DRM_IOCTL_LOONGGPU_LAYER_TILE	DRM_IOWR(DRM_COMMAND_BASE + DRM_LOONGGPU_LAYER_TILE, struct drm_loonggpu_layer_tile)
+#define DRM_IOCTL_LOONGGPU_LAYER_ROTATE	DRM_IOWR(DRM_COMMAND_BASE + DRM_LOONGGPU_LAYER_ROTATE, struct drm_loonggpu_layer_rotate)
+#define DRM_IOCTL_LOONGGPU_VIDEO_GAMMA	DRM_IOWR(DRM_COMMAND_BASE + DRM_LOONGGPU_VIDEO_GAMMA, struct drm_loonggpu_video_gamma)
+#define DRM_IOCTL_LOONGGPU_GET_META	DRM_IO(DRM_COMMAND_BASE + DRM_LOONGGPU_GET_META)
+#define DRM_IOCTL_LOONGGPU_SET_META	DRM_IO(DRM_COMMAND_BASE + DRM_LOONGGPU_SET_META)
+
+/**
+ * DOC: memory domains
+ *
+ * %LOONGGPU_GEM_DOMAIN_CPU	System memory that is not GPU accessible.
+ * Memory in this pool could be swapped out to disk if there is pressure.
+ *
+ * %LOONGGPU_GEM_DOMAIN_GTT	GPU accessible system memory, mapped into the
+ * GPU's virtual address space via gart. Gart memory linearizes non-contiguous
+ * pages of system memory, allows GPU access system memory in a linezrized
+ * fashion.
+ *
+ * %LOONGGPU_GEM_DOMAIN_VRAM	Local video memory. For APUs, it is memory
+ * carved out by the BIOS.
+ *
+ * %LOONGGPU_GEM_DOMAIN_GDS	Global on-chip data storage used to share data
+ * across shader threads.
+ *
+ * %LOONGGPU_GEM_DOMAIN_GWS	Global wave sync, used to synchronize the
+ * execution of all the waves on a device.
+ *
+ * %LOONGGPU_GEM_DOMAIN_OA	Ordered append, used by 3D or Compute engines
+ * for appending data.
+ */
 #define LOONGGPU_GEM_DOMAIN_CPU		0x1
 #define LOONGGPU_GEM_DOMAIN_GTT		0x2
 #define LOONGGPU_GEM_DOMAIN_VRAM		0x4
 #define LOONGGPU_GEM_DOMAIN_GDS		0x8
 #define LOONGGPU_GEM_DOMAIN_GWS		0x10
 #define LOONGGPU_GEM_DOMAIN_OA		0x20
+#define LOONGGPU_GEM_DOMAIN_DOORBELL	0x40
+#define LOONGGPU_GEM_DOMAIN_MASK		(LOONGGPU_GEM_DOMAIN_CPU | \
+					 LOONGGPU_GEM_DOMAIN_GTT | \
+					 LOONGGPU_GEM_DOMAIN_VRAM | \
+					 LOONGGPU_GEM_DOMAIN_GDS | \
+					 LOONGGPU_GEM_DOMAIN_GWS | \
+					 LOONGGPU_GEM_DOMAIN_OA | \
+					 LOONGGPU_GEM_DOMAIN_DOORBELL)
 
 /* Flag that CPU access will be required for the case of VRAM domain */
 #define LOONGGPU_GEM_CREATE_CPU_ACCESS_REQUIRED	(1 << 0)
@@ -83,13 +137,26 @@ extern "C" {
 /* Flag that the memory should be in VRAM and cleared */
 #define LOONGGPU_GEM_CREATE_VRAM_CLEARED		(1 << 3)
 /* Flag that create shadow bo(GTT) while allocating vram bo */
-#define LOONGGPU_GEM_CREATE_SHADOW			(1 << 4)
+#define LOONGGPU_GEM_CREATE_SHADOW		(1 << 4)
 /* Flag that allocating the BO should use linear VRAM */
 #define LOONGGPU_GEM_CREATE_VRAM_CONTIGUOUS	(1 << 5)
 /* Flag that BO is always valid in this VM */
 #define LOONGGPU_GEM_CREATE_VM_ALWAYS_VALID	(1 << 6)
 /* Flag that BO sharing will be explicitly synchronized */
 #define LOONGGPU_GEM_CREATE_EXPLICIT_SYNC		(1 << 7)
+/* Flag that indicates allocating MQD gart on GFX9, where the mtype
+ * for the second page onward should be set to NC.
+ */
+#define LOONGGPU_GEM_CREATE_MQD_GFX9		(1 << 8)
+/* Flag that BO is compressed bit 9-11 */
+#define LOONGGPU_GEM_CREATE_COMPRESSED_MASK	(0x7ull << 9)
+
+/* Flag that BO will be used only in preemptible context, which does
+ * not require GTT memory accounting
+ */
+#define LOONGGPU_GEM_CREATE_PREEMPTIBLE		(1 << 12)
+
+#define LOONGGPU_GEM_CREATE_DISCARDABLE		(1 << 13)
 
 struct drm_loonggpu_gem_create_in  {
 	/** the requested memory size */
@@ -152,9 +219,10 @@ union drm_loonggpu_bo_list {
 };
 
 /* context related */
-#define LOONGGPU_CTX_OP_ALLOC_CTX		1
-#define LOONGGPU_CTX_OP_FREE_CTX		2
+#define LOONGGPU_CTX_OP_ALLOC_CTX	1
+#define LOONGGPU_CTX_OP_FREE_CTX	2
 #define LOONGGPU_CTX_OP_QUERY_STATE	3
+#define LOONGGPU_CTX_OP_QUERY_STATE2	4
 
 /* GPU reset status */
 #define LOONGGPU_CTX_NO_RESET		0
@@ -163,7 +231,14 @@ union drm_loonggpu_bo_list {
 /* some other context caused it */
 #define LOONGGPU_CTX_INNOCENT_RESET	2
 /* unknown cause */
-#define LOONGGPU_CTX_UNKNOWN_RESET		3
+#define LOONGGPU_CTX_UNKNOWN_RESET	3
+
+/* indicate gpu reset occured after ctx created */
+#define LOONGGPU_CTX_QUERY2_FLAGS_RESET    (1<<0)
+/* indicate vram lost occured after ctx created */
+#define LOONGGPU_CTX_QUERY2_FLAGS_VRAMLOST (1<<1)
+/* indicate some job from this context once cause gpu hang */
+#define LOONGGPU_CTX_QUERY2_FLAGS_GUILTY   (1<<2)
 
 /* Context priority level */
 #define LOONGGPU_CTX_PRIORITY_UNSET       -2048
@@ -278,7 +353,7 @@ struct drm_loonggpu_gem_userptr {
 #define LOONGGPU_TILING_NUM_BANKS_MASK			0x3
 
 /* GFX9 and later: */
-#define LOONGGPU_TILING_SWIZZLE_MODE_SHIFT			0
+#define LOONGGPU_TILING_SWIZZLE_MODE_SHIFT		0
 #define LOONGGPU_TILING_SWIZZLE_MODE_MASK			0x1f
 
 /* Set/Get helpers for tiling flags. */
@@ -345,9 +420,9 @@ union drm_loonggpu_gem_wait_idle {
 
 struct drm_loonggpu_wait_cs_in {
 	/* Command submission handle
-         * handle equals 0 means none to wait for
-         * handle equals ~0ull means wait for the latest sequence number
-         */
+		* handle equals 0 means none to wait for
+		* handle equals ~0ull means wait for the latest sequence number
+		*/
 	__u64 handle;
 	/** Absolute timeout to wait */
 	__u64 timeout;
@@ -453,22 +528,29 @@ struct drm_loonggpu_gem_va {
 };
 
 #define LOONGGPU_HW_IP_GFX          0
-#define LOONGGPU_HW_IP_COMPUTE      1
 #define LOONGGPU_HW_IP_DMA          2
-#define LOONGGPU_HW_IP_UVD          3
-#define LOONGGPU_HW_IP_VCE          4
-#define LOONGGPU_HW_IP_UVD_ENC      5
-#define LOONGGPU_HW_IP_VCN_DEC      6
-#define LOONGGPU_HW_IP_VCN_ENC      7
-#define LOONGGPU_HW_IP_NUM          8
+#define LOONGGPU_HW_IP_DPIPE        5
+#define LOONGGPU_HW_IP_EPIPE        6
+#define LOONGGPU_HW_IP_BPIPE        8
+#define LOONGGPU_HW_IP_NUM          11
 
 #define LOONGGPU_HW_IP_INSTANCE_MAX_COUNT 1
 
 #define LOONGGPU_CHUNK_ID_IB		0x01
 #define LOONGGPU_CHUNK_ID_FENCE		0x02
 #define LOONGGPU_CHUNK_ID_DEPENDENCIES	0x03
-#define LOONGGPU_CHUNK_ID_SYNCOBJ_IN      	0x04
-#define LOONGGPU_CHUNK_ID_SYNCOBJ_OUT     	0x05
+#define LOONGGPU_CHUNK_ID_SYNCOBJ_IN      0x04
+#define LOONGGPU_CHUNK_ID_SYNCOBJ_OUT     0x05
+#define LOONGGPU_CHUNK_ID_BO_HANDLES      0x06
+/* #define LOONGGPU_CHUNK_ID_SCHEDULED_DEPENDENCIES	0x07 not supported yet.*/
+#define LOONGGPU_CHUNK_ID_SYNCOBJ_TIMELINE_WAIT    0x08
+#define LOONGGPU_CHUNK_ID_SYNCOBJ_TIMELINE_SIGNAL  0x09
+
+struct drm_loonggpu_cs_chunk_syncobj {
+       __u32 handle;
+       __u32 flags;
+       __u64 point;
+};
 
 struct drm_loonggpu_cs_chunk {
 	__u32		chunk_id;
@@ -506,6 +588,10 @@ union drm_loonggpu_cs {
 
 /* Preempt flag, IB should set Pre_enb bit if PREEMPT flag detected */
 #define LOONGGPU_IB_FLAG_PREEMPT (1<<2)
+
+/* The IB fence should do the L2 writeback but not invalidate any shader
+ * caches (L2/vL1/sL1/I$). */
+#define LOONGGPU_IB_FLAG_TC_WB_NOT_INVALIDATE (1 << 3)
 
 struct drm_loonggpu_cs_chunk_ib {
 	__u32 _pad;
@@ -600,11 +686,19 @@ struct drm_loonggpu_cs_chunk_data {
 	/* Subquery id: Query SMC firmware version */
 	#define LOONGGPU_INFO_FW_SMC		0x0a
 	/* Subquery id: Query SDMA firmware version */
-	#define LOONGGPU_INFO_FW_SDMA		0x0b
+	#define LOONGGPU_INFO_FW_XDMA		0x0b
 	/* Subquery id: Query PSP SOS firmware version */
 	#define LOONGGPU_INFO_FW_SOS		0x0c
 	/* Subquery id: Query PSP ASD firmware version */
 	#define LOONGGPU_INFO_FW_ASD		0x0d
+	/* Subquery id: Query VCN firmware version */
+	#define LOONGGPU_INFO_FW_VCN		0x0e
+	/* Subquery id: Query GFX RLC SRLC firmware version */
+	#define LOONGGPU_INFO_FW_GFX_RLC_RESTORE_LIST_CNTL 0x0f
+	/* Subquery id: Query GFX RLC SRLG firmware version */
+	#define LOONGGPU_INFO_FW_GFX_RLC_RESTORE_LIST_GPM_MEM 0x10
+	/* Subquery id: Query GFX RLC SRLS firmware version */
+	#define LOONGGPU_INFO_FW_GFX_RLC_RESTORE_LIST_SRM_MEM 0x11
 /* number of bytes moved for TTM migration */
 #define LOONGGPU_INFO_NUM_BYTES_MOVED		0x0f
 /* the used VRAM size */
@@ -651,9 +745,15 @@ struct drm_loonggpu_cs_chunk_data {
 	#define LOONGGPU_INFO_SENSOR_VDDNB		0x6
 	/* Subquery id: Query graphics voltage */
 	#define LOONGGPU_INFO_SENSOR_VDDGFX		0x7
+	/* Subquery id: Query GPU stable pstate shader clock */
+	#define LOONGGPU_INFO_SENSOR_STABLE_PSTATE_GFX_SCLK		0x8
+	/* Subquery id: Query GPU stable pstate memory clock */
+	#define LOONGGPU_INFO_SENSOR_STABLE_PSTATE_GFX_MCLK		0x9
 /* Number of VRAM page faults on CPU access. */
 #define LOONGGPU_INFO_NUM_VRAM_CPU_PAGE_FAULTS	0x1E
 #define LOONGGPU_INFO_VRAM_LOST_COUNTER		0x1F
+/* Query the max number of IBs per gang per submission */
+#define LOONGGPU_INFO_MAX_IBS			0x20
 
 #define LOONGGPU_INFO_MMR_SE_INDEX_SHIFT	0
 #define LOONGGPU_INFO_MMR_SE_INDEX_MASK	0xff
@@ -789,6 +889,7 @@ struct drm_loonggpu_info_firmware {
 #define LOONGGPU_VRAM_TYPE_GDDR5 5
 #define LOONGGPU_VRAM_TYPE_HBM   6
 #define LOONGGPU_VRAM_TYPE_DDR3  7
+#define LOONGGPU_VRAM_TYPE_DDR4  8
 
 struct drm_loonggpu_info_device {
 	/** PCI Device ID */
@@ -910,23 +1011,84 @@ struct drm_loonggpu_info_vce_clock_table {
 	__u32 pad;
 };
 
-#define       LOONGGPU_HW_SEMA_GET 	1
-#define       LOONGGPU_HW_SEMA_PUT 	2
+#define       LOONGGPU_HW_SEMA_GET         1
+#define       LOONGGPU_HW_SEMA_PUT         2
 
 struct drm_loonggpu_hw_sema {
     /*get or set sema*/
     __u64 id;
     /*resv for next feature*/
     __u32 ctx_id;
-    /*ops*/
+     /*ops*/
     __u32 ops;
+};
+
+struct drm_loonggpu_layer_display {
+	uint32_t layer_num;
+	uint32_t format;
+	uint32_t l_width;
+	uint32_t l_height;
+	uint32_t fb_id;
+	uint32_t crtc_id;
+};
+
+struct drm_loonggpu_video_zoom {
+	uint32_t layer_num;
+	uint32_t sam_width;
+	uint32_t sam_height;
+	uint32_t back_width;
+	uint32_t back_height;
+	uint32_t l_width;
+	uint32_t l_height;
+	uint32_t du;
+	uint32_t dv;
+	uint32_t crtc_id;
+};
+
+struct drm_loonggpu_layer_zoom {
+	uint32_t layer_num;
+	uint32_t sam_width;
+	uint32_t sam_height;
+	uint32_t l_width;
+	uint32_t l_height;
+	uint32_t du;
+	uint32_t dv;
+	uint32_t crtc_id;
+};
+
+struct drm_loonggpu_video_gamma {
+	uint32_t crtc_id;
+	uint32_t gamma_index;
+	uint32_t gamma_rgb[1024];
+};
+
+struct drm_loonggpu_layer_tile {
+	uint32_t layer_num;
+	uint32_t tile_mode;
+	uint32_t l_width;
+	uint32_t l_height;
+	uint32_t crtc_id;
+};
+
+struct drm_loonggpu_layer_rotate {
+	uint32_t layer_num;
+	uint32_t rotate_angle;
+	uint32_t l_width;
+	uint32_t l_height;
+	uint32_t crtc_id;
 };
 
 /*
  * Supported GPU families
  */
 #define LOONGGPU_FAMILY_UNKNOWN			0
-#define LOONGGPU_FAMILY_GS				110 /* Godson GPU first version*/
+#define LOONGGPU_FAMILY_SI			110 /* Hainan, Oland, Verde, Pitcairn, Tahiti */
+#define LOONGGPU_FAMILY_CI			120 /* Bonaire, Hawaii */
+#define LOONGGPU_FAMILY_KV			125 /* Kaveri, Kabini, Mullins */
+#define LOONGGPU_FAMILY_VI			130 /* Iceland, Tonga */
+#define LOONGGPU_FAMILY_CZ			135 /* Carrizo, Stoney */
+#define LOONGGPU_FAMILY_AI			141 /* Vega10 */
+#define LOONGGPU_FAMILY_RV			142 /* Raven */
 
 #if defined(__cplusplus)
 }
