@@ -3,9 +3,9 @@ exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@
 
-Name: libdrm_gsgpu
-Description: Userspace interface to kernel DRM services for gsgpu
+Name: libdrm_loonggpu
+Description: Userspace interface to kernel DRM services for loonggpu
 Version: @PACKAGE_VERSION@
-Libs: -L${libdir} -ldrm_gsgpu
+Libs: -L${libdir} -ldrm_loonggpu
 Cflags: -I${includedir} -I${includedir}/libdrm
 Requires.private: libdrm

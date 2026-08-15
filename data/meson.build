@@ -26,10 +26,10 @@ if with_amdgpu
   )
 endif
 
-if with_gsgpu
+if with_loonggpu
   install_data(
-    'gsgpu.ids',
+    'loonggpu.ids',
     install_mode : 'rw-r--r--',
-    install_dir : datadir_gsgpu,
+    install_dir : datadir_loonggpu,
   )
 endif

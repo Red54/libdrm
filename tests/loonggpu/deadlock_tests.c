@@ -34,9 +34,9 @@
 
 #include "CUnit/Basic.h"
 
-#include "gsgpu_test.h"
-#include "gsgpu_drm.h"
-#include "gsgpu_internal.h"
+#include "loonggpu_test.h"
+#include "loonggpu_drm.h"
+#include "loonggpu_internal.h"
 
 #include <pthread.h>
 
@@ -48,26 +48,26 @@
  */
 #define WRITE_MEM_ADDRESS_DELAY_MS 100
 
-static  gsgpu_device_handle device_handle;
+static  loonggpu_device_handle device_handle;
 static  uint32_t  major_version;
 static  uint32_t  minor_version;
 
 static pthread_t stress_thread;
 static uint32_t *ptr = NULL;
 
-static void gsgpu_deadlock_helper(unsigned ip_type);
-static void gsgpu_deadlock_gfx(void);
-static void gsgpu_deadlock_dma(void);
+static void loonggpu_deadlock_helper(unsigned ip_type);
+static void loonggpu_deadlock_gfx(void);
+static void loonggpu_deadlock_dma(void);
 
 CU_BOOL suite_deadlock_tests_enable(void)
 {
 	CU_BOOL enable = CU_TRUE;
 
-	if (gsgpu_device_initialize(drm_gsgpu[0], &major_version,
+	if (loonggpu_device_initialize(drm_loonggpu[0], &major_version,
 					     &minor_version, &device_handle))
 		return CU_FALSE;
 
-	if (gsgpu_device_deinitialize(device_handle))
+	if (loonggpu_device_deinitialize(device_handle))
 		return CU_FALSE;
 
 	return enable;
@@ -77,7 +77,7 @@ int suite_deadlock_tests_init(void)
 {
 	int r;
 
-	r = gsgpu_device_initialize(drm_gsgpu[0], &major_version,
+	r = loonggpu_device_initialize(drm_loonggpu[0], &major_version,
 				   &minor_version, &device_handle);
 
 	if (r) {
@@ -93,7 +93,7 @@ int suite_deadlock_tests_init(void)
 
 int suite_deadlock_tests_clean(void)
 {
-	int r = gsgpu_device_deinitialize(device_handle);
+	int r = loonggpu_device_deinitialize(device_handle);
 
 	if (r == 0)
 		return CUE_SUCCESS;
@@ -103,8 +103,8 @@ int suite_deadlock_tests_clean(void)
 
 
 CU_TestInfo deadlock_tests[] = {
-	{ "gfx ring block test",  gsgpu_deadlock_gfx },
-	{ "dma ring block test",  gsgpu_deadlock_dma },
+	{ "gfx ring block test",  loonggpu_deadlock_gfx },
+	{ "dma ring block test",  loonggpu_deadlock_dma },
 	CU_TEST_INFO_NULL,
 };
 
@@ -125,48 +125,48 @@ static void *write_mem_address(void *data)
 	return 0;
 }
 
-static void gsgpu_deadlock_dma(void)
+static void loonggpu_deadlock_dma(void)
 {
-	gsgpu_deadlock_helper(GSGPU_HW_IP_DMA);
+	loonggpu_deadlock_helper(LOONGGPU_HW_IP_DMA);
 }
-static void gsgpu_deadlock_gfx(void)
+static void loonggpu_deadlock_gfx(void)
 {
-	gsgpu_deadlock_helper(GSGPU_HW_IP_GFX);
+	loonggpu_deadlock_helper(LOONGGPU_HW_IP_GFX);
 }
 
-static void gsgpu_deadlock_helper(unsigned ip_type)
+static void loonggpu_deadlock_helper(unsigned ip_type)
 {
-	gsgpu_context_handle context_handle;
-	gsgpu_bo_handle ib_result_handle = NULL;
+	loonggpu_context_handle context_handle;
+	loonggpu_bo_handle ib_result_handle = NULL;
 	void *ib_result_cpu;
 	uint64_t ib_result_mc_address = 0;
-	struct gsgpu_cs_request ibs_request;
-	struct gsgpu_cs_ib_info ib_info;
-	struct gsgpu_cs_fence fence_status;
+	struct loonggpu_cs_request ibs_request;
+	struct loonggpu_cs_ib_info ib_info;
+	struct loonggpu_cs_fence fence_status;
 	uint32_t expired;
 	int i, r;
-	gsgpu_bo_list_handle bo_list;
-	gsgpu_va_handle va_handle = NULL;
+	loonggpu_bo_list_handle bo_list;
+	loonggpu_va_handle va_handle = NULL;
 
 	r = pthread_create(&stress_thread, NULL, write_mem_address, NULL);
 	CU_ASSERT_EQUAL(r, 0);
 
-	r = gsgpu_cs_ctx_create(device_handle, &context_handle);
+	r = loonggpu_cs_ctx_create(device_handle, &context_handle);
 	CU_ASSERT_EQUAL(r, 0);
 
-	r = gsgpu_bo_alloc_and_map(device_handle, 4096, 4096,
-			GSGPU_GEM_DOMAIN_GTT, 0,
+	r = loonggpu_bo_alloc_and_map(device_handle, 4096, 4096,
+			LOONGGPU_GEM_DOMAIN_GTT, 0,
 						    &ib_result_handle, &ib_result_cpu,
 						    &ib_result_mc_address, &va_handle);
 	CU_ASSERT_EQUAL(r, 0);
 
-	r = gsgpu_get_bo_list(device_handle, ib_result_handle, NULL,
+	r = loonggpu_get_bo_list(device_handle, ib_result_handle, NULL,
 			       &bo_list);
 	CU_ASSERT_EQUAL(r, 0);
 
 	ptr = ib_result_cpu;
 
-	ptr[0] = GSPKT(GSGPU_CMD_POLL, 6) | 4 << 8 /* not equal */ | 1 << 12 /* reg/mem */;
+	ptr[0] = GSPKT(LOONGGPU_CMD_POLL, 6) | 4 << 8 /* not equal */ | 1 << 12 /* reg/mem */;
 	ptr[1] = (ib_result_mc_address + 256*4) & 0xffffffff;
 	ptr[2] = ((ib_result_mc_address + 256*4) >> 32) & 0xffffffff;
 	ptr[3] = 0x00000000; /* reference value */
@@ -179,11 +179,11 @@ static void gsgpu_deadlock_helper(unsigned ip_type)
 
 	ptr[256] = 0x0; /* the memory we wait on to change */
 
-	memset(&ib_info, 0, sizeof(struct gsgpu_cs_ib_info));
+	memset(&ib_info, 0, sizeof(struct loonggpu_cs_ib_info));
 	ib_info.ib_mc_address = ib_result_mc_address;
 	ib_info.size = 16;
 
-	memset(&ibs_request, 0, sizeof(struct gsgpu_cs_request));
+	memset(&ibs_request, 0, sizeof(struct loonggpu_cs_request));
 	ibs_request.ip_type = ip_type;
 	ibs_request.ring = 0;
 	ibs_request.number_of_ibs = 1;
@@ -191,29 +191,29 @@ static void gsgpu_deadlock_helper(unsigned ip_type)
 	ibs_request.resources = bo_list;
 	ibs_request.fence_info.handle = NULL;
 
-	r = gsgpu_cs_submit(context_handle, 0,&ibs_request, 1);
+	r = loonggpu_cs_submit(context_handle, 0,&ibs_request, 1);
 	CU_ASSERT_EQUAL((r == 0 || r == -ECANCELED), 1);
 
-	memset(&fence_status, 0, sizeof(struct gsgpu_cs_fence));
+	memset(&fence_status, 0, sizeof(struct loonggpu_cs_fence));
 	fence_status.context = context_handle;
 	fence_status.ip_type = ip_type;
 	fence_status.ip_instance = 0;
 	fence_status.ring = 0;
 	fence_status.fence = ibs_request.seq_no;
 
-	r = gsgpu_cs_query_fence_status(&fence_status,
-			GSGPU_TIMEOUT_INFINITE,0, &expired);
+	r = loonggpu_cs_query_fence_status(&fence_status,
+			LOONGGPU_TIMEOUT_INFINITE,0, &expired);
 	CU_ASSERT_EQUAL((r == 0 || r == -ECANCELED), 1);
 
 	pthread_join(stress_thread, NULL);
 
-	r = gsgpu_bo_list_destroy(bo_list);
+	r = loonggpu_bo_list_destroy(bo_list);
 	CU_ASSERT_EQUAL(r, 0);
 
-	r = gsgpu_bo_unmap_and_free(ib_result_handle, va_handle,
+	r = loonggpu_bo_unmap_and_free(ib_result_handle, va_handle,
 				     ib_result_mc_address, 4096);
 	CU_ASSERT_EQUAL(r, 0);
 
-	r = gsgpu_cs_ctx_free(context_handle);
+	r = loonggpu_cs_ctx_free(context_handle);
 	CU_ASSERT_EQUAL(r, 0);
 }

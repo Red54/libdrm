@@ -30,9 +30,9 @@ if HAVE_NOUVEAU
 SUBDIRS += nouveau
 endif
 
-if HAVE_GSGPU
+if HAVE_LOONGGPU
 if HAVE_CUNIT
-SUBDIRS += gsgpu
+SUBDIRS += loonggpu
 endif
 endif
 

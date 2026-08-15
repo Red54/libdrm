@@ -47,8 +47,8 @@ endif
 if with_nouveau
   subdir('nouveau')
 endif
-if with_gsgpu
-  subdir('gsgpu')
+if with_loonggpu
+  subdir('loonggpu')
 endif
 
 drmsl = executable(

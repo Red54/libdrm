@@ -39,10 +39,10 @@
 
 #include "CUnit/Basic.h"
 
-#include "gsgpu_test.h"
-#include "gsgpu_drm.h"
+#include "loonggpu_test.h"
+#include "loonggpu_drm.h"
 
-extern  gsgpu_device_handle device_handle;
+extern  loonggpu_device_handle device_handle;
 extern  uint32_t  major_version;
 extern  uint32_t  minor_version;
 extern  uint32_t  family_id;
@@ -65,7 +65,7 @@ union pixel_rgba8 {
         }channel;
 };
 
-struct gsgpu_xdma_cmd_desc {
+struct loonggpu_xdma_cmd_desc {
 	union {
 		uint32_t val;
 		struct {
@@ -114,45 +114,45 @@ static void *release_semaphore_thread_entry(void *number);
 static uint32_t get_pixel_depth(uint32_t format);
 static union pixel_rgba8 *get_tile_pixel(union pixel_rgba8 * const base, const int x, const int y, const int pitch);
 
-extern void gsgpu_command_submission_write_linear_helper(unsigned ip_type);
-static void gsgpu_command_submission_const_fill_helper(unsigned ip_type);
-static void gsgpu_command_submission_copy_linear_helper(unsigned ip_type);
-static void gsgpu_command_submission_copy_tiled_helper(unsigned ip_type);
-static void gsgpu_command_submission_msaa_resolve_helper(unsigned ip_type);
-static void gsgpu_command_submission_mipmap_generate_helper(unsigned ip_type, uint16_t width, uint16_t height);
-static void gsgpu_command_submission_sdma_semaphore_helper(unsigned ip_type);
-extern void gsgpu_test_exec_cs_helper(gsgpu_context_handle context_handle,
+extern void loonggpu_command_submission_write_linear_helper(unsigned ip_type);
+static void loonggpu_command_submission_const_fill_helper(unsigned ip_type);
+static void loonggpu_command_submission_copy_linear_helper(unsigned ip_type);
+static void loonggpu_command_submission_copy_tiled_helper(unsigned ip_type);
+static void loonggpu_command_submission_msaa_resolve_helper(unsigned ip_type);
+static void loonggpu_command_submission_mipmap_generate_helper(unsigned ip_type, uint16_t width, uint16_t height);
+static void loonggpu_command_submission_sdma_semaphore_helper(unsigned ip_type);
+extern void loonggpu_test_exec_cs_helper(loonggpu_context_handle context_handle,
                                        unsigned ip_type,
                                        int instance, int pm4_dw, uint32_t *pm4_src,
-                                       int res_cnt, gsgpu_bo_handle *resources,
-                                       struct gsgpu_cs_ib_info *ib_info,
-                                       struct gsgpu_cs_request *ibs_request);
+                                       int res_cnt, loonggpu_bo_handle *resources,
+                                       struct loonggpu_cs_ib_info *ib_info,
+                                       struct loonggpu_cs_request *ibs_request);
 
-static void gsgpu_command_submission_sdma_write_linear(void);
-static void gsgpu_command_submission_sdma_const_fill(void);
-static void gsgpu_command_submission_sdma_copy_linear(void);
-static void gsgpu_command_submission_sdma_copy_tiled(void);
-static void gsgpu_command_submission_sdma_msaa_resolve(void);
-static void gsgpu_command_submission_sdma_mipmap_generate(void);
-static void gsgpu_command_submission_sdma_semaphore(void);
+static void loonggpu_command_submission_sdma_write_linear(void);
+static void loonggpu_command_submission_sdma_const_fill(void);
+static void loonggpu_command_submission_sdma_copy_linear(void);
+static void loonggpu_command_submission_sdma_copy_tiled(void);
+static void loonggpu_command_submission_sdma_msaa_resolve(void);
+static void loonggpu_command_submission_sdma_mipmap_generate(void);
+static void loonggpu_command_submission_sdma_semaphore(void);
 
 CU_TestInfo dma_tests[] = {
-	{ "Command submission Test (DMA write)", gsgpu_command_submission_sdma_write_linear },
-	{ "Command submission Test (DMA fill)", gsgpu_command_submission_sdma_const_fill },
-	{ "Command submission Test (DMA copy linear)", gsgpu_command_submission_sdma_copy_linear },
-	{ "Command submission Test (DMA copy tiled)", gsgpu_command_submission_sdma_copy_tiled },
-	{ "Command submission Test (DMA copy msaa)", gsgpu_command_submission_sdma_msaa_resolve },
-	{ "Command submission Test (DMA copy mipmap)", gsgpu_command_submission_sdma_mipmap_generate },
-	{ "Command submission Test (semaphore)", gsgpu_command_submission_sdma_semaphore },
+	{ "Command submission Test (DMA write)", loonggpu_command_submission_sdma_write_linear },
+	{ "Command submission Test (DMA fill)", loonggpu_command_submission_sdma_const_fill },
+	{ "Command submission Test (DMA copy linear)", loonggpu_command_submission_sdma_copy_linear },
+	{ "Command submission Test (DMA copy tiled)", loonggpu_command_submission_sdma_copy_tiled },
+	{ "Command submission Test (DMA copy msaa)", loonggpu_command_submission_sdma_msaa_resolve },
+	{ "Command submission Test (DMA copy mipmap)", loonggpu_command_submission_sdma_mipmap_generate },
+	{ "Command submission Test (semaphore)", loonggpu_command_submission_sdma_semaphore },
 	CU_TEST_INFO_NULL,
 };
 
 int suite_dma_tests_init(void)
 {
-	struct gsgpu_gpu_info gpu_info = {0};
+	struct loonggpu_gpu_info gpu_info = {0};
 	int r;
 
-	r = gsgpu_device_initialize(drm_gsgpu[0], &major_version,
+	r = loonggpu_device_initialize(drm_loonggpu[0], &major_version,
 				   &minor_version, &device_handle);
 
 	if (r) {
@@ -163,7 +163,7 @@ int suite_dma_tests_init(void)
 		return CUE_SINIT_FAILED;
 	}
 
-	r = gsgpu_query_gpu_info(device_handle, &gpu_info);
+	r = loonggpu_query_gpu_info(device_handle, &gpu_info);
 	if (r)
 		return CUE_SINIT_FAILED;
 
@@ -174,7 +174,7 @@ int suite_dma_tests_init(void)
 
 int suite_dma_tests_clean(void)
 {
-	int r = gsgpu_device_deinitialize(device_handle);
+	int r = loonggpu_device_deinitialize(device_handle);
 
 	if (r == 0)
 		return CUE_SUCCESS;
@@ -182,41 +182,41 @@ int suite_dma_tests_clean(void)
 		return CUE_SCLEAN_FAILED;
 }
 
-static void gsgpu_command_submission_sdma_write_linear(void)
+static void loonggpu_command_submission_sdma_write_linear(void)
 {
-	gsgpu_command_submission_write_linear_helper(GSGPU_HW_IP_DMA);
+	loonggpu_command_submission_write_linear_helper(LOONGGPU_HW_IP_DMA);
 }
 
-static void gsgpu_command_submission_sdma_const_fill(void)
+static void loonggpu_command_submission_sdma_const_fill(void)
 {
-	gsgpu_command_submission_const_fill_helper(GSGPU_HW_IP_DMA);
+	loonggpu_command_submission_const_fill_helper(LOONGGPU_HW_IP_DMA);
 }
 
-static void gsgpu_command_submission_const_fill_helper(unsigned ip_type)
+static void loonggpu_command_submission_const_fill_helper(unsigned ip_type)
 {
 	const int pm4_dw = 256;
-	gsgpu_context_handle context_handle;
-	gsgpu_bo_handle bo;
-	gsgpu_bo_handle *resources;
+	loonggpu_context_handle context_handle;
+	loonggpu_bo_handle bo;
+	loonggpu_bo_handle *resources;
 	uint32_t *pm4;
-	struct gsgpu_cs_ib_info *ib_info;
-	struct gsgpu_cs_request *ibs_request;
+	struct loonggpu_cs_ib_info *ib_info;
+	struct loonggpu_cs_request *ibs_request;
 	uint64_t bo_mc;
 	volatile uint32_t *bo_cpu;
 	int i, j, r, align_dw;
 	uint64_t gtt_flags[1] = {0};
-	gsgpu_va_handle va_handle;
-	struct drm_gsgpu_info_hw_ip hw_ip_info;
+	loonggpu_va_handle va_handle;
+	struct drm_loonggpu_info_hw_ip hw_ip_info;
 
 	/* init object of command package */
-	struct gsgpu_xdma_cmd_desc cmd_buffer[] = {
+	struct loonggpu_xdma_cmd_desc cmd_buffer[] = {
 		{
 			.header.sec = {
-				GSGPU_CMD_XDMA_COPY,
-				GSGPU_CMD_XDMA_FORMAT_RGBA8,
-				GSGPU_CMD_XDMA_BODY_NR,
-				GSGPU_CMD_XDMA_MODE_MEMSET,
-				GSGPU_CMD_XDMA_SUB_MODE_DEFAULT,
+				LOONGGPU_CMD_XDMA_COPY,
+				LOONGGPU_CMD_XDMA_FORMAT_RGBA8,
+				LOONGGPU_CMD_XDMA_BODY_NR,
+				LOONGGPU_CMD_XDMA_MODE_MEMSET,
+				LOONGGPU_CMD_XDMA_SUB_MODE_DEFAULT,
 			},
 			.body = {
 				.size.width = 16 * 1024,
@@ -242,23 +242,23 @@ static void gsgpu_command_submission_const_fill_helper(unsigned ip_type)
 	ibs_request = calloc(1, sizeof(*ibs_request));
 	CU_ASSERT_NOT_EQUAL(ibs_request, NULL);
 
-	r = gsgpu_query_hw_ip_info(device_handle, ip_type, 0, &hw_ip_info);
+	r = loonggpu_query_hw_ip_info(device_handle, ip_type, 0, &hw_ip_info);
 	CU_ASSERT_EQUAL(r, 0);
 
-	r = gsgpu_cs_ctx_create(device_handle, &context_handle);
+	r = loonggpu_cs_ctx_create(device_handle, &context_handle);
 	CU_ASSERT_EQUAL(r, 0);
 
 	/* prepare resource */
-	resources = calloc(1, sizeof(gsgpu_bo_handle));
+	resources = calloc(1, sizeof(loonggpu_bo_handle));
 	CU_ASSERT_NOT_EQUAL(resources, NULL);
 
 	for (int index = 0; index < TABLE_SIZE(cmd_buffer); index++) {
 		int sdma_write_length = get_pixel_depth(cmd_buffer[index].header.sec.format) * cmd_buffer[index].body.size.width * cmd_buffer[index].body.size.height;
 
 		/* allocate bo for DMA use */
-		r = gsgpu_bo_alloc_and_map(device_handle,
+		r = loonggpu_bo_alloc_and_map(device_handle,
 					    sdma_write_length, BUFFER_ALIGN,
-					    GSGPU_GEM_DOMAIN_GTT,
+					    LOONGGPU_GEM_DOMAIN_GTT,
 					    0, &bo,
 					    (void**)&bo_cpu, &bo_mc,
 					    &va_handle);
@@ -281,10 +281,10 @@ static void gsgpu_command_submission_const_fill_helper(unsigned ip_type)
 		/* ib cmd packet align */
 		align_dw = hw_ip_info.ib_size_alignment - (i & (hw_ip_info.ib_size_alignment - 1));
 		for (j = 0; j < align_dw; j++) {
-			pm4[i++] = GSGPU_CMD_NOP;
+			pm4[i++] = LOONGGPU_CMD_NOP;
 		}
 
-		gsgpu_test_exec_cs_helper(context_handle,
+		loonggpu_test_exec_cs_helper(context_handle,
 					   ip_type, 0,
 					   i, pm4,
 					   1, resources,
@@ -296,7 +296,7 @@ static void gsgpu_command_submission_const_fill_helper(unsigned ip_type)
 			CU_ASSERT_EQUAL(bo_cpu[i++], 0xdeadbeaf);
 		}
 
-		r = gsgpu_bo_unmap_and_free(bo, va_handle, bo_mc,
+		r = loonggpu_bo_unmap_and_free(bo, va_handle, bo_mc,
 					     sdma_write_length);
 		CU_ASSERT_EQUAL(r, 0);
 	}
@@ -308,41 +308,41 @@ static void gsgpu_command_submission_const_fill_helper(unsigned ip_type)
 	free(pm4);
 
 	/* end of test */
-	r = gsgpu_cs_ctx_free(context_handle);
+	r = loonggpu_cs_ctx_free(context_handle);
 	CU_ASSERT_EQUAL(r, 0);
 }
 
 
-static void gsgpu_command_submission_sdma_copy_linear(void)
+static void loonggpu_command_submission_sdma_copy_linear(void)
 {
-	gsgpu_command_submission_copy_linear_helper(GSGPU_HW_IP_DMA);
+	loonggpu_command_submission_copy_linear_helper(LOONGGPU_HW_IP_DMA);
 }
 
-static void gsgpu_command_submission_copy_linear_helper(unsigned ip_type)
+static void loonggpu_command_submission_copy_linear_helper(unsigned ip_type)
 {
 	const int pm4_dw = 256;
-	gsgpu_context_handle context_handle = NULL;
-	gsgpu_bo_handle bo1 = NULL, bo2 = NULL;
-	gsgpu_bo_handle *resources;
+	loonggpu_context_handle context_handle = NULL;
+	loonggpu_bo_handle bo1 = NULL, bo2 = NULL;
+	loonggpu_bo_handle *resources;
 	uint32_t *pm4;
-	struct gsgpu_cs_ib_info *ib_info;
-	struct gsgpu_cs_request *ibs_request;
+	struct loonggpu_cs_ib_info *ib_info;
+	struct loonggpu_cs_request *ibs_request;
 	uint64_t bo1_mc, bo2_mc;
 	volatile unsigned char *bo1_cpu, *bo2_cpu;
 	int i, j, r, ring_id, align_dw;
 	uint64_t gtt_flags[1] = {0};
-	gsgpu_va_handle bo1_va_handle = NULL, bo2_va_handle = NULL;
-	struct drm_gsgpu_info_hw_ip hw_ip_info;
+	loonggpu_va_handle bo1_va_handle = NULL, bo2_va_handle = NULL;
+	struct drm_loonggpu_info_hw_ip hw_ip_info;
 
 	/* init object of command package */
-	struct gsgpu_xdma_cmd_desc cmd_buffer[] = {
+	struct loonggpu_xdma_cmd_desc cmd_buffer[] = {
 		{
 			.header.sec = {
-				GSGPU_CMD_XDMA_COPY,
-				GSGPU_CMD_XDMA_FORMAT_RGBA16,
-				GSGPU_CMD_XDMA_BODY_NR,
-				GSGPU_CMD_XDMA_MODE_L2L,
-				GSGPU_CMD_XDMA_SUB_MODE_DEFAULT,
+				LOONGGPU_CMD_XDMA_COPY,
+				LOONGGPU_CMD_XDMA_FORMAT_RGBA16,
+				LOONGGPU_CMD_XDMA_BODY_NR,
+				LOONGGPU_CMD_XDMA_MODE_L2L,
+				LOONGGPU_CMD_XDMA_SUB_MODE_DEFAULT,
 			},
 			.body = {
 				.size.width = 1024 / 8,
@@ -361,11 +361,11 @@ static void gsgpu_command_submission_copy_linear_helper(unsigned ip_type)
 		},
 		{
 			.header.sec = {
-				GSGPU_CMD_XDMA_COPY,
-				GSGPU_CMD_XDMA_FORMAT_RGBA8,
-				GSGPU_CMD_XDMA_BODY_NR,
-				GSGPU_CMD_XDMA_MODE_L2L,
-				GSGPU_CMD_XDMA_SUB_MODE_DEFAULT,
+				LOONGGPU_CMD_XDMA_COPY,
+				LOONGGPU_CMD_XDMA_FORMAT_RGBA8,
+				LOONGGPU_CMD_XDMA_BODY_NR,
+				LOONGGPU_CMD_XDMA_MODE_L2L,
+				LOONGGPU_CMD_XDMA_SUB_MODE_DEFAULT,
 			},
 			.body = {
 				.size.width = 128,
@@ -393,22 +393,22 @@ static void gsgpu_command_submission_copy_linear_helper(unsigned ip_type)
 	ibs_request = calloc(1, sizeof(*ibs_request));
 	CU_ASSERT_NOT_EQUAL(ibs_request, NULL);
 
-	r = gsgpu_query_hw_ip_info(device_handle, ip_type, 0, &hw_ip_info);
+	r = loonggpu_query_hw_ip_info(device_handle, ip_type, 0, &hw_ip_info);
 	CU_ASSERT_EQUAL(r, 0);
 
-	r = gsgpu_cs_ctx_create(device_handle, &context_handle);
+	r = loonggpu_cs_ctx_create(device_handle, &context_handle);
 	CU_ASSERT_EQUAL(r, 0);
 
 	/* prepare resource */
-	resources = calloc(2, sizeof(gsgpu_bo_handle));
+	resources = calloc(2, sizeof(loonggpu_bo_handle));
 	CU_ASSERT_NOT_EQUAL(resources, NULL);
 
 	for (int index = 0; index < TABLE_SIZE(cmd_buffer); index++) {
 		int sdma_write_length = get_pixel_depth(cmd_buffer[index].header.sec.format) * cmd_buffer[index].body.size.width * cmd_buffer[index].body.size.height;
 		/* allocate UC bo1for sDMA use */
-		r = gsgpu_bo_alloc_and_map(device_handle,
+		r = loonggpu_bo_alloc_and_map(device_handle,
 					    sdma_write_length, 4096,
-					    GSGPU_GEM_DOMAIN_GTT,
+					    LOONGGPU_GEM_DOMAIN_GTT,
 					    gtt_flags[0], &bo1,
 					    (void**)&bo1_cpu, &bo1_mc,
 					    &bo1_va_handle);
@@ -418,9 +418,9 @@ static void gsgpu_command_submission_copy_linear_helper(unsigned ip_type)
 		memset((void*)bo1_cpu, 0xaa, sdma_write_length);
 
 		/* allocate UC bo2 for sDMA use */
-		r = gsgpu_bo_alloc_and_map(device_handle,
+		r = loonggpu_bo_alloc_and_map(device_handle,
 					    sdma_write_length, 4096,
-					    GSGPU_GEM_DOMAIN_GTT,
+					    LOONGGPU_GEM_DOMAIN_GTT,
 					    gtt_flags[0], &bo2,
 					    (void**)&bo2_cpu, &bo2_mc,
 					    &bo2_va_handle);
@@ -446,10 +446,10 @@ static void gsgpu_command_submission_copy_linear_helper(unsigned ip_type)
 		/* ib cmd packet align */
 		align_dw = hw_ip_info.ib_size_alignment - (i & (hw_ip_info.ib_size_alignment - 1));
 		for (j = 0; j < align_dw; j++) {
-			pm4[i++] = GSGPU_CMD_NOP;
+			pm4[i++] = LOONGGPU_CMD_NOP;
 		}
 
-		gsgpu_test_exec_cs_helper(context_handle,
+		loonggpu_test_exec_cs_helper(context_handle,
 					   ip_type, 0,
 					   i, pm4,
 					   2, resources,
@@ -460,10 +460,10 @@ static void gsgpu_command_submission_copy_linear_helper(unsigned ip_type)
 		while(i < sdma_write_length) {
 			CU_ASSERT_EQUAL(bo2_cpu[i++], 0xaa);
 		}
-		r = gsgpu_bo_unmap_and_free(bo1, bo1_va_handle, bo1_mc,
+		r = loonggpu_bo_unmap_and_free(bo1, bo1_va_handle, bo1_mc,
 					     sdma_write_length);
 		CU_ASSERT_EQUAL(r, 0);
-		r = gsgpu_bo_unmap_and_free(bo2, bo2_va_handle, bo2_mc,
+		r = loonggpu_bo_unmap_and_free(bo2, bo2_va_handle, bo2_mc,
 					     sdma_write_length);
 		CU_ASSERT_EQUAL(r, 0);
 	}
@@ -474,7 +474,7 @@ static void gsgpu_command_submission_copy_linear_helper(unsigned ip_type)
 	free(pm4);
 
 	/* end of test */
-	r = gsgpu_cs_ctx_free(context_handle);
+	r = loonggpu_cs_ctx_free(context_handle);
 	CU_ASSERT_EQUAL(r, 0);
 }
 
@@ -497,31 +497,31 @@ static int verify_msaa_resolve(union pixel_rgba8 *src, union pixel_rgba8 *dst)
         return 0;
 }
 
-static void gsgpu_command_submission_msaa_resolve_helper(unsigned ip_type)
+static void loonggpu_command_submission_msaa_resolve_helper(unsigned ip_type)
 {
         const int pm4_dw = 256;
-        gsgpu_context_handle context_handle;
-        gsgpu_bo_handle bo1, bo2;
-        gsgpu_bo_handle *resources;
+        loonggpu_context_handle context_handle;
+        loonggpu_bo_handle bo1, bo2;
+        loonggpu_bo_handle *resources;
         uint32_t *pm4;
-        struct gsgpu_cs_ib_info *ib_info;
-        struct gsgpu_cs_request *ibs_request;
+        struct loonggpu_cs_ib_info *ib_info;
+        struct loonggpu_cs_request *ibs_request;
         uint64_t bo1_mc, bo2_mc;
         volatile union pixel_rgba8 *bo1_cpu, *bo2_cpu;
         int i, j, r, loop1, loop2, ring_id, align_dw;
         uint64_t gtt_flags[2] = {0};
-        gsgpu_va_handle bo1_va_handle, bo2_va_handle;
-        struct drm_gsgpu_info_hw_ip hw_ip_info;
+        loonggpu_va_handle bo1_va_handle, bo2_va_handle;
+        struct drm_loonggpu_info_hw_ip hw_ip_info;
 
 	/* init object of command package */
-	struct gsgpu_xdma_cmd_desc cmd_buffer[] = {
+	struct loonggpu_xdma_cmd_desc cmd_buffer[] = {
 		{
 			.header.sec = {
-				GSGPU_CMD_XDMA_COPY,
-				GSGPU_CMD_XDMA_FORMAT_RGBA8,
-				GSGPU_CMD_XDMA_BODY_NR,
-				GSGPU_CMD_XDMA_MODE_MSAA,
-				GSGPU_CMD_XDMA_SUB_MODE_TILED_4X4,
+				LOONGGPU_CMD_XDMA_COPY,
+				LOONGGPU_CMD_XDMA_FORMAT_RGBA8,
+				LOONGGPU_CMD_XDMA_BODY_NR,
+				LOONGGPU_CMD_XDMA_MODE_MSAA,
+				LOONGGPU_CMD_XDMA_SUB_MODE_TILED_4X4,
 			},
 			.body = {
 				.size.width = 8,
@@ -549,21 +549,21 @@ static void gsgpu_command_submission_msaa_resolve_helper(unsigned ip_type)
         ibs_request = calloc(1, sizeof(*ibs_request));
         CU_ASSERT_NOT_EQUAL(ibs_request, NULL);
 
-        r = gsgpu_query_hw_ip_info(device_handle, ip_type, 0, &hw_ip_info);
+        r = loonggpu_query_hw_ip_info(device_handle, ip_type, 0, &hw_ip_info);
         CU_ASSERT_EQUAL(r, 0);
 
-        r = gsgpu_cs_ctx_create(device_handle, &context_handle);
+        r = loonggpu_cs_ctx_create(device_handle, &context_handle);
         CU_ASSERT_EQUAL(r, 0);
 
         /* prepare resource */
-        resources = calloc(2, sizeof(gsgpu_bo_handle));
+        resources = calloc(2, sizeof(loonggpu_bo_handle));
         CU_ASSERT_NOT_EQUAL(resources, NULL);
 	for (int index = 0; index < TABLE_SIZE(cmd_buffer); index++) {
 		int sdma_write_length = get_pixel_depth(cmd_buffer[index].header.sec.format) * cmd_buffer[index].body.size.width * cmd_buffer[index].body.size.height;
 		/* allocate UC bo1for sDMA use */
-		r = gsgpu_bo_alloc_and_map(device_handle,
+		r = loonggpu_bo_alloc_and_map(device_handle,
 					    sdma_write_length, 4096,
-					    GSGPU_GEM_DOMAIN_GTT,
+					    LOONGGPU_GEM_DOMAIN_GTT,
 					    gtt_flags[loop1], &bo1,
 					    (void**)&bo1_cpu, &bo1_mc,
 					    &bo1_va_handle);
@@ -575,9 +575,9 @@ static void gsgpu_command_submission_msaa_resolve_helper(unsigned ip_type)
 		}
 
 		/* allocate UC bo2 for sDMA use */
-		r = gsgpu_bo_alloc_and_map(device_handle,
+		r = loonggpu_bo_alloc_and_map(device_handle,
 					    sdma_write_length, 4096,
-					    GSGPU_GEM_DOMAIN_GTT,
+					    LOONGGPU_GEM_DOMAIN_GTT,
 					    gtt_flags[loop2], &bo2,
 					    (void**)&bo2_cpu, &bo2_mc,
 					    &bo2_va_handle);
@@ -603,10 +603,10 @@ static void gsgpu_command_submission_msaa_resolve_helper(unsigned ip_type)
 		/* ib cmd packet align */
 		align_dw = hw_ip_info.ib_size_alignment - (i & (hw_ip_info.ib_size_alignment - 1));
 		for (j = 0; j < align_dw; j++) {
-			pm4[i++] = GSGPU_CMD_NOP;
+			pm4[i++] = LOONGGPU_CMD_NOP;
 		}
 
-		gsgpu_test_exec_cs_helper(context_handle,
+		loonggpu_test_exec_cs_helper(context_handle,
 					   ip_type, ring_id,
 					   i, pm4,
 					   2, resources,
@@ -617,10 +617,10 @@ static void gsgpu_command_submission_msaa_resolve_helper(unsigned ip_type)
 			int ret = verify_msaa_resolve((union pixel_rgba8 *)(bo1_cpu + i), (union pixel_rgba8 *)(bo2_cpu + i/MSAA_PIXEL));
 			CU_ASSERT_EQUAL(ret, 0);
 		}
-		r = gsgpu_bo_unmap_and_free(bo1, bo1_va_handle, bo1_mc,
+		r = loonggpu_bo_unmap_and_free(bo1, bo1_va_handle, bo1_mc,
 					     sdma_write_length);
 		CU_ASSERT_EQUAL(r, 0);
-		r = gsgpu_bo_unmap_and_free(bo2, bo2_va_handle, bo2_mc,
+		r = loonggpu_bo_unmap_and_free(bo2, bo2_va_handle, bo2_mc,
 					     sdma_write_length);
 		CU_ASSERT_EQUAL(r, 0);
 	}
@@ -632,13 +632,13 @@ static void gsgpu_command_submission_msaa_resolve_helper(unsigned ip_type)
         free(pm4);
 
         /* end of test */
-        r = gsgpu_cs_ctx_free(context_handle);
+        r = loonggpu_cs_ctx_free(context_handle);
         CU_ASSERT_EQUAL(r, 0);
 }
 
-static void gsgpu_command_submission_sdma_msaa_resolve(void)
+static void loonggpu_command_submission_sdma_msaa_resolve(void)
 {
-        gsgpu_command_submission_msaa_resolve_helper(GSGPU_HW_IP_DMA);
+        loonggpu_command_submission_msaa_resolve_helper(LOONGGPU_HW_IP_DMA);
 }
 
 
@@ -683,21 +683,21 @@ static void verify_mipmaps(union pixel_rgba8 * const src, union pixel_rgba8 * co
 	}
 }
 
-static void gsgpu_command_submission_mipmap_generate_helper(unsigned ip_type, uint16_t width, uint16_t height)
+static void loonggpu_command_submission_mipmap_generate_helper(unsigned ip_type, uint16_t width, uint16_t height)
 {
         const int pm4_dw = 256;
-        gsgpu_context_handle context_handle;
-        gsgpu_bo_handle bo1, bo2;
-        gsgpu_bo_handle *resources;
+        loonggpu_context_handle context_handle;
+        loonggpu_bo_handle bo1, bo2;
+        loonggpu_bo_handle *resources;
         uint32_t *pm4;
-        struct gsgpu_cs_ib_info *ib_info;
-        struct gsgpu_cs_request *ibs_request;
+        struct loonggpu_cs_ib_info *ib_info;
+        struct loonggpu_cs_request *ibs_request;
         uint64_t bo1_mc, bo2_mc;
         volatile union pixel_rgba8 *bo1_cpu, *bo2_cpu;
         int i, j, r, loop1, loop2, ring_id, align_dw;
         uint64_t gtt_flags[2] = {0};
-        gsgpu_va_handle bo1_va_handle, bo2_va_handle;
-        struct drm_gsgpu_info_hw_ip hw_ip_info;
+        loonggpu_va_handle bo1_va_handle, bo2_va_handle;
+        struct drm_loonggpu_info_hw_ip hw_ip_info;
 	uint16_t dst_width = width;
 	uint16_t dst_height = height;
 	uint16_t src_width = dst_width * 2;
@@ -710,14 +710,14 @@ static void gsgpu_command_submission_mipmap_generate_helper(unsigned ip_type, ui
 		dst_height = dst_height/4;
 
 	/* init object of command package */
-	struct gsgpu_xdma_cmd_desc cmd_buffer[] = {
+	struct loonggpu_xdma_cmd_desc cmd_buffer[] = {
 		{
 			.header.sec = {
-				GSGPU_CMD_XDMA_COPY,
-				GSGPU_CMD_XDMA_FORMAT_RGBA8,
-				GSGPU_CMD_XDMA_BODY_NR,
-				GSGPU_CMD_XDMA_MODE_MIPMAP,
-				GSGPU_CMD_XDMA_SUB_MODE_TILED_4X4,
+				LOONGGPU_CMD_XDMA_COPY,
+				LOONGGPU_CMD_XDMA_FORMAT_RGBA8,
+				LOONGGPU_CMD_XDMA_BODY_NR,
+				LOONGGPU_CMD_XDMA_MODE_MIPMAP,
+				LOONGGPU_CMD_XDMA_SUB_MODE_TILED_4X4,
 			},
 			.body = {
 				.size.width = dst_width,
@@ -745,22 +745,22 @@ static void gsgpu_command_submission_mipmap_generate_helper(unsigned ip_type, ui
 	ibs_request = calloc(1, sizeof(*ibs_request));
 	CU_ASSERT_NOT_EQUAL(ibs_request, NULL);
 
-	r = gsgpu_query_hw_ip_info(device_handle, ip_type, 0, &hw_ip_info);
+	r = loonggpu_query_hw_ip_info(device_handle, ip_type, 0, &hw_ip_info);
 	CU_ASSERT_EQUAL(r, 0);
 
-	r = gsgpu_cs_ctx_create(device_handle, &context_handle);
+	r = loonggpu_cs_ctx_create(device_handle, &context_handle);
 	CU_ASSERT_EQUAL(r, 0);
 
 	/* prepare resource */
-	resources = calloc(2, sizeof(gsgpu_bo_handle));
+	resources = calloc(2, sizeof(loonggpu_bo_handle));
 	CU_ASSERT_NOT_EQUAL(resources, NULL);
 
 	for (int index = 0; index < TABLE_SIZE(cmd_buffer); index++) {
 		int sdma_write_length = get_pixel_depth(cmd_buffer[index].header.sec.format) * src_width * src_height;
 		/* allocate UC bo1for sDMA use */
-		r = gsgpu_bo_alloc_and_map(device_handle,
+		r = loonggpu_bo_alloc_and_map(device_handle,
 					    sdma_write_length, 4096,
-					    GSGPU_GEM_DOMAIN_GTT,
+					    LOONGGPU_GEM_DOMAIN_GTT,
 					    gtt_flags[loop1], &bo1,
 					    (void**)&bo1_cpu, &bo1_mc,
 					    &bo1_va_handle);
@@ -775,9 +775,9 @@ static void gsgpu_command_submission_mipmap_generate_helper(unsigned ip_type, ui
 		}
 
 		/* allocate UC bo2 for sDMA use */
-		r = gsgpu_bo_alloc_and_map(device_handle,
+		r = loonggpu_bo_alloc_and_map(device_handle,
 					    sdma_write_length, 4096,
-					    GSGPU_GEM_DOMAIN_GTT,
+					    LOONGGPU_GEM_DOMAIN_GTT,
 					    gtt_flags[loop2], &bo2,
 					    (void**)&bo2_cpu, &bo2_mc,
 					    &bo2_va_handle);
@@ -803,10 +803,10 @@ static void gsgpu_command_submission_mipmap_generate_helper(unsigned ip_type, ui
 		/* ib cmd packet align */
 		align_dw = hw_ip_info.ib_size_alignment - (i & (hw_ip_info.ib_size_alignment - 1));
 		for (j = 0; j < align_dw; j++) {
-			pm4[i++] = GSGPU_CMD_NOP;
+			pm4[i++] = LOONGGPU_CMD_NOP;
 		}
 
-		gsgpu_test_exec_cs_helper(context_handle,
+		loonggpu_test_exec_cs_helper(context_handle,
 					   ip_type, ring_id,
 					   i, pm4,
 					   2, resources,
@@ -815,10 +815,10 @@ static void gsgpu_command_submission_mipmap_generate_helper(unsigned ip_type, ui
 		/* verify if SDMA test result meets with expected */
 		verify_mipmaps((union pixel_rgba8 *)bo1_cpu, (union pixel_rgba8 *)bo2_cpu, dst_width, src_height/2);
 
-		r = gsgpu_bo_unmap_and_free(bo1, bo1_va_handle, bo1_mc,
+		r = loonggpu_bo_unmap_and_free(bo1, bo1_va_handle, bo1_mc,
 					     sdma_write_length);
 		CU_ASSERT_EQUAL(r, 0);
-		r = gsgpu_bo_unmap_and_free(bo2, bo2_va_handle, bo2_mc,
+		r = loonggpu_bo_unmap_and_free(bo2, bo2_va_handle, bo2_mc,
 					     sdma_write_length);
 		CU_ASSERT_EQUAL(r, 0);
 	}
@@ -830,12 +830,12 @@ static void gsgpu_command_submission_mipmap_generate_helper(unsigned ip_type, ui
 	free(pm4);
 
 	/* end of test */
-	r = gsgpu_cs_ctx_free(context_handle);
+	r = loonggpu_cs_ctx_free(context_handle);
 	CU_ASSERT_EQUAL(r, 0);
 
 }
 
-static void gsgpu_command_submission_sdma_mipmap_generate(void)
+static void loonggpu_command_submission_sdma_mipmap_generate(void)
 {
 	uint16_t width, height;
 
@@ -857,7 +857,7 @@ static void gsgpu_command_submission_sdma_mipmap_generate(void)
 			break;
 		}
 
-		gsgpu_command_submission_mipmap_generate_helper(GSGPU_HW_IP_DMA, width, height);
+		loonggpu_command_submission_mipmap_generate_helper(LOONGGPU_HW_IP_DMA, width, height);
 	}
 }
 
@@ -884,36 +884,36 @@ static void generate_once_mipmap(union pixel_rgba8 * const src, union pixel_rgba
 	}
 }
 
-static void gsgpu_command_submission_sdma_copy_tiled(void)
+static void loonggpu_command_submission_sdma_copy_tiled(void)
 {
-        gsgpu_command_submission_copy_tiled_helper(GSGPU_HW_IP_DMA);
+        loonggpu_command_submission_copy_tiled_helper(LOONGGPU_HW_IP_DMA);
 }
 
-static void gsgpu_command_submission_copy_tiled_helper(unsigned ip_type)
+static void loonggpu_command_submission_copy_tiled_helper(unsigned ip_type)
 {
 	const int pm4_dw = 256;
-	gsgpu_context_handle context_handle = NULL;
-	gsgpu_bo_handle bo1 = NULL, bo2 = NULL;
-	gsgpu_bo_handle *resources;
+	loonggpu_context_handle context_handle = NULL;
+	loonggpu_bo_handle bo1 = NULL, bo2 = NULL;
+	loonggpu_bo_handle *resources;
 	uint32_t *pm4;
-	struct gsgpu_cs_ib_info *ib_info;
-	struct gsgpu_cs_request *ibs_request;
+	struct loonggpu_cs_ib_info *ib_info;
+	struct loonggpu_cs_request *ibs_request;
 	uint64_t bo1_mc, bo2_mc;
 	volatile unsigned char *bo1_cpu, *bo2_cpu;
 	int i, j, r, ring_id, align_dw;
 	uint64_t gtt_flags[1] = {0};
-	gsgpu_va_handle bo1_va_handle = NULL, bo2_va_handle = NULL;
-	struct drm_gsgpu_info_hw_ip hw_ip_info;
+	loonggpu_va_handle bo1_va_handle = NULL, bo2_va_handle = NULL;
+	struct drm_loonggpu_info_hw_ip hw_ip_info;
 
 	/* init object of command package */
-	struct gsgpu_xdma_cmd_desc cmd_buffer[] = {
+	struct loonggpu_xdma_cmd_desc cmd_buffer[] = {
 		{
 			.header.sec = {
-				GSGPU_CMD_XDMA_COPY,
-				GSGPU_CMD_XDMA_FORMAT_RGBA8,
-				GSGPU_CMD_XDMA_BODY_NR,
-				GSGPU_CMD_XDMA_MODE_L2T,
-				GSGPU_CMD_XDMA_SUB_MODE_TILED_4X4,
+				LOONGGPU_CMD_XDMA_COPY,
+				LOONGGPU_CMD_XDMA_FORMAT_RGBA8,
+				LOONGGPU_CMD_XDMA_BODY_NR,
+				LOONGGPU_CMD_XDMA_MODE_L2T,
+				LOONGGPU_CMD_XDMA_SUB_MODE_TILED_4X4,
 			},
 			.body = {
 				.size.width = 16,
@@ -932,11 +932,11 @@ static void gsgpu_command_submission_copy_tiled_helper(unsigned ip_type)
 		},
 		{
 			.header.sec = {
-				GSGPU_CMD_XDMA_COPY,
-				GSGPU_CMD_XDMA_FORMAT_RGBA8,
-				GSGPU_CMD_XDMA_BODY_NR,
-				GSGPU_CMD_XDMA_MDOE_T2L,
-				GSGPU_CMD_XDMA_SUB_MODE_TILED_4X4,
+				LOONGGPU_CMD_XDMA_COPY,
+				LOONGGPU_CMD_XDMA_FORMAT_RGBA8,
+				LOONGGPU_CMD_XDMA_BODY_NR,
+				LOONGGPU_CMD_XDMA_MDOE_T2L,
+				LOONGGPU_CMD_XDMA_SUB_MODE_TILED_4X4,
 			},
 			.body = {
 				.size.width = 16,
@@ -964,22 +964,22 @@ static void gsgpu_command_submission_copy_tiled_helper(unsigned ip_type)
 	ibs_request = calloc(1, sizeof(*ibs_request));
 	CU_ASSERT_NOT_EQUAL(ibs_request, NULL);
 
-	r = gsgpu_query_hw_ip_info(device_handle, ip_type, 0, &hw_ip_info);
+	r = loonggpu_query_hw_ip_info(device_handle, ip_type, 0, &hw_ip_info);
 	CU_ASSERT_EQUAL(r, 0);
 
-	r = gsgpu_cs_ctx_create(device_handle, &context_handle);
+	r = loonggpu_cs_ctx_create(device_handle, &context_handle);
 	CU_ASSERT_EQUAL(r, 0);
 
 	/* prepare resource */
-	resources = calloc(2, sizeof(gsgpu_bo_handle));
+	resources = calloc(2, sizeof(loonggpu_bo_handle));
 	CU_ASSERT_NOT_EQUAL(resources, NULL);
 
 	for (int index = 0; index < TABLE_SIZE(cmd_buffer); index++) {
 		int sdma_write_length = get_pixel_depth(cmd_buffer[index].header.sec.format) * cmd_buffer[index].body.size.width * cmd_buffer[index].body.size.height;
 		/* allocate UC bo1for sDMA use */
-		r = gsgpu_bo_alloc_and_map(device_handle,
+		r = loonggpu_bo_alloc_and_map(device_handle,
 					    sdma_write_length, 4096,
-					    GSGPU_GEM_DOMAIN_GTT,
+					    LOONGGPU_GEM_DOMAIN_GTT,
 					    gtt_flags[0], &bo1,
 					    (void**)&bo1_cpu, &bo1_mc,
 					    &bo1_va_handle);
@@ -989,9 +989,9 @@ static void gsgpu_command_submission_copy_tiled_helper(unsigned ip_type)
 		memset((void*)bo1_cpu, 0xaa, sdma_write_length);
 
 		/* allocate UC bo2 for sDMA use */
-		r = gsgpu_bo_alloc_and_map(device_handle,
+		r = loonggpu_bo_alloc_and_map(device_handle,
 					    sdma_write_length, 4096,
-					    GSGPU_GEM_DOMAIN_GTT,
+					    LOONGGPU_GEM_DOMAIN_GTT,
 					    gtt_flags[0], &bo2,
 					    (void**)&bo2_cpu, &bo2_mc,
 					    &bo2_va_handle);
@@ -1017,10 +1017,10 @@ static void gsgpu_command_submission_copy_tiled_helper(unsigned ip_type)
 		/* ib cmd packet align */
 		align_dw = hw_ip_info.ib_size_alignment - (i & (hw_ip_info.ib_size_alignment - 1));
 		for (j = 0; j < align_dw; j++) {
-			pm4[i++] = GSGPU_CMD_NOP;
+			pm4[i++] = LOONGGPU_CMD_NOP;
 		}
 
-		gsgpu_test_exec_cs_helper(context_handle,
+		loonggpu_test_exec_cs_helper(context_handle,
 					   ip_type, 0,
 					   i, pm4,
 					   2, resources,
@@ -1031,10 +1031,10 @@ static void gsgpu_command_submission_copy_tiled_helper(unsigned ip_type)
 		while(i < sdma_write_length) {
 			CU_ASSERT_EQUAL(bo2_cpu[i++], 0xaa);
 		}
-		r = gsgpu_bo_unmap_and_free(bo1, bo1_va_handle, bo1_mc,
+		r = loonggpu_bo_unmap_and_free(bo1, bo1_va_handle, bo1_mc,
 					     sdma_write_length);
 		CU_ASSERT_EQUAL(r, 0);
-		r = gsgpu_bo_unmap_and_free(bo2, bo2_va_handle, bo2_mc,
+		r = loonggpu_bo_unmap_and_free(bo2, bo2_va_handle, bo2_mc,
 					     sdma_write_length);
 		CU_ASSERT_EQUAL(r, 0);
 	}
@@ -1045,39 +1045,39 @@ static void gsgpu_command_submission_copy_tiled_helper(unsigned ip_type)
 	free(pm4);
 
 	/* end of test */
-	r = gsgpu_cs_ctx_free(context_handle);
+	r = loonggpu_cs_ctx_free(context_handle);
 	CU_ASSERT_EQUAL(r, 0);
 }
 
-static void gsgpu_command_submission_sdma_semaphore(void)
+static void loonggpu_command_submission_sdma_semaphore(void)
 {
-        gsgpu_command_submission_sdma_semaphore_helper(GSGPU_HW_IP_DMA);
+        loonggpu_command_submission_sdma_semaphore_helper(LOONGGPU_HW_IP_DMA);
 }
 
-static void gsgpu_command_submission_sdma_semaphore_helper(unsigned ip_type)
+static void loonggpu_command_submission_sdma_semaphore_helper(unsigned ip_type)
 {
 	const int pm4_dw = 256;
-	gsgpu_context_handle context_handle;
-	gsgpu_bo_handle bo;
-	gsgpu_bo_handle *resources;
+	loonggpu_context_handle context_handle;
+	loonggpu_bo_handle bo;
+	loonggpu_bo_handle *resources;
 	uint32_t *pm4;
-	struct gsgpu_cs_ib_info *ib_info;
-	struct gsgpu_cs_request *ibs_request;
+	struct loonggpu_cs_ib_info *ib_info;
+	struct loonggpu_cs_request *ibs_request;
 	uint64_t bo_mc;
 	volatile uint32_t *bo_cpu;
 	int i, j, r, align_dw;
 	uint64_t gtt_flags[1] = {0};
-	gsgpu_va_handle va_handle;
-	struct drm_gsgpu_info_hw_ip hw_ip_info;
+	loonggpu_va_handle va_handle;
+	struct drm_loonggpu_info_hw_ip hw_ip_info;
 
-	struct gsgpu_xdma_cmd_desc cmd_buffer[] = {
+	struct loonggpu_xdma_cmd_desc cmd_buffer[] = {
 		{
 			.header.sec = {
-				GSGPU_CMD_XDMA_COPY,
-				GSGPU_CMD_XDMA_FORMAT_RGBA8,
-				GSGPU_CMD_XDMA_BODY_NR,
-				GSGPU_CMD_XDMA_MODE_MEMSET,
-				GSGPU_CMD_XDMA_SUB_MODE_DEFAULT,
+				LOONGGPU_CMD_XDMA_COPY,
+				LOONGGPU_CMD_XDMA_FORMAT_RGBA8,
+				LOONGGPU_CMD_XDMA_BODY_NR,
+				LOONGGPU_CMD_XDMA_MODE_MEMSET,
+				LOONGGPU_CMD_XDMA_SUB_MODE_DEFAULT,
 			},
 			.body = {
 				.size.width = 16 * 1024,
@@ -1102,22 +1102,22 @@ static void gsgpu_command_submission_sdma_semaphore_helper(unsigned ip_type)
 	ibs_request = calloc(1, sizeof(*ibs_request));
 	CU_ASSERT_NOT_EQUAL(ibs_request, NULL);
 
-	r = gsgpu_query_hw_ip_info(device_handle, ip_type, 0, &hw_ip_info);
+	r = loonggpu_query_hw_ip_info(device_handle, ip_type, 0, &hw_ip_info);
 	CU_ASSERT_EQUAL(r, 0);
 
-	r = gsgpu_cs_ctx_create(device_handle, &context_handle);
+	r = loonggpu_cs_ctx_create(device_handle, &context_handle);
 	CU_ASSERT_EQUAL(r, 0);
 
 	/* prepare resource */
-	resources = calloc(1, sizeof(gsgpu_bo_handle));
+	resources = calloc(1, sizeof(loonggpu_bo_handle));
 	CU_ASSERT_NOT_EQUAL(resources, NULL);
 
 	int sdma_write_length = get_pixel_depth(cmd_buffer[0].header.sec.format) * cmd_buffer[0].body.size.width * cmd_buffer[0].body.size.height;
 
 	/* allocate bo for DMA use */
-	r = gsgpu_bo_alloc_and_map(device_handle,
+	r = loonggpu_bo_alloc_and_map(device_handle,
 				    sdma_write_length, BUFFER_ALIGN,
-				    GSGPU_GEM_DOMAIN_GTT,
+				    LOONGGPU_GEM_DOMAIN_GTT,
 				    0, &bo,
 				    (void**)&bo_cpu, &bo_mc,
 				    &va_handle);
@@ -1129,7 +1129,7 @@ static void gsgpu_command_submission_sdma_semaphore_helper(unsigned ip_type)
 	resources[0] = bo;
 
 	uint64_t sema_rd = 0;
-	gsgpu_hw_sema_get(device_handle, context_handle, &sema_rd);
+	loonggpu_hw_sema_get(device_handle, context_handle, &sema_rd);
 
 	/* fulfill cmd packet: test SDMA const fill */
 	i = 0;
@@ -1162,10 +1162,10 @@ static void gsgpu_command_submission_sdma_semaphore_helper(unsigned ip_type)
 	/* ib cmd packet align */
 	align_dw = hw_ip_info.ib_size_alignment - (i & (hw_ip_info.ib_size_alignment - 1));
 	for (j = 0; j < align_dw; j++) {
-		pm4[i++] = GSGPU_CMD_NOP;
+		pm4[i++] = LOONGGPU_CMD_NOP;
 	}
 
-	gsgpu_test_exec_cs_helper(context_handle,
+	loonggpu_test_exec_cs_helper(context_handle,
 				   ip_type, 0,
 				   i, pm4,
 				   1, resources,
@@ -1177,9 +1177,9 @@ static void gsgpu_command_submission_sdma_semaphore_helper(unsigned ip_type)
 		CU_ASSERT_EQUAL(bo_cpu[i++], 0xdeadbeaf);
 	}
 
-	gsgpu_hw_sema_put(device_handle, context_handle, sema_rd);
+	loonggpu_hw_sema_put(device_handle, context_handle, sema_rd);
 
-	r = gsgpu_bo_unmap_and_free(bo, va_handle, bo_mc,
+	r = loonggpu_bo_unmap_and_free(bo, va_handle, bo_mc,
 				     sdma_write_length);
 	CU_ASSERT_EQUAL(r, 0);
 
@@ -1190,7 +1190,7 @@ static void gsgpu_command_submission_sdma_semaphore_helper(unsigned ip_type)
 	free(pm4);
 
 	/* end of test */
-	r = gsgpu_cs_ctx_free(context_handle);
+	r = loonggpu_cs_ctx_free(context_handle);
 	CU_ASSERT_EQUAL(r, 0);
 }
 
@@ -1199,27 +1199,27 @@ static uint32_t get_pixel_depth(uint32_t format)
 	uint32_t cpp;
 
 	switch (format) {
-	case GSGPU_CMD_XDMA_FORMAT_R8:
-	case GSGPU_CMD_XDMA_FORMAT_S8:
+	case LOONGGPU_CMD_XDMA_FORMAT_R8:
+	case LOONGGPU_CMD_XDMA_FORMAT_S8:
 		cpp = 1;
 		break;
-	case GSGPU_CMD_XDMA_FORMAT_R16:
-	case GSGPU_CMD_XDMA_FORMAT_RG8:
-	case GSGPU_CMD_XDMA_FORMAT_RGB5A1:
-	case GSGPU_CMD_XDMA_FORMAT_R5G6B5:
-	case GSGPU_CMD_XDMA_FORMAT_D16:
+	case LOONGGPU_CMD_XDMA_FORMAT_R16:
+	case LOONGGPU_CMD_XDMA_FORMAT_RG8:
+	case LOONGGPU_CMD_XDMA_FORMAT_RGB5A1:
+	case LOONGGPU_CMD_XDMA_FORMAT_R5G6B5:
+	case LOONGGPU_CMD_XDMA_FORMAT_D16:
 		cpp = 2;
 		break;
-	case GSGPU_CMD_XDMA_FORMAT_D24:
+	case LOONGGPU_CMD_XDMA_FORMAT_D24:
 		cpp = 3;
 		break;
-	case GSGPU_CMD_XDMA_FORMAT_RGBA8:
-	case GSGPU_CMD_XDMA_FORMAT_RG16:
-	case GSGPU_CMD_XDMA_FORMAT_RGB10A2:
-	case GSGPU_CMD_XDMA_FORMAT_D24S8:
+	case LOONGGPU_CMD_XDMA_FORMAT_RGBA8:
+	case LOONGGPU_CMD_XDMA_FORMAT_RG16:
+	case LOONGGPU_CMD_XDMA_FORMAT_RGB10A2:
+	case LOONGGPU_CMD_XDMA_FORMAT_D24S8:
 		cpp = 4;
 		break;
-	case GSGPU_CMD_XDMA_FORMAT_RGBA16:
+	case LOONGGPU_CMD_XDMA_FORMAT_RGBA16:
 		cpp = 8;
 		break;
 	default:

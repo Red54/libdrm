@@ -29,109 +29,109 @@
 #include <errno.h>
 #include <string.h>
 
-#include "gsgpu.h"
-#include "gsgpu_drm.h"
-#include "gsgpu_internal.h"
+#include "loonggpu.h"
+#include "loonggpu_drm.h"
+#include "loonggpu_internal.h"
 #include "xf86drm.h"
 
-int gsgpu_query_info(gsgpu_device_handle dev, unsigned info_id,
+int loonggpu_query_info(loonggpu_device_handle dev, unsigned info_id,
 		      unsigned size, void *value)
 {
-	struct drm_gsgpu_info request;
+	struct drm_loonggpu_info request;
 
 	memset(&request, 0, sizeof(request));
 	request.return_pointer = (uintptr_t)value;
 	request.return_size = size;
 	request.query = info_id;
 
-	return drmCommandWrite(dev->fd, DRM_GSGPU_INFO, &request,
-			       sizeof(struct drm_gsgpu_info));
+	return drmCommandWrite(dev->fd, DRM_LOONGGPU_INFO, &request,
+			       sizeof(struct drm_loonggpu_info));
 }
 
-int gsgpu_query_crtc_from_id(gsgpu_device_handle dev, unsigned id,
+int loonggpu_query_crtc_from_id(loonggpu_device_handle dev, unsigned id,
 			      int32_t *result)
 {
-	struct drm_gsgpu_info request;
+	struct drm_loonggpu_info request;
 
 	memset(&request, 0, sizeof(request));
 	request.return_pointer = (uintptr_t)result;
 	request.return_size = sizeof(*result);
-	request.query = GSGPU_INFO_CRTC_FROM_ID;
+	request.query = LOONGGPU_INFO_CRTC_FROM_ID;
 	request.mode_crtc.id = id;
 
-	return drmCommandWrite(dev->fd, DRM_GSGPU_INFO, &request,
-			       sizeof(struct drm_gsgpu_info));
+	return drmCommandWrite(dev->fd, DRM_LOONGGPU_INFO, &request,
+			       sizeof(struct drm_loonggpu_info));
 }
 
-int gsgpu_read_mm_registers(gsgpu_device_handle dev, unsigned dword_offset,
+int loonggpu_read_mm_registers(loonggpu_device_handle dev, unsigned dword_offset,
 			     unsigned count, uint32_t instance, uint32_t flags,
 			     uint32_t *values)
 {
-	struct drm_gsgpu_info request;
+	struct drm_loonggpu_info request;
 
 	memset(&request, 0, sizeof(request));
 	request.return_pointer = (uintptr_t)values;
 	request.return_size = count * sizeof(uint32_t);
-	request.query = GSGPU_INFO_READ_MMR_REG;
+	request.query = LOONGGPU_INFO_READ_MMR_REG;
 	request.read_mmr_reg.dword_offset = dword_offset;
 	request.read_mmr_reg.count = count;
 	request.read_mmr_reg.instance = instance;
 	request.read_mmr_reg.flags = flags;
 
-	return drmCommandWrite(dev->fd, DRM_GSGPU_INFO, &request,
-			       sizeof(struct drm_gsgpu_info));
+	return drmCommandWrite(dev->fd, DRM_LOONGGPU_INFO, &request,
+			       sizeof(struct drm_loonggpu_info));
 }
 
-int gsgpu_query_hw_ip_count(gsgpu_device_handle dev, unsigned type,
+int loonggpu_query_hw_ip_count(loonggpu_device_handle dev, unsigned type,
 			     uint32_t *count)
 {
-	struct drm_gsgpu_info request;
+	struct drm_loonggpu_info request;
 
 	memset(&request, 0, sizeof(request));
 	request.return_pointer = (uintptr_t)count;
 	request.return_size = sizeof(*count);
-	request.query = GSGPU_INFO_HW_IP_COUNT;
+	request.query = LOONGGPU_INFO_HW_IP_COUNT;
 	request.query_hw_ip.type = type;
 
-	return drmCommandWrite(dev->fd, DRM_GSGPU_INFO, &request,
-			       sizeof(struct drm_gsgpu_info));
+	return drmCommandWrite(dev->fd, DRM_LOONGGPU_INFO, &request,
+			       sizeof(struct drm_loonggpu_info));
 }
 
-int gsgpu_query_hw_ip_info(gsgpu_device_handle dev, unsigned type,
+int loonggpu_query_hw_ip_info(loonggpu_device_handle dev, unsigned type,
 			    unsigned ip_instance,
-			    struct drm_gsgpu_info_hw_ip *info)
+			    struct drm_loonggpu_info_hw_ip *info)
 {
-	struct drm_gsgpu_info request;
+	struct drm_loonggpu_info request;
 
 	memset(&request, 0, sizeof(request));
 	request.return_pointer = (uintptr_t)info;
 	request.return_size = sizeof(*info);
-	request.query = GSGPU_INFO_HW_IP_INFO;
+	request.query = LOONGGPU_INFO_HW_IP_INFO;
 	request.query_hw_ip.type = type;
 	request.query_hw_ip.ip_instance = ip_instance;
 
-	return drmCommandWrite(dev->fd, DRM_GSGPU_INFO, &request,
-			       sizeof(struct drm_gsgpu_info));
+	return drmCommandWrite(dev->fd, DRM_LOONGGPU_INFO, &request,
+			       sizeof(struct drm_loonggpu_info));
 }
 
-int gsgpu_query_firmware_version(gsgpu_device_handle dev, unsigned fw_type,
+int loonggpu_query_firmware_version(loonggpu_device_handle dev, unsigned fw_type,
 				  unsigned ip_instance, unsigned index,
 				  uint32_t *version, uint32_t *feature)
 {
-	struct drm_gsgpu_info request;
-	struct drm_gsgpu_info_firmware firmware = {};
+	struct drm_loonggpu_info request;
+	struct drm_loonggpu_info_firmware firmware = {};
 	int r;
 
 	memset(&request, 0, sizeof(request));
 	request.return_pointer = (uintptr_t)&firmware;
 	request.return_size = sizeof(firmware);
-	request.query = GSGPU_INFO_FW_VERSION;
+	request.query = LOONGGPU_INFO_FW_VERSION;
 	request.query_fw.fw_type = fw_type;
 	request.query_fw.ip_instance = ip_instance;
 	request.query_fw.index = index;
 
-	r = drmCommandWrite(dev->fd, DRM_GSGPU_INFO, &request,
-			    sizeof(struct drm_gsgpu_info));
+	r = drmCommandWrite(dev->fd, DRM_LOONGGPU_INFO, &request,
+			    sizeof(struct drm_loonggpu_info));
 	if (r)
 		return r;
 
@@ -140,11 +140,11 @@ int gsgpu_query_firmware_version(gsgpu_device_handle dev, unsigned fw_type,
 	return 0;
 }
 
-drm_private int gsgpu_query_gpu_info_init(gsgpu_device_handle dev)
+drm_private int loonggpu_query_gpu_info_init(loonggpu_device_handle dev)
 {
 	int r;
 
-	r = gsgpu_query_info(dev, GSGPU_INFO_DEV_INFO, sizeof(dev->dev_info),
+	r = loonggpu_query_info(dev, LOONGGPU_INFO_DEV_INFO, sizeof(dev->dev_info),
 			      &dev->dev_info);
 	if (r)
 		return r;
@@ -176,8 +176,8 @@ drm_private int gsgpu_query_gpu_info_init(gsgpu_device_handle dev)
 	return 0;
 }
 
-int gsgpu_query_gpu_info(gsgpu_device_handle dev,
-			struct gsgpu_gpu_info *info)
+int loonggpu_query_gpu_info(loonggpu_device_handle dev,
+			struct loonggpu_gpu_info *info)
 {
 	if (!dev || !info)
 		return -EINVAL;
@@ -188,46 +188,46 @@ int gsgpu_query_gpu_info(gsgpu_device_handle dev,
 	return 0;
 }
 
-int gsgpu_query_heap_info(gsgpu_device_handle dev,
+int loonggpu_query_heap_info(loonggpu_device_handle dev,
 			uint32_t heap,
 			uint32_t flags,
-			struct gsgpu_heap_info *info)
+			struct loonggpu_heap_info *info)
 {
-	struct drm_gsgpu_info_vram_gtt vram_gtt_info = {};
+	struct drm_loonggpu_info_vram_gtt vram_gtt_info = {};
 	int r;
 
-	r = gsgpu_query_info(dev, GSGPU_INFO_VRAM_GTT,
+	r = loonggpu_query_info(dev, LOONGGPU_INFO_VRAM_GTT,
 			      sizeof(vram_gtt_info), &vram_gtt_info);
 	if (r)
 		return r;
 
 	/* Get heap information */
 	switch (heap) {
-	case GSGPU_GEM_DOMAIN_VRAM:
+	case LOONGGPU_GEM_DOMAIN_VRAM:
 		/* query visible only vram heap */
-		if (flags & GSGPU_GEM_CREATE_CPU_ACCESS_REQUIRED)
+		if (flags & LOONGGPU_GEM_CREATE_CPU_ACCESS_REQUIRED)
 			info->heap_size = vram_gtt_info.vram_cpu_accessible_size;
 		else /* query total vram heap */
 			info->heap_size = vram_gtt_info.vram_size;
 
 		info->max_allocation = vram_gtt_info.vram_cpu_accessible_size;
 
-		if (flags & GSGPU_GEM_CREATE_CPU_ACCESS_REQUIRED)
-			r = gsgpu_query_info(dev, GSGPU_INFO_VIS_VRAM_USAGE,
+		if (flags & LOONGGPU_GEM_CREATE_CPU_ACCESS_REQUIRED)
+			r = loonggpu_query_info(dev, LOONGGPU_INFO_VIS_VRAM_USAGE,
 					      sizeof(info->heap_usage),
 					      &info->heap_usage);
 		else
-			r = gsgpu_query_info(dev, GSGPU_INFO_VRAM_USAGE,
+			r = loonggpu_query_info(dev, LOONGGPU_INFO_VRAM_USAGE,
 					      sizeof(info->heap_usage),
 					      &info->heap_usage);
 		if (r)
 			return r;
 		break;
-	case GSGPU_GEM_DOMAIN_GTT:
+	case LOONGGPU_GEM_DOMAIN_GTT:
 		info->heap_size = vram_gtt_info.gtt_size;
 		info->max_allocation = vram_gtt_info.vram_cpu_accessible_size;
 
-		r = gsgpu_query_info(dev, GSGPU_INFO_GTT_USAGE,
+		r = loonggpu_query_info(dev, LOONGGPU_INFO_GTT_USAGE,
 				      sizeof(info->heap_usage),
 				      &info->heap_usage);
 		if (r)
@@ -240,16 +240,16 @@ int gsgpu_query_heap_info(gsgpu_device_handle dev,
 	return 0;
 }
 
-int gsgpu_query_gds_info(gsgpu_device_handle dev,
-			struct gsgpu_gds_resource_info *gds_info)
+int loonggpu_query_gds_info(loonggpu_device_handle dev,
+			struct loonggpu_gds_resource_info *gds_info)
 {
-	struct drm_gsgpu_info_gds gds_config = {};
+	struct drm_loonggpu_info_gds gds_config = {};
         int r;
 
 	if (!gds_info)
 		return -EINVAL;
 
-        r = gsgpu_query_info(dev, GSGPU_INFO_GDS_CONFIG,
+        r = loonggpu_query_info(dev, LOONGGPU_INFO_GDS_CONFIG,
                               sizeof(gds_config), &gds_config);
         if (r)
                 return r;
@@ -265,17 +265,17 @@ int gsgpu_query_gds_info(gsgpu_device_handle dev,
 	return 0;
 }
 
-int gsgpu_query_sensor_info(gsgpu_device_handle dev, unsigned sensor_type,
+int loonggpu_query_sensor_info(loonggpu_device_handle dev, unsigned sensor_type,
 			     unsigned size, void *value)
 {
-	struct drm_gsgpu_info request;
+	struct drm_loonggpu_info request;
 
 	memset(&request, 0, sizeof(request));
 	request.return_pointer = (uintptr_t)value;
 	request.return_size = size;
-	request.query = GSGPU_INFO_SENSOR;
+	request.query = LOONGGPU_INFO_SENSOR;
 	request.sensor_info.type = sensor_type;
 
-	return drmCommandWrite(dev->fd, DRM_GSGPU_INFO, &request,
-			       sizeof(struct drm_gsgpu_info));
+	return drmCommandWrite(dev->fd, DRM_LOONGGPU_INFO, &request,
+			       sizeof(struct drm_loonggpu_info));
 }

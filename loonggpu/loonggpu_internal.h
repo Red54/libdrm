@@ -22,8 +22,8 @@
  *
  */
 
-#ifndef _GSGPU_INTERNAL_H_
-#define _GSGPU_INTERNAL_H_
+#ifndef _LOONGGPU_INTERNAL_H_
+#define _LOONGGPU_INTERNAL_H_
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -34,40 +34,40 @@
 
 #include "libdrm_macros.h"
 #include "xf86atomic.h"
-#include "gsgpu.h"
+#include "loonggpu.h"
 #include "util_double_list.h"
 
-#define GSGPU_CS_MAX_RINGS 8
+#define LOONGGPU_CS_MAX_RINGS 8
 /* do not use below macro if b is not power of 2 aligned value */
 #define __round_mask(x, y) ((__typeof__(x))((y)-1))
 #define ROUND_UP(x, y) ((((x)-1) | __round_mask(x, y))+1)
 #define ROUND_DOWN(x, y) ((x) & ~__round_mask(x, y))
 
-#define GSGPU_INVALID_VA_ADDRESS	0xffffffffffffffff
-#define GSGPU_NULL_SUBMIT_SEQ		0
+#define LOONGGPU_INVALID_VA_ADDRESS	0xffffffffffffffff
+#define LOONGGPU_NULL_SUBMIT_SEQ		0
 
-struct gsgpu_bo_va_hole {
+struct loonggpu_bo_va_hole {
 	struct list_head list;
 	uint64_t offset;
 	uint64_t size;
 };
 
-struct gsgpu_bo_va_mgr {
+struct loonggpu_bo_va_mgr {
 	uint64_t va_max;
 	struct list_head va_holes;
 	pthread_mutex_t bo_va_mutex;
 	uint32_t va_alignment;
 };
 
-struct gsgpu_va {
-	gsgpu_device_handle dev;
+struct loonggpu_va {
+	loonggpu_device_handle dev;
 	uint64_t address;
 	uint64_t size;
-	enum gsgpu_gpu_va_range range;
-	struct gsgpu_bo_va_mgr *vamgr;
+	enum loonggpu_gpu_va_range range;
+	struct loonggpu_bo_va_mgr *vamgr;
 };
 
-struct gsgpu_device {
+struct loonggpu_device {
 	atomic_t refcount;
 	int fd;
 	int flink_fd;
@@ -81,21 +81,21 @@ struct gsgpu_device {
 	struct util_hash_table *bo_flink_names;
 	/** This protects all hash tables. */
 	pthread_mutex_t bo_table_mutex;
-	struct drm_gsgpu_info_device dev_info;
-	struct gsgpu_gpu_info info;
+	struct drm_loonggpu_info_device dev_info;
+	struct loonggpu_gpu_info info;
 	/** The VA manager for the lower virtual address space */
-	struct gsgpu_bo_va_mgr vamgr;
+	struct loonggpu_bo_va_mgr vamgr;
 	/** The VA manager for the 32bit address space */
-	struct gsgpu_bo_va_mgr vamgr_32;
+	struct loonggpu_bo_va_mgr vamgr_32;
 	/** The VA manager for the high virtual address space */
-	struct gsgpu_bo_va_mgr vamgr_high;
+	struct loonggpu_bo_va_mgr vamgr_high;
 	/** The VA manager for the 32bit high address space */
-	struct gsgpu_bo_va_mgr vamgr_high_32;
+	struct loonggpu_bo_va_mgr vamgr_high_32;
 };
 
-struct gsgpu_bo {
+struct loonggpu_bo {
 	atomic_t refcount;
-	struct gsgpu_device *dev;
+	struct loonggpu_device *dev;
 
 	uint64_t alloc_size;
 
@@ -107,47 +107,47 @@ struct gsgpu_bo {
 	int cpu_map_count;
 };
 
-struct gsgpu_bo_list {
-	struct gsgpu_device *dev;
+struct loonggpu_bo_list {
+	struct loonggpu_device *dev;
 
 	uint32_t handle;
 };
 
-struct gsgpu_context {
-	struct gsgpu_device *dev;
+struct loonggpu_context {
+	struct loonggpu_device *dev;
 	/** Mutex for accessing fences and to maintain command submissions
 	    in good sequence. */
 	pthread_mutex_t sequence_mutex;
 	/* context id*/
 	uint32_t id;
-	uint64_t last_seq[GSGPU_HW_IP_NUM][GSGPU_HW_IP_INSTANCE_MAX_COUNT][GSGPU_CS_MAX_RINGS];
-	struct list_head sem_list[GSGPU_HW_IP_NUM][GSGPU_HW_IP_INSTANCE_MAX_COUNT][GSGPU_CS_MAX_RINGS];
+	uint64_t last_seq[LOONGGPU_HW_IP_NUM][LOONGGPU_HW_IP_INSTANCE_MAX_COUNT][LOONGGPU_CS_MAX_RINGS];
+	struct list_head sem_list[LOONGGPU_HW_IP_NUM][LOONGGPU_HW_IP_INSTANCE_MAX_COUNT][LOONGGPU_CS_MAX_RINGS];
 };
 
 /**
  * Structure describing sw semaphore based on scheduler
  *
  */
-struct gsgpu_semaphore {
+struct loonggpu_semaphore {
 	atomic_t refcount;
 	struct list_head list;
-	struct gsgpu_cs_fence signal_fence;
+	struct loonggpu_cs_fence signal_fence;
 };
 
 /**
  * Functions.
  */
 
-drm_private void gsgpu_vamgr_init(struct gsgpu_bo_va_mgr *mgr, uint64_t start,
+drm_private void loonggpu_vamgr_init(struct loonggpu_bo_va_mgr *mgr, uint64_t start,
 		       uint64_t max, uint64_t alignment);
 
-drm_private void gsgpu_vamgr_deinit(struct gsgpu_bo_va_mgr *mgr);
+drm_private void loonggpu_vamgr_deinit(struct loonggpu_bo_va_mgr *mgr);
 
-drm_private void gsgpu_parse_asic_ids(struct gsgpu_device *dev);
+drm_private void loonggpu_parse_asic_ids(struct loonggpu_device *dev);
 
-drm_private int gsgpu_query_gpu_info_init(gsgpu_device_handle dev);
+drm_private int loonggpu_query_gpu_info_init(loonggpu_device_handle dev);
 
-drm_private uint64_t gsgpu_cs_calculate_timeout(uint64_t timeout);
+drm_private uint64_t loonggpu_cs_calculate_timeout(uint64_t timeout);
 
 /**
  * Inline functions.

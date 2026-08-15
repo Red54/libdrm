@@ -28,18 +28,18 @@
 
 #include "libdrm_macros.h"
 #include "xf86drm.h"
-#include "gsgpu_drm.h"
-#include "gsgpu_internal.h"
+#include "loonggpu_drm.h"
+#include "loonggpu_internal.h"
 
-int gsgpu_hw_sema_get(gsgpu_device_handle dev, gsgpu_context_handle ctx, uint64_t *sema)
+int loonggpu_hw_sema_get(loonggpu_device_handle dev, loonggpu_context_handle ctx, uint64_t *sema)
 {
 	int r = 0;
-	struct drm_gsgpu_hw_sema args = {0};
+	struct drm_loonggpu_hw_sema args = {0};
 
 	args.ctx_id = ctx->id;
-	args.ops = GSGPU_HW_SEMA_GET;
+	args.ops = LOONGGPU_HW_SEMA_GET;
 
-	r = drmCommandWriteRead(dev->fd, DRM_GSGPU_HWSEMA_OP,
+	r = drmCommandWriteRead(dev->fd, DRM_LOONGGPU_HWSEMA_OP,
 				&args, sizeof(args));
 	if (!r)
 		*sema = args.id;
@@ -47,17 +47,17 @@ int gsgpu_hw_sema_get(gsgpu_device_handle dev, gsgpu_context_handle ctx, uint64_
 	return r;
 }
 
-int gsgpu_hw_sema_put(gsgpu_device_handle dev, gsgpu_context_handle ctx, uint64_t sema)
+int loonggpu_hw_sema_put(loonggpu_device_handle dev, loonggpu_context_handle ctx, uint64_t sema)
 {
 	int r = 0;
 
-	struct drm_gsgpu_hw_sema args = {0};
+	struct drm_loonggpu_hw_sema args = {0};
 
 	args.id = sema;
 	args.ctx_id = ctx->id;
-	args.ops = GSGPU_HW_SEMA_PUT;
+	args.ops = LOONGGPU_HW_SEMA_PUT;
 
-	r = drmCommandWriteRead(dev->fd, DRM_GSGPU_HWSEMA_OP,
+	r = drmCommandWriteRead(dev->fd, DRM_LOONGGPU_HWSEMA_OP,
 				&args, sizeof(args));
 
 	return r;

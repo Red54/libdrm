@@ -38,7 +38,7 @@ AM_DISTCHECK_CONFIGURE_FLAGS = \
 	--enable-freedreno-kgsl\
 	--enable-tegra-experimental-api \
 	--enable-etnaviv-experimental-api \
-	--enable-gsgpu \
+	--enable-loonggpu \
 	--enable-install-test-programs \
 	--enable-cairo-tests \
 	--enable-manpages \
@@ -91,8 +91,8 @@ if HAVE_ETNAVIV
 ETNAVIV_SUBDIR = etnaviv
 endif
 
-if HAVE_GSGPU
-GSGPU_SUBDIR = gsgpu
+if HAVE_LOONGGPU
+LOONGGPU_SUBDIR = loonggpu
 endif
 
 if BUILD_MANPAGES
@@ -114,7 +114,7 @@ SUBDIRS = \
 	$(TEGRA_SUBDIR) \
 	$(VC4_SUBDIR) \
 	$(ETNAVIV_SUBDIR) \
-	$(GSGPU_SUBDIR) \
+	$(LOONGGPU_SUBDIR) \
 	data \
 	tests \
 	$(MAN_SUBDIR)
@@ -155,7 +155,7 @@ EXTRA_DIST = \
 	omap/meson.build \
 	radeon/meson.build \
 	tegra/meson.build \
-	gsgpu/meson.build \
+	loonggpu/meson.build \
 	tests/amdgpu/meson.build \
 	tests/etnaviv/meson.build \
 	tests/exynos/meson.build \
@@ -171,7 +171,7 @@ EXTRA_DIST = \
 	tests/util/meson.build \
 	tests/vbltest/meson.build \
 	vc4/meson.build \
-	tests/gsgpu/meson.build \
+	tests/loonggpu/meson.build \
 	meson.build \
 	meson_options.txt
 

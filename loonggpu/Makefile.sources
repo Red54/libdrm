@@ -1,0 +1,17 @@
+LIBDRM_LOONGGPU_FILES := \
+	loonggpu_asic_id.c \
+	loonggpu_bo.c \
+	loonggpu_cs.c \
+	loonggpu_device.c \
+	loonggpu_gpu_info.c \
+	loonggpu_internal.h \
+	loonggpu_vamgr.c \
+	loonggpu_vm.c \
+	loonggpu_hw_sema.c \
+	util_hash.c \
+	util_hash.h \
+	util_hash_table.c \
+	util_hash_table.h
+
+LIBDRM_LOONGGPU_H_FILES := \
+	loonggpu.h

@@ -1,4 +1,4 @@
-/* gsgpu_drm.h -- Public header for the gsgpu driver -*- linux-c -*-
+/* loonggpu_drm.h -- Public header for the loonggpu driver -*- linux-c -*-
  *
  * Copyright (C) 2021, Loongson Technology Corporation Limited, Inc
  *
@@ -22,8 +22,8 @@
  *
  */
 
-#ifndef __GSGPU_DRM_H__
-#define __GSGPU_DRM_H__
+#ifndef __LOONGGPU_DRM_H__
+#define __LOONGGPU_DRM_H__
 
 #include "drm.h"
 
@@ -31,67 +31,67 @@
 extern "C" {
 #endif
 
-#define DRM_GSGPU_GEM_CREATE		0x00
-#define DRM_GSGPU_GEM_MMAP		0x01
-#define DRM_GSGPU_CTX			0x02
-#define DRM_GSGPU_BO_LIST		0x03
-#define DRM_GSGPU_CS			0x04
-#define DRM_GSGPU_INFO			0x05
-#define DRM_GSGPU_GEM_METADATA		0x06
-#define DRM_GSGPU_GEM_WAIT_IDLE		0x07
-#define DRM_GSGPU_GEM_VA		0x08
-#define DRM_GSGPU_WAIT_CS		0x09
-#define DRM_GSGPU_GEM_OP		0x10
-#define DRM_GSGPU_GEM_USERPTR		0x11
-#define DRM_GSGPU_WAIT_FENCES		0x12
-#define DRM_GSGPU_VM			0x13
-#define DRM_GSGPU_FENCE_TO_HANDLE	0x14
-#define DRM_GSGPU_SCHED			0x15
-#define DRM_GSGPU_HWSEMA_OP		0x16
+#define DRM_LOONGGPU_GEM_CREATE		0x00
+#define DRM_LOONGGPU_GEM_MMAP		0x01
+#define DRM_LOONGGPU_CTX			0x02
+#define DRM_LOONGGPU_BO_LIST		0x03
+#define DRM_LOONGGPU_CS			0x04
+#define DRM_LOONGGPU_INFO			0x05
+#define DRM_LOONGGPU_GEM_METADATA		0x06
+#define DRM_LOONGGPU_GEM_WAIT_IDLE		0x07
+#define DRM_LOONGGPU_GEM_VA		0x08
+#define DRM_LOONGGPU_WAIT_CS		0x09
+#define DRM_LOONGGPU_GEM_OP		0x10
+#define DRM_LOONGGPU_GEM_USERPTR		0x11
+#define DRM_LOONGGPU_WAIT_FENCES		0x12
+#define DRM_LOONGGPU_VM			0x13
+#define DRM_LOONGGPU_FENCE_TO_HANDLE	0x14
+#define DRM_LOONGGPU_SCHED			0x15
+#define DRM_LOONGGPU_HWSEMA_OP		0x16
 
-#define DRM_IOCTL_GSGPU_GEM_CREATE	DRM_IOWR(DRM_COMMAND_BASE + DRM_GSGPU_GEM_CREATE, union drm_gsgpu_gem_create)
-#define DRM_IOCTL_GSGPU_GEM_MMAP	DRM_IOWR(DRM_COMMAND_BASE + DRM_GSGPU_GEM_MMAP, union drm_gsgpu_gem_mmap)
-#define DRM_IOCTL_GSGPU_CTX		DRM_IOWR(DRM_COMMAND_BASE + DRM_GSGPU_CTX, union drm_gsgpu_ctx)
-#define DRM_IOCTL_GSGPU_BO_LIST		DRM_IOWR(DRM_COMMAND_BASE + DRM_GSGPU_BO_LIST, union drm_gsgpu_bo_list)
-#define DRM_IOCTL_GSGPU_CS		DRM_IOWR(DRM_COMMAND_BASE + DRM_GSGPU_CS, union drm_gsgpu_cs)
-#define DRM_IOCTL_GSGPU_INFO		DRM_IOW(DRM_COMMAND_BASE + DRM_GSGPU_INFO, struct drm_gsgpu_info)
-#define DRM_IOCTL_GSGPU_GEM_METADATA	DRM_IOWR(DRM_COMMAND_BASE + DRM_GSGPU_GEM_METADATA, struct drm_gsgpu_gem_metadata)
-#define DRM_IOCTL_GSGPU_GEM_WAIT_IDLE	DRM_IOWR(DRM_COMMAND_BASE + DRM_GSGPU_GEM_WAIT_IDLE, union drm_gsgpu_gem_wait_idle)
-#define DRM_IOCTL_GSGPU_GEM_VA		DRM_IOW(DRM_COMMAND_BASE + DRM_GSGPU_GEM_VA, struct drm_gsgpu_gem_va)
-#define DRM_IOCTL_GSGPU_WAIT_CS		DRM_IOWR(DRM_COMMAND_BASE + DRM_GSGPU_WAIT_CS, union drm_gsgpu_wait_cs)
-#define DRM_IOCTL_GSGPU_GEM_OP		DRM_IOWR(DRM_COMMAND_BASE + DRM_GSGPU_GEM_OP, struct drm_gsgpu_gem_op)
-#define DRM_IOCTL_GSGPU_GEM_USERPTR	DRM_IOWR(DRM_COMMAND_BASE + DRM_GSGPU_GEM_USERPTR, struct drm_gsgpu_gem_userptr)
-#define DRM_IOCTL_GSGPU_WAIT_FENCES	DRM_IOWR(DRM_COMMAND_BASE + DRM_GSGPU_WAIT_FENCES, union drm_gsgpu_wait_fences)
-#define DRM_IOCTL_GSGPU_VM		DRM_IOWR(DRM_COMMAND_BASE + DRM_GSGPU_VM, union drm_gsgpu_vm)
-#define DRM_IOCTL_GSGPU_FENCE_TO_HANDLE DRM_IOWR(DRM_COMMAND_BASE + DRM_GSGPU_FENCE_TO_HANDLE, union drm_gsgpu_fence_to_handle)
-#define DRM_IOCTL_GSGPU_SCHED		DRM_IOW(DRM_COMMAND_BASE + DRM_GSGPU_SCHED, union drm_gsgpu_sched)
-#define DRM_IOCTL_GSGPU_HWSEMA_OP       DRM_IOWR(DRM_COMMAND_BASE + DRM_GSGPU_HWSEMA_OP, struct drm_gsgpu_hw_sema)
+#define DRM_IOCTL_LOONGGPU_GEM_CREATE	DRM_IOWR(DRM_COMMAND_BASE + DRM_LOONGGPU_GEM_CREATE, union drm_loonggpu_gem_create)
+#define DRM_IOCTL_LOONGGPU_GEM_MMAP	DRM_IOWR(DRM_COMMAND_BASE + DRM_LOONGGPU_GEM_MMAP, union drm_loonggpu_gem_mmap)
+#define DRM_IOCTL_LOONGGPU_CTX		DRM_IOWR(DRM_COMMAND_BASE + DRM_LOONGGPU_CTX, union drm_loonggpu_ctx)
+#define DRM_IOCTL_LOONGGPU_BO_LIST		DRM_IOWR(DRM_COMMAND_BASE + DRM_LOONGGPU_BO_LIST, union drm_loonggpu_bo_list)
+#define DRM_IOCTL_LOONGGPU_CS		DRM_IOWR(DRM_COMMAND_BASE + DRM_LOONGGPU_CS, union drm_loonggpu_cs)
+#define DRM_IOCTL_LOONGGPU_INFO		DRM_IOW(DRM_COMMAND_BASE + DRM_LOONGGPU_INFO, struct drm_loonggpu_info)
+#define DRM_IOCTL_LOONGGPU_GEM_METADATA	DRM_IOWR(DRM_COMMAND_BASE + DRM_LOONGGPU_GEM_METADATA, struct drm_loonggpu_gem_metadata)
+#define DRM_IOCTL_LOONGGPU_GEM_WAIT_IDLE	DRM_IOWR(DRM_COMMAND_BASE + DRM_LOONGGPU_GEM_WAIT_IDLE, union drm_loonggpu_gem_wait_idle)
+#define DRM_IOCTL_LOONGGPU_GEM_VA		DRM_IOW(DRM_COMMAND_BASE + DRM_LOONGGPU_GEM_VA, struct drm_loonggpu_gem_va)
+#define DRM_IOCTL_LOONGGPU_WAIT_CS		DRM_IOWR(DRM_COMMAND_BASE + DRM_LOONGGPU_WAIT_CS, union drm_loonggpu_wait_cs)
+#define DRM_IOCTL_LOONGGPU_GEM_OP		DRM_IOWR(DRM_COMMAND_BASE + DRM_LOONGGPU_GEM_OP, struct drm_loonggpu_gem_op)
+#define DRM_IOCTL_LOONGGPU_GEM_USERPTR	DRM_IOWR(DRM_COMMAND_BASE + DRM_LOONGGPU_GEM_USERPTR, struct drm_loonggpu_gem_userptr)
+#define DRM_IOCTL_LOONGGPU_WAIT_FENCES	DRM_IOWR(DRM_COMMAND_BASE + DRM_LOONGGPU_WAIT_FENCES, union drm_loonggpu_wait_fences)
+#define DRM_IOCTL_LOONGGPU_VM		DRM_IOWR(DRM_COMMAND_BASE + DRM_LOONGGPU_VM, union drm_loonggpu_vm)
+#define DRM_IOCTL_LOONGGPU_FENCE_TO_HANDLE DRM_IOWR(DRM_COMMAND_BASE + DRM_LOONGGPU_FENCE_TO_HANDLE, union drm_loonggpu_fence_to_handle)
+#define DRM_IOCTL_LOONGGPU_SCHED		DRM_IOW(DRM_COMMAND_BASE + DRM_LOONGGPU_SCHED, union drm_loonggpu_sched)
+#define DRM_IOCTL_LOONGGPU_HWSEMA_OP       DRM_IOWR(DRM_COMMAND_BASE + DRM_LOONGGPU_HWSEMA_OP, struct drm_loonggpu_hw_sema)
 
-#define GSGPU_GEM_DOMAIN_CPU		0x1
-#define GSGPU_GEM_DOMAIN_GTT		0x2
-#define GSGPU_GEM_DOMAIN_VRAM		0x4
-#define GSGPU_GEM_DOMAIN_GDS		0x8
-#define GSGPU_GEM_DOMAIN_GWS		0x10
-#define GSGPU_GEM_DOMAIN_OA		0x20
+#define LOONGGPU_GEM_DOMAIN_CPU		0x1
+#define LOONGGPU_GEM_DOMAIN_GTT		0x2
+#define LOONGGPU_GEM_DOMAIN_VRAM		0x4
+#define LOONGGPU_GEM_DOMAIN_GDS		0x8
+#define LOONGGPU_GEM_DOMAIN_GWS		0x10
+#define LOONGGPU_GEM_DOMAIN_OA		0x20
 
 /* Flag that CPU access will be required for the case of VRAM domain */
-#define GSGPU_GEM_CREATE_CPU_ACCESS_REQUIRED	(1 << 0)
+#define LOONGGPU_GEM_CREATE_CPU_ACCESS_REQUIRED	(1 << 0)
 /* Flag that CPU access will not work, this VRAM domain is invisible */
-#define GSGPU_GEM_CREATE_NO_CPU_ACCESS		(1 << 1)
+#define LOONGGPU_GEM_CREATE_NO_CPU_ACCESS		(1 << 1)
 /* Flag that USWC attributes should be used for GTT */
-#define GSGPU_GEM_CREATE_CPU_GTT_USWC		(1 << 2)
+#define LOONGGPU_GEM_CREATE_CPU_GTT_USWC		(1 << 2)
 /* Flag that the memory should be in VRAM and cleared */
-#define GSGPU_GEM_CREATE_VRAM_CLEARED		(1 << 3)
+#define LOONGGPU_GEM_CREATE_VRAM_CLEARED		(1 << 3)
 /* Flag that create shadow bo(GTT) while allocating vram bo */
-#define GSGPU_GEM_CREATE_SHADOW			(1 << 4)
+#define LOONGGPU_GEM_CREATE_SHADOW			(1 << 4)
 /* Flag that allocating the BO should use linear VRAM */
-#define GSGPU_GEM_CREATE_VRAM_CONTIGUOUS	(1 << 5)
+#define LOONGGPU_GEM_CREATE_VRAM_CONTIGUOUS	(1 << 5)
 /* Flag that BO is always valid in this VM */
-#define GSGPU_GEM_CREATE_VM_ALWAYS_VALID	(1 << 6)
+#define LOONGGPU_GEM_CREATE_VM_ALWAYS_VALID	(1 << 6)
 /* Flag that BO sharing will be explicitly synchronized */
-#define GSGPU_GEM_CREATE_EXPLICIT_SYNC		(1 << 7)
+#define LOONGGPU_GEM_CREATE_EXPLICIT_SYNC		(1 << 7)
 
-struct drm_gsgpu_gem_create_in  {
+struct drm_loonggpu_gem_create_in  {
 	/** the requested memory size */
 	__u64 bo_size;
 	/** physical start_addr alignment in bytes for some HW requirements */
@@ -102,25 +102,25 @@ struct drm_gsgpu_gem_create_in  {
 	__u64 domain_flags;
 };
 
-struct drm_gsgpu_gem_create_out  {
+struct drm_loonggpu_gem_create_out  {
 	/** returned GEM object handle */
 	__u32 handle;
 	__u32 _pad;
 };
 
-union drm_gsgpu_gem_create {
-	struct drm_gsgpu_gem_create_in		in;
-	struct drm_gsgpu_gem_create_out	out;
+union drm_loonggpu_gem_create {
+	struct drm_loonggpu_gem_create_in		in;
+	struct drm_loonggpu_gem_create_out	out;
 };
 
 /** Opcode to create new residency list.  */
-#define GSGPU_BO_LIST_OP_CREATE	0
+#define LOONGGPU_BO_LIST_OP_CREATE	0
 /** Opcode to destroy previously created residency list */
-#define GSGPU_BO_LIST_OP_DESTROY	1
+#define LOONGGPU_BO_LIST_OP_DESTROY	1
 /** Opcode to update resource information in the list */
-#define GSGPU_BO_LIST_OP_UPDATE	2
+#define LOONGGPU_BO_LIST_OP_UPDATE	2
 
-struct drm_gsgpu_bo_list_in {
+struct drm_loonggpu_bo_list_in {
 	/** Type of operation */
 	__u32 operation;
 	/** Handle of list or 0 if we want to create one */
@@ -133,49 +133,49 @@ struct drm_gsgpu_bo_list_in {
 	__u64 bo_info_ptr;
 };
 
-struct drm_gsgpu_bo_list_entry {
+struct drm_loonggpu_bo_list_entry {
 	/** Handle of BO */
 	__u32 bo_handle;
 	/** New (if specified) BO priority to be used during migration */
 	__u32 bo_priority;
 };
 
-struct drm_gsgpu_bo_list_out {
+struct drm_loonggpu_bo_list_out {
 	/** Handle of resource list  */
 	__u32 list_handle;
 	__u32 _pad;
 };
 
-union drm_gsgpu_bo_list {
-	struct drm_gsgpu_bo_list_in in;
-	struct drm_gsgpu_bo_list_out out;
+union drm_loonggpu_bo_list {
+	struct drm_loonggpu_bo_list_in in;
+	struct drm_loonggpu_bo_list_out out;
 };
 
 /* context related */
-#define GSGPU_CTX_OP_ALLOC_CTX		1
-#define GSGPU_CTX_OP_FREE_CTX		2
-#define GSGPU_CTX_OP_QUERY_STATE	3
+#define LOONGGPU_CTX_OP_ALLOC_CTX		1
+#define LOONGGPU_CTX_OP_FREE_CTX		2
+#define LOONGGPU_CTX_OP_QUERY_STATE	3
 
 /* GPU reset status */
-#define GSGPU_CTX_NO_RESET		0
+#define LOONGGPU_CTX_NO_RESET		0
 /* this the context caused it */
-#define GSGPU_CTX_GUILTY_RESET		1
+#define LOONGGPU_CTX_GUILTY_RESET		1
 /* some other context caused it */
-#define GSGPU_CTX_INNOCENT_RESET	2
+#define LOONGGPU_CTX_INNOCENT_RESET	2
 /* unknown cause */
-#define GSGPU_CTX_UNKNOWN_RESET		3
+#define LOONGGPU_CTX_UNKNOWN_RESET		3
 
 /* Context priority level */
-#define GSGPU_CTX_PRIORITY_UNSET       -2048
-#define GSGPU_CTX_PRIORITY_VERY_LOW    -1023
-#define GSGPU_CTX_PRIORITY_LOW         -512
-#define GSGPU_CTX_PRIORITY_NORMAL      0
+#define LOONGGPU_CTX_PRIORITY_UNSET       -2048
+#define LOONGGPU_CTX_PRIORITY_VERY_LOW    -1023
+#define LOONGGPU_CTX_PRIORITY_LOW         -512
+#define LOONGGPU_CTX_PRIORITY_NORMAL      0
 /* Selecting a priority above NORMAL requires CAP_SYS_NICE or DRM_MASTER */
-#define GSGPU_CTX_PRIORITY_HIGH        512
-#define GSGPU_CTX_PRIORITY_VERY_HIGH   1023
+#define LOONGGPU_CTX_PRIORITY_HIGH        512
+#define LOONGGPU_CTX_PRIORITY_VERY_HIGH   1023
 
-struct drm_gsgpu_ctx_in {
-	/** GSGPU_CTX_OP_* */
+struct drm_loonggpu_ctx_in {
+	/** LOONGGPU_CTX_OP_* */
 	__u32	op;
 	/** For future use, no flags defined so far */
 	__u32	flags;
@@ -183,7 +183,7 @@ struct drm_gsgpu_ctx_in {
 	__s32	priority;
 };
 
-union drm_gsgpu_ctx_out {
+union drm_loonggpu_ctx_out {
 		struct {
 			__u32	ctx_id;
 			__u32	_pad;
@@ -199,44 +199,44 @@ union drm_gsgpu_ctx_out {
 		} state;
 };
 
-union drm_gsgpu_ctx {
-	struct drm_gsgpu_ctx_in in;
-	union drm_gsgpu_ctx_out out;
+union drm_loonggpu_ctx {
+	struct drm_loonggpu_ctx_in in;
+	union drm_loonggpu_ctx_out out;
 };
 
 /* vm ioctl */
-#define GSGPU_VM_OP_RESERVE_VMID	1
-#define GSGPU_VM_OP_UNRESERVE_VMID	2
+#define LOONGGPU_VM_OP_RESERVE_VMID	1
+#define LOONGGPU_VM_OP_UNRESERVE_VMID	2
 
-struct drm_gsgpu_vm_in {
-	/** GSGPU_VM_OP_* */
+struct drm_loonggpu_vm_in {
+	/** LOONGGPU_VM_OP_* */
 	__u32	op;
 	__u32	flags;
 };
 
-struct drm_gsgpu_vm_out {
+struct drm_loonggpu_vm_out {
 	/** For future use, no flags defined so far */
 	__u64	flags;
 };
 
-union drm_gsgpu_vm {
-	struct drm_gsgpu_vm_in in;
-	struct drm_gsgpu_vm_out out;
+union drm_loonggpu_vm {
+	struct drm_loonggpu_vm_in in;
+	struct drm_loonggpu_vm_out out;
 };
 
 /* sched ioctl */
-#define GSGPU_SCHED_OP_PROCESS_PRIORITY_OVERRIDE	1
+#define LOONGGPU_SCHED_OP_PROCESS_PRIORITY_OVERRIDE	1
 
-struct drm_gsgpu_sched_in {
-	/* GSGPU_SCHED_OP_* */
+struct drm_loonggpu_sched_in {
+	/* LOONGGPU_SCHED_OP_* */
 	__u32	op;
 	__u32	fd;
 	__s32	priority;
 	__u32	flags;
 };
 
-union drm_gsgpu_sched {
-	struct drm_gsgpu_sched_in in;
+union drm_loonggpu_sched {
+	struct drm_loonggpu_sched_in in;
 };
 
 /*
@@ -244,15 +244,15 @@ union drm_gsgpu_sched {
  * number of reasons and have fallback path that do not use userptr to
  * perform any operation.
  */
-#define GSGPU_GEM_USERPTR_READONLY	(1 << 0)
-#define GSGPU_GEM_USERPTR_ANONONLY	(1 << 1)
-#define GSGPU_GEM_USERPTR_VALIDATE	(1 << 2)
-#define GSGPU_GEM_USERPTR_REGISTER	(1 << 3)
+#define LOONGGPU_GEM_USERPTR_READONLY	(1 << 0)
+#define LOONGGPU_GEM_USERPTR_ANONONLY	(1 << 1)
+#define LOONGGPU_GEM_USERPTR_VALIDATE	(1 << 2)
+#define LOONGGPU_GEM_USERPTR_REGISTER	(1 << 3)
 
-struct drm_gsgpu_gem_userptr {
+struct drm_loonggpu_gem_userptr {
 	__u64		addr;
 	__u64		size;
-	/* GSGPU_GEM_USERPTR_* */
+	/* LOONGGPU_GEM_USERPTR_* */
 	__u32		flags;
 	/* Resulting GEM handle */
 	__u32		handle;
@@ -260,38 +260,38 @@ struct drm_gsgpu_gem_userptr {
 
 /* SI-CI-VI: */
 /* same meaning as the GB_TILE_MODE and GL_MACRO_TILE_MODE fields */
-#define GSGPU_TILING_ARRAY_MODE_SHIFT			0
-#define GSGPU_TILING_ARRAY_MODE_MASK			0xf
-#define GSGPU_TILING_PIPE_CONFIG_SHIFT			4
-#define GSGPU_TILING_PIPE_CONFIG_MASK			0x1f
-#define GSGPU_TILING_TILE_SPLIT_SHIFT			9
-#define GSGPU_TILING_TILE_SPLIT_MASK			0x7
-#define GSGPU_TILING_MICRO_TILE_MODE_SHIFT		12
-#define GSGPU_TILING_MICRO_TILE_MODE_MASK		0x7
-#define GSGPU_TILING_BANK_WIDTH_SHIFT			15
-#define GSGPU_TILING_BANK_WIDTH_MASK			0x3
-#define GSGPU_TILING_BANK_HEIGHT_SHIFT			17
-#define GSGPU_TILING_BANK_HEIGHT_MASK			0x3
-#define GSGPU_TILING_MACRO_TILE_ASPECT_SHIFT		19
-#define GSGPU_TILING_MACRO_TILE_ASPECT_MASK		0x3
-#define GSGPU_TILING_NUM_BANKS_SHIFT			21
-#define GSGPU_TILING_NUM_BANKS_MASK			0x3
+#define LOONGGPU_TILING_ARRAY_MODE_SHIFT			0
+#define LOONGGPU_TILING_ARRAY_MODE_MASK			0xf
+#define LOONGGPU_TILING_PIPE_CONFIG_SHIFT			4
+#define LOONGGPU_TILING_PIPE_CONFIG_MASK			0x1f
+#define LOONGGPU_TILING_TILE_SPLIT_SHIFT			9
+#define LOONGGPU_TILING_TILE_SPLIT_MASK			0x7
+#define LOONGGPU_TILING_MICRO_TILE_MODE_SHIFT		12
+#define LOONGGPU_TILING_MICRO_TILE_MODE_MASK		0x7
+#define LOONGGPU_TILING_BANK_WIDTH_SHIFT			15
+#define LOONGGPU_TILING_BANK_WIDTH_MASK			0x3
+#define LOONGGPU_TILING_BANK_HEIGHT_SHIFT			17
+#define LOONGGPU_TILING_BANK_HEIGHT_MASK			0x3
+#define LOONGGPU_TILING_MACRO_TILE_ASPECT_SHIFT		19
+#define LOONGGPU_TILING_MACRO_TILE_ASPECT_MASK		0x3
+#define LOONGGPU_TILING_NUM_BANKS_SHIFT			21
+#define LOONGGPU_TILING_NUM_BANKS_MASK			0x3
 
 /* GFX9 and later: */
-#define GSGPU_TILING_SWIZZLE_MODE_SHIFT			0
-#define GSGPU_TILING_SWIZZLE_MODE_MASK			0x1f
+#define LOONGGPU_TILING_SWIZZLE_MODE_SHIFT			0
+#define LOONGGPU_TILING_SWIZZLE_MODE_MASK			0x1f
 
 /* Set/Get helpers for tiling flags. */
-#define GSGPU_TILING_SET(field, value) \
-	(((__u64)(value) & GSGPU_TILING_##field##_MASK) << GSGPU_TILING_##field##_SHIFT)
-#define GSGPU_TILING_GET(value, field) \
-	(((__u64)(value) >> GSGPU_TILING_##field##_SHIFT) & GSGPU_TILING_##field##_MASK)
+#define LOONGGPU_TILING_SET(field, value) \
+	(((__u64)(value) & LOONGGPU_TILING_##field##_MASK) << LOONGGPU_TILING_##field##_SHIFT)
+#define LOONGGPU_TILING_GET(value, field) \
+	(((__u64)(value) >> LOONGGPU_TILING_##field##_SHIFT) & LOONGGPU_TILING_##field##_MASK)
 
-#define GSGPU_GEM_METADATA_OP_SET_METADATA                  1
-#define GSGPU_GEM_METADATA_OP_GET_METADATA                  2
+#define LOONGGPU_GEM_METADATA_OP_SET_METADATA                  1
+#define LOONGGPU_GEM_METADATA_OP_GET_METADATA                  2
 
 /** The same structure is shared for input/output */
-struct drm_gsgpu_gem_metadata {
+struct drm_loonggpu_gem_metadata {
 	/** GEM Object handle */
 	__u32	handle;
 	/** Do we want get or set metadata */
@@ -306,23 +306,23 @@ struct drm_gsgpu_gem_metadata {
 	} data;
 };
 
-struct drm_gsgpu_gem_mmap_in {
+struct drm_loonggpu_gem_mmap_in {
 	/** the GEM object handle */
 	__u32 handle;
 	__u32 _pad;
 };
 
-struct drm_gsgpu_gem_mmap_out {
+struct drm_loonggpu_gem_mmap_out {
 	/** mmap offset from the vma offset manager */
 	__u64 addr_ptr;
 };
 
-union drm_gsgpu_gem_mmap {
-	struct drm_gsgpu_gem_mmap_in   in;
-	struct drm_gsgpu_gem_mmap_out out;
+union drm_loonggpu_gem_mmap {
+	struct drm_loonggpu_gem_mmap_in   in;
+	struct drm_loonggpu_gem_mmap_out out;
 };
 
-struct drm_gsgpu_gem_wait_idle_in {
+struct drm_loonggpu_gem_wait_idle_in {
 	/** GEM object handle */
 	__u32 handle;
 	/** For future use, no flags defined so far */
@@ -331,19 +331,19 @@ struct drm_gsgpu_gem_wait_idle_in {
 	__u64 timeout;
 };
 
-struct drm_gsgpu_gem_wait_idle_out {
+struct drm_loonggpu_gem_wait_idle_out {
 	/** BO status:  0 - BO is idle, 1 - BO is busy */
 	__u32 status;
 	/** Returned current memory domain */
 	__u32 domain;
 };
 
-union drm_gsgpu_gem_wait_idle {
-	struct drm_gsgpu_gem_wait_idle_in  in;
-	struct drm_gsgpu_gem_wait_idle_out out;
+union drm_loonggpu_gem_wait_idle {
+	struct drm_loonggpu_gem_wait_idle_in  in;
+	struct drm_loonggpu_gem_wait_idle_out out;
 };
 
-struct drm_gsgpu_wait_cs_in {
+struct drm_loonggpu_wait_cs_in {
 	/* Command submission handle
          * handle equals 0 means none to wait for
          * handle equals ~0ull means wait for the latest sequence number
@@ -357,17 +357,17 @@ struct drm_gsgpu_wait_cs_in {
 	__u32 ctx_id;
 };
 
-struct drm_gsgpu_wait_cs_out {
+struct drm_loonggpu_wait_cs_out {
 	/** CS status:  0 - CS completed, 1 - CS still busy */
 	__u64 status;
 };
 
-union drm_gsgpu_wait_cs {
-	struct drm_gsgpu_wait_cs_in in;
-	struct drm_gsgpu_wait_cs_out out;
+union drm_loonggpu_wait_cs {
+	struct drm_loonggpu_wait_cs_in in;
+	struct drm_loonggpu_wait_cs_out out;
 };
 
-struct drm_gsgpu_fence {
+struct drm_loonggpu_fence {
 	__u32 ctx_id;
 	__u32 ip_type;
 	__u32 ip_instance;
@@ -375,7 +375,7 @@ struct drm_gsgpu_fence {
 	__u64 seq_no;
 };
 
-struct drm_gsgpu_wait_fences_in {
+struct drm_loonggpu_wait_fences_in {
 	/** This points to uint64_t * which points to fences */
 	__u64 fences;
 	__u32 fence_count;
@@ -383,66 +383,66 @@ struct drm_gsgpu_wait_fences_in {
 	__u64 timeout_ns;
 };
 
-struct drm_gsgpu_wait_fences_out {
+struct drm_loonggpu_wait_fences_out {
 	__u32 status;
 	__u32 first_signaled;
 };
 
-union drm_gsgpu_wait_fences {
-	struct drm_gsgpu_wait_fences_in in;
-	struct drm_gsgpu_wait_fences_out out;
+union drm_loonggpu_wait_fences {
+	struct drm_loonggpu_wait_fences_in in;
+	struct drm_loonggpu_wait_fences_out out;
 };
 
-#define GSGPU_GEM_OP_GET_GEM_CREATE_INFO	0
-#define GSGPU_GEM_OP_SET_PLACEMENT		1
+#define LOONGGPU_GEM_OP_GET_GEM_CREATE_INFO	0
+#define LOONGGPU_GEM_OP_SET_PLACEMENT		1
 
 /* Sets or returns a value associated with a buffer. */
-struct drm_gsgpu_gem_op {
+struct drm_loonggpu_gem_op {
 	/** GEM object handle */
 	__u32	handle;
-	/** GSGPU_GEM_OP_* */
+	/** LOONGGPU_GEM_OP_* */
 	__u32	op;
 	/** Input or return value */
 	__u64	value;
 };
 
-#define GSGPU_VA_OP_MAP			1
-#define GSGPU_VA_OP_UNMAP			2
-#define GSGPU_VA_OP_CLEAR			3
-#define GSGPU_VA_OP_REPLACE			4
+#define LOONGGPU_VA_OP_MAP			1
+#define LOONGGPU_VA_OP_UNMAP			2
+#define LOONGGPU_VA_OP_CLEAR			3
+#define LOONGGPU_VA_OP_REPLACE			4
 
 /* Delay the page table update till the next CS */
-#define GSGPU_VM_DELAY_UPDATE		(1 << 0)
+#define LOONGGPU_VM_DELAY_UPDATE		(1 << 0)
 
 /* Mapping flags */
 /* readable mapping */
-#define GSGPU_VM_PAGE_READABLE		(1 << 1)
+#define LOONGGPU_VM_PAGE_READABLE		(1 << 1)
 /* writable mapping */
-#define GSGPU_VM_PAGE_WRITEABLE	(1 << 2)
+#define LOONGGPU_VM_PAGE_WRITEABLE	(1 << 2)
 /* executable mapping, new for VI */
-#define GSGPU_VM_PAGE_EXECUTABLE	(1 << 3)
+#define LOONGGPU_VM_PAGE_EXECUTABLE	(1 << 3)
 /* partially resident texture */
-#define GSGPU_VM_PAGE_PRT		(1 << 4)
+#define LOONGGPU_VM_PAGE_PRT		(1 << 4)
 /* MTYPE flags use bit 5 to 8 */
-#define GSGPU_VM_MTYPE_MASK		(0xf << 5)
+#define LOONGGPU_VM_MTYPE_MASK		(0xf << 5)
 /* Default MTYPE. Pre-AI must use this.  Recommended for newer ASICs. */
-#define GSGPU_VM_MTYPE_DEFAULT		(0 << 5)
+#define LOONGGPU_VM_MTYPE_DEFAULT		(0 << 5)
 /* Use NC MTYPE instead of default MTYPE */
-#define GSGPU_VM_MTYPE_NC		(1 << 5)
+#define LOONGGPU_VM_MTYPE_NC		(1 << 5)
 /* Use WC MTYPE instead of default MTYPE */
-#define GSGPU_VM_MTYPE_WC		(2 << 5)
+#define LOONGGPU_VM_MTYPE_WC		(2 << 5)
 /* Use CC MTYPE instead of default MTYPE */
-#define GSGPU_VM_MTYPE_CC		(3 << 5)
+#define LOONGGPU_VM_MTYPE_CC		(3 << 5)
 /* Use UC MTYPE instead of default MTYPE */
-#define GSGPU_VM_MTYPE_UC		(4 << 5)
+#define LOONGGPU_VM_MTYPE_UC		(4 << 5)
 
-struct drm_gsgpu_gem_va {
+struct drm_loonggpu_gem_va {
 	/** GEM object handle */
 	__u32 handle;
 	__u32 _pad;
-	/** GSGPU_VA_OP_* */
+	/** LOONGGPU_VA_OP_* */
 	__u32 operation;
-	/** GSGPU_VM_PAGE_* */
+	/** LOONGGPU_VM_PAGE_* */
 	__u32 flags;
 	/** va address to assign . Must be correctly aligned.*/
 	__u64 va_address;
@@ -452,31 +452,31 @@ struct drm_gsgpu_gem_va {
 	__u64 map_size;
 };
 
-#define GSGPU_HW_IP_GFX          0
-#define GSGPU_HW_IP_COMPUTE      1
-#define GSGPU_HW_IP_DMA          2
-#define GSGPU_HW_IP_UVD          3
-#define GSGPU_HW_IP_VCE          4
-#define GSGPU_HW_IP_UVD_ENC      5
-#define GSGPU_HW_IP_VCN_DEC      6
-#define GSGPU_HW_IP_VCN_ENC      7
-#define GSGPU_HW_IP_NUM          8
+#define LOONGGPU_HW_IP_GFX          0
+#define LOONGGPU_HW_IP_COMPUTE      1
+#define LOONGGPU_HW_IP_DMA          2
+#define LOONGGPU_HW_IP_UVD          3
+#define LOONGGPU_HW_IP_VCE          4
+#define LOONGGPU_HW_IP_UVD_ENC      5
+#define LOONGGPU_HW_IP_VCN_DEC      6
+#define LOONGGPU_HW_IP_VCN_ENC      7
+#define LOONGGPU_HW_IP_NUM          8
 
-#define GSGPU_HW_IP_INSTANCE_MAX_COUNT 1
+#define LOONGGPU_HW_IP_INSTANCE_MAX_COUNT 1
 
-#define GSGPU_CHUNK_ID_IB		0x01
-#define GSGPU_CHUNK_ID_FENCE		0x02
-#define GSGPU_CHUNK_ID_DEPENDENCIES	0x03
-#define GSGPU_CHUNK_ID_SYNCOBJ_IN      	0x04
-#define GSGPU_CHUNK_ID_SYNCOBJ_OUT     	0x05
+#define LOONGGPU_CHUNK_ID_IB		0x01
+#define LOONGGPU_CHUNK_ID_FENCE		0x02
+#define LOONGGPU_CHUNK_ID_DEPENDENCIES	0x03
+#define LOONGGPU_CHUNK_ID_SYNCOBJ_IN      	0x04
+#define LOONGGPU_CHUNK_ID_SYNCOBJ_OUT     	0x05
 
-struct drm_gsgpu_cs_chunk {
+struct drm_loonggpu_cs_chunk {
 	__u32		chunk_id;
 	__u32		length_dw;
 	__u64		chunk_data;
 };
 
-struct drm_gsgpu_cs_in {
+struct drm_loonggpu_cs_in {
 	/** Rendering context id */
 	__u32		ctx_id;
 	/**  Handle of resource list associated with CS */
@@ -487,29 +487,29 @@ struct drm_gsgpu_cs_in {
 	__u64		chunks;
 };
 
-struct drm_gsgpu_cs_out {
+struct drm_loonggpu_cs_out {
 	__u64 handle;
 };
 
-union drm_gsgpu_cs {
-	struct drm_gsgpu_cs_in in;
-	struct drm_gsgpu_cs_out out;
+union drm_loonggpu_cs {
+	struct drm_loonggpu_cs_in in;
+	struct drm_loonggpu_cs_out out;
 };
 
 /* Specify flags to be used for IB */
 
 /* This IB should be submitted to CE */
-#define GSGPU_IB_FLAG_CE	(1<<0)
+#define LOONGGPU_IB_FLAG_CE	(1<<0)
 
 /* Preamble flag, which means the IB could be dropped if no context switch */
-#define GSGPU_IB_FLAG_PREAMBLE (1<<1)
+#define LOONGGPU_IB_FLAG_PREAMBLE (1<<1)
 
 /* Preempt flag, IB should set Pre_enb bit if PREEMPT flag detected */
-#define GSGPU_IB_FLAG_PREEMPT (1<<2)
+#define LOONGGPU_IB_FLAG_PREEMPT (1<<2)
 
-struct drm_gsgpu_cs_chunk_ib {
+struct drm_loonggpu_cs_chunk_ib {
 	__u32 _pad;
-	/** GSGPU_IB_FLAG_* */
+	/** LOONGGPU_IB_FLAG_* */
 	__u32 flags;
 	/** Virtual address to begin IB execution */
 	__u64 va_start;
@@ -523,7 +523,7 @@ struct drm_gsgpu_cs_chunk_ib {
 	__u32 ring;
 };
 
-struct drm_gsgpu_cs_chunk_dep {
+struct drm_loonggpu_cs_chunk_dep {
 	__u32 ip_type;
 	__u32 ip_instance;
 	__u32 ring;
@@ -531,22 +531,22 @@ struct drm_gsgpu_cs_chunk_dep {
 	__u64 handle;
 };
 
-struct drm_gsgpu_cs_chunk_fence {
+struct drm_loonggpu_cs_chunk_fence {
 	__u32 handle;
 	__u32 offset;
 };
 
-struct drm_gsgpu_cs_chunk_sem {
+struct drm_loonggpu_cs_chunk_sem {
 	__u32 handle;
 };
 
-#define GSGPU_FENCE_TO_HANDLE_GET_SYNCOBJ	0
-#define GSGPU_FENCE_TO_HANDLE_GET_SYNCOBJ_FD	1
-#define GSGPU_FENCE_TO_HANDLE_GET_SYNC_FILE_FD	2
+#define LOONGGPU_FENCE_TO_HANDLE_GET_SYNCOBJ	0
+#define LOONGGPU_FENCE_TO_HANDLE_GET_SYNCOBJ_FD	1
+#define LOONGGPU_FENCE_TO_HANDLE_GET_SYNC_FILE_FD	2
 
-union drm_gsgpu_fence_to_handle {
+union drm_loonggpu_fence_to_handle {
 	struct {
-		struct drm_gsgpu_fence fence;
+		struct drm_loonggpu_fence fence;
 		__u32 what;
 		__u32 pad;
 	} in;
@@ -555,10 +555,10 @@ union drm_gsgpu_fence_to_handle {
 	} out;
 };
 
-struct drm_gsgpu_cs_chunk_data {
+struct drm_loonggpu_cs_chunk_data {
 	union {
-		struct drm_gsgpu_cs_chunk_ib		ib_data;
-		struct drm_gsgpu_cs_chunk_fence	fence_data;
+		struct drm_loonggpu_cs_chunk_ib		ib_data;
+		struct drm_loonggpu_cs_chunk_fence	fence_data;
 	};
 };
 
@@ -566,102 +566,102 @@ struct drm_gsgpu_cs_chunk_data {
  *  Query h/w info: Flag that this is integrated (a.h.a. fusion) GPU
  *
  */
-#define GSGPU_IDS_FLAGS_FUSION         0x1
-#define GSGPU_IDS_FLAGS_PREEMPTION     0x2
+#define LOONGGPU_IDS_FLAGS_FUSION         0x1
+#define LOONGGPU_IDS_FLAGS_PREEMPTION     0x2
 
 /* indicate if acceleration can be working */
-#define GSGPU_INFO_ACCEL_WORKING		0x00
+#define LOONGGPU_INFO_ACCEL_WORKING		0x00
 /* get the crtc_id from the mode object id? */
-#define GSGPU_INFO_CRTC_FROM_ID		0x01
+#define LOONGGPU_INFO_CRTC_FROM_ID		0x01
 /* query hw IP info */
-#define GSGPU_INFO_HW_IP_INFO			0x02
+#define LOONGGPU_INFO_HW_IP_INFO			0x02
 /* query hw IP instance count for the specified type */
-#define GSGPU_INFO_HW_IP_COUNT			0x03
+#define LOONGGPU_INFO_HW_IP_COUNT			0x03
 /* timestamp for GL_ARB_timer_query */
-#define GSGPU_INFO_TIMESTAMP			0x05
+#define LOONGGPU_INFO_TIMESTAMP			0x05
 /* Query the firmware version */
-#define GSGPU_INFO_FW_VERSION			0x0e
+#define LOONGGPU_INFO_FW_VERSION			0x0e
 	/* Subquery id: Query VCE firmware version */
-	#define GSGPU_INFO_FW_VCE		0x1
+	#define LOONGGPU_INFO_FW_VCE		0x1
 	/* Subquery id: Query UVD firmware version */
-	#define GSGPU_INFO_FW_UVD		0x2
+	#define LOONGGPU_INFO_FW_UVD		0x2
 	/* Subquery id: Query GMC firmware version */
-	#define GSGPU_INFO_FW_GMC		0x03
+	#define LOONGGPU_INFO_FW_GMC		0x03
 	/* Subquery id: Query GFX ME firmware version */
-	#define GSGPU_INFO_FW_GFX_ME		0x04
+	#define LOONGGPU_INFO_FW_GFX_ME		0x04
 	/* Subquery id: Query GFX PFP firmware version */
-	#define GSGPU_INFO_FW_GFX_PFP		0x05
+	#define LOONGGPU_INFO_FW_GFX_PFP		0x05
 	/* Subquery id: Query GFX CE firmware version */
-	#define GSGPU_INFO_FW_GFX_CE		0x06
+	#define LOONGGPU_INFO_FW_GFX_CE		0x06
 	/* Subquery id: Query GFX RLC firmware version */
-	#define GSGPU_INFO_FW_GFX_RLC		0x07
+	#define LOONGGPU_INFO_FW_GFX_RLC		0x07
 	/* Subquery id: Query GFX MEC firmware version */
-	#define GSGPU_INFO_FW_GFX_MEC		0x08
+	#define LOONGGPU_INFO_FW_GFX_MEC		0x08
 	/* Subquery id: Query SMC firmware version */
-	#define GSGPU_INFO_FW_SMC		0x0a
+	#define LOONGGPU_INFO_FW_SMC		0x0a
 	/* Subquery id: Query SDMA firmware version */
-	#define GSGPU_INFO_FW_SDMA		0x0b
+	#define LOONGGPU_INFO_FW_SDMA		0x0b
 	/* Subquery id: Query PSP SOS firmware version */
-	#define GSGPU_INFO_FW_SOS		0x0c
+	#define LOONGGPU_INFO_FW_SOS		0x0c
 	/* Subquery id: Query PSP ASD firmware version */
-	#define GSGPU_INFO_FW_ASD		0x0d
+	#define LOONGGPU_INFO_FW_ASD		0x0d
 /* number of bytes moved for TTM migration */
-#define GSGPU_INFO_NUM_BYTES_MOVED		0x0f
+#define LOONGGPU_INFO_NUM_BYTES_MOVED		0x0f
 /* the used VRAM size */
-#define GSGPU_INFO_VRAM_USAGE			0x10
+#define LOONGGPU_INFO_VRAM_USAGE			0x10
 /* the used GTT size */
-#define GSGPU_INFO_GTT_USAGE			0x11
+#define LOONGGPU_INFO_GTT_USAGE			0x11
 /* Information about GDS, etc. resource configuration */
-#define GSGPU_INFO_GDS_CONFIG			0x13
+#define LOONGGPU_INFO_GDS_CONFIG			0x13
 /* Query information about VRAM and GTT domains */
-#define GSGPU_INFO_VRAM_GTT			0x14
+#define LOONGGPU_INFO_VRAM_GTT			0x14
 /* Query information about register in MMR address space*/
-#define GSGPU_INFO_READ_MMR_REG		0x15
+#define LOONGGPU_INFO_READ_MMR_REG		0x15
 /* Query information about device: rev id, family, etc. */
-#define GSGPU_INFO_DEV_INFO			0x16
+#define LOONGGPU_INFO_DEV_INFO			0x16
 /* visible vram usage */
-#define GSGPU_INFO_VIS_VRAM_USAGE		0x17
+#define LOONGGPU_INFO_VIS_VRAM_USAGE		0x17
 /* number of TTM buffer evictions */
-#define GSGPU_INFO_NUM_EVICTIONS		0x18
+#define LOONGGPU_INFO_NUM_EVICTIONS		0x18
 /* Query memory about VRAM and GTT domains */
-#define GSGPU_INFO_MEMORY			0x19
+#define LOONGGPU_INFO_MEMORY			0x19
 /* Query vce clock table */
-#define GSGPU_INFO_VCE_CLOCK_TABLE		0x1A
+#define LOONGGPU_INFO_VCE_CLOCK_TABLE		0x1A
 /* Query vbios related information */
-#define GSGPU_INFO_VBIOS			0x1B
+#define LOONGGPU_INFO_VBIOS			0x1B
 	/* Subquery id: Query vbios size */
-	#define GSGPU_INFO_VBIOS_SIZE		0x1
+	#define LOONGGPU_INFO_VBIOS_SIZE		0x1
 	/* Subquery id: Query vbios image */
-	#define GSGPU_INFO_VBIOS_IMAGE		0x2
+	#define LOONGGPU_INFO_VBIOS_IMAGE		0x2
 /* Query UVD handles */
-#define GSGPU_INFO_NUM_HANDLES			0x1C
+#define LOONGGPU_INFO_NUM_HANDLES			0x1C
 /* Query sensor related information */
-#define GSGPU_INFO_SENSOR			0x1D
+#define LOONGGPU_INFO_SENSOR			0x1D
 	/* Subquery id: Query GPU shader clock */
-	#define GSGPU_INFO_SENSOR_GFX_SCLK		0x1
+	#define LOONGGPU_INFO_SENSOR_GFX_SCLK		0x1
 	/* Subquery id: Query GPU memory clock */
-	#define GSGPU_INFO_SENSOR_GFX_MCLK		0x2
+	#define LOONGGPU_INFO_SENSOR_GFX_MCLK		0x2
 	/* Subquery id: Query GPU temperature */
-	#define GSGPU_INFO_SENSOR_GPU_TEMP		0x3
+	#define LOONGGPU_INFO_SENSOR_GPU_TEMP		0x3
 	/* Subquery id: Query GPU load */
-	#define GSGPU_INFO_SENSOR_GPU_LOAD		0x4
+	#define LOONGGPU_INFO_SENSOR_GPU_LOAD		0x4
 	/* Subquery id: Query average GPU power	*/
-	#define GSGPU_INFO_SENSOR_GPU_AVG_POWER	0x5
+	#define LOONGGPU_INFO_SENSOR_GPU_AVG_POWER	0x5
 	/* Subquery id: Query northbridge voltage */
-	#define GSGPU_INFO_SENSOR_VDDNB		0x6
+	#define LOONGGPU_INFO_SENSOR_VDDNB		0x6
 	/* Subquery id: Query graphics voltage */
-	#define GSGPU_INFO_SENSOR_VDDGFX		0x7
+	#define LOONGGPU_INFO_SENSOR_VDDGFX		0x7
 /* Number of VRAM page faults on CPU access. */
-#define GSGPU_INFO_NUM_VRAM_CPU_PAGE_FAULTS	0x1E
-#define GSGPU_INFO_VRAM_LOST_COUNTER		0x1F
+#define LOONGGPU_INFO_NUM_VRAM_CPU_PAGE_FAULTS	0x1E
+#define LOONGGPU_INFO_VRAM_LOST_COUNTER		0x1F
 
-#define GSGPU_INFO_MMR_SE_INDEX_SHIFT	0
-#define GSGPU_INFO_MMR_SE_INDEX_MASK	0xff
-#define GSGPU_INFO_MMR_SH_INDEX_SHIFT	8
-#define GSGPU_INFO_MMR_SH_INDEX_MASK	0xff
+#define LOONGGPU_INFO_MMR_SE_INDEX_SHIFT	0
+#define LOONGGPU_INFO_MMR_SE_INDEX_MASK	0xff
+#define LOONGGPU_INFO_MMR_SH_INDEX_SHIFT	8
+#define LOONGGPU_INFO_MMR_SH_INDEX_MASK	0xff
 
-struct drm_gsgpu_query_fw {
-	/** GSGPU_INFO_FW_* */
+struct drm_loonggpu_query_fw {
+	/** LOONGGPU_INFO_FW_* */
 	__u32 fw_type;
 	/**
 	 * Index of the IP if there are more IPs of
@@ -677,7 +677,7 @@ struct drm_gsgpu_query_fw {
 };
 
 /* Input structure for the INFO ioctl */
-struct drm_gsgpu_info {
+struct drm_loonggpu_info {
 	/* Where the return value will be stored */
 	__u64 return_pointer;
 	/* The size of the return value. Just like "size" in "snprintf",
@@ -693,11 +693,11 @@ struct drm_gsgpu_info {
 		} mode_crtc;
 
 		struct {
-			/** GSGPU_HW_IP_* */
+			/** LOONGGPU_HW_IP_* */
 			__u32 type;
 			/**
 			 * Index of the IP if there are more IPs of the same
-			 * type. Ignored by GSGPU_INFO_HW_IP_COUNT.
+			 * type. Ignored by LOONGGPU_INFO_HW_IP_COUNT.
 			 */
 			__u32 ip_instance;
 		} query_hw_ip;
@@ -711,7 +711,7 @@ struct drm_gsgpu_info {
 			__u32 flags;
 		} read_mmr_reg;
 
-		struct drm_gsgpu_query_fw query_fw;
+		struct drm_loonggpu_query_fw query_fw;
 
 		struct {
 			__u32 type;
@@ -724,7 +724,7 @@ struct drm_gsgpu_info {
 	};
 };
 
-struct drm_gsgpu_info_gds {
+struct drm_loonggpu_info_gds {
 	/** GDS GFX partition size */
 	__u32 gds_gfx_partition_size;
 	/** GDS compute partition size */
@@ -742,13 +742,13 @@ struct drm_gsgpu_info_gds {
 	__u32 _pad;
 };
 
-struct drm_gsgpu_info_vram_gtt {
+struct drm_loonggpu_info_vram_gtt {
 	__u64 vram_size;
 	__u64 vram_cpu_accessible_size;
 	__u64 gtt_size;
 };
 
-struct drm_gsgpu_heap_info {
+struct drm_loonggpu_heap_info {
 	/** max. physical memory */
 	__u64 total_heap_size;
 
@@ -770,27 +770,27 @@ struct drm_gsgpu_heap_info {
 	__u64 max_allocation;
 };
 
-struct drm_gsgpu_memory_info {
-	struct drm_gsgpu_heap_info vram;
-	struct drm_gsgpu_heap_info cpu_accessible_vram;
-	struct drm_gsgpu_heap_info gtt;
+struct drm_loonggpu_memory_info {
+	struct drm_loonggpu_heap_info vram;
+	struct drm_loonggpu_heap_info cpu_accessible_vram;
+	struct drm_loonggpu_heap_info gtt;
 };
 
-struct drm_gsgpu_info_firmware {
+struct drm_loonggpu_info_firmware {
 	__u32 ver;
 	__u32 feature;
 };
 
-#define GSGPU_VRAM_TYPE_UNKNOWN 0
-#define GSGPU_VRAM_TYPE_GDDR1 1
-#define GSGPU_VRAM_TYPE_DDR2  2
-#define GSGPU_VRAM_TYPE_GDDR3 3
-#define GSGPU_VRAM_TYPE_GDDR4 4
-#define GSGPU_VRAM_TYPE_GDDR5 5
-#define GSGPU_VRAM_TYPE_HBM   6
-#define GSGPU_VRAM_TYPE_DDR3  7
+#define LOONGGPU_VRAM_TYPE_UNKNOWN 0
+#define LOONGGPU_VRAM_TYPE_GDDR1 1
+#define LOONGGPU_VRAM_TYPE_DDR2  2
+#define LOONGGPU_VRAM_TYPE_GDDR3 3
+#define LOONGGPU_VRAM_TYPE_GDDR4 4
+#define LOONGGPU_VRAM_TYPE_GDDR5 5
+#define LOONGGPU_VRAM_TYPE_HBM   6
+#define LOONGGPU_VRAM_TYPE_DDR3  7
 
-struct drm_gsgpu_info_device {
+struct drm_loonggpu_info_device {
 	/** PCI Device ID */
 	__u32 device_id;
 	/** Internal chip revision: A0, A1, etc.) */
@@ -870,7 +870,7 @@ struct drm_gsgpu_info_device {
 	__u64 high_va_max;
 };
 
-struct drm_gsgpu_info_hw_ip {
+struct drm_loonggpu_info_hw_ip {
 	/** Version of h/w IP */
 	__u32  hw_ip_version_major;
 	__u32  hw_ip_version_minor;
@@ -885,16 +885,16 @@ struct drm_gsgpu_info_hw_ip {
 	__u32  _pad;
 };
 
-struct drm_gsgpu_info_num_handles {
+struct drm_loonggpu_info_num_handles {
 	/** Max handles as supported by firmware for UVD */
 	__u32  uvd_max_handles;
 	/** Handles currently in use for UVD */
 	__u32  uvd_used_handles;
 };
 
-#define GSGPU_VCE_CLOCK_TABLE_ENTRIES		6
+#define LOONGGPU_VCE_CLOCK_TABLE_ENTRIES		6
 
-struct drm_gsgpu_info_vce_clock_table_entry {
+struct drm_loonggpu_info_vce_clock_table_entry {
 	/** System clock */
 	__u32 sclk;
 	/** Memory clock */
@@ -904,16 +904,16 @@ struct drm_gsgpu_info_vce_clock_table_entry {
 	__u32 pad;
 };
 
-struct drm_gsgpu_info_vce_clock_table {
-	struct drm_gsgpu_info_vce_clock_table_entry entries[GSGPU_VCE_CLOCK_TABLE_ENTRIES];
+struct drm_loonggpu_info_vce_clock_table {
+	struct drm_loonggpu_info_vce_clock_table_entry entries[LOONGGPU_VCE_CLOCK_TABLE_ENTRIES];
 	__u32 num_valid_entries;
 	__u32 pad;
 };
 
-#define       GSGPU_HW_SEMA_GET 	1
-#define       GSGPU_HW_SEMA_PUT 	2
+#define       LOONGGPU_HW_SEMA_GET 	1
+#define       LOONGGPU_HW_SEMA_PUT 	2
 
-struct drm_gsgpu_hw_sema {
+struct drm_loonggpu_hw_sema {
     /*get or set sema*/
     __u64 id;
     /*resv for next feature*/
@@ -925,8 +925,8 @@ struct drm_gsgpu_hw_sema {
 /*
  * Supported GPU families
  */
-#define GSGPU_FAMILY_UNKNOWN			0
-#define GSGPU_FAMILY_GS				110 /* Godson GPU first version*/
+#define LOONGGPU_FAMILY_UNKNOWN			0
+#define LOONGGPU_FAMILY_GS				110 /* Godson GPU first version*/
 
 #if defined(__cplusplus)
 }

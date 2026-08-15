@@ -28,16 +28,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-#include "gsgpu.h"
-#include "gsgpu_drm.h"
-#include "gsgpu_internal.h"
+#include "loonggpu.h"
+#include "loonggpu_drm.h"
+#include "loonggpu_internal.h"
 #include "util_math.h"
 
-int gsgpu_va_range_query(gsgpu_device_handle dev,
-			  enum gsgpu_gpu_va_range type,
+int loonggpu_va_range_query(loonggpu_device_handle dev,
+			  enum loonggpu_gpu_va_range type,
 			  uint64_t *start, uint64_t *end)
 {
-	if (type != gsgpu_gpu_va_range_general)
+	if (type != loonggpu_gpu_va_range_general)
 		return -EINVAL;
 
 	*start = dev->dev_info.virtual_address_offset;
@@ -45,10 +45,10 @@ int gsgpu_va_range_query(gsgpu_device_handle dev,
 	return 0;
 }
 
-drm_private void gsgpu_vamgr_init(struct gsgpu_bo_va_mgr *mgr, uint64_t start,
+drm_private void loonggpu_vamgr_init(struct loonggpu_bo_va_mgr *mgr, uint64_t start,
 				   uint64_t max, uint64_t alignment)
 {
-	struct gsgpu_bo_va_hole *n;
+	struct loonggpu_bo_va_hole *n;
 
 	mgr->va_max = max;
 	mgr->va_alignment = alignment;
@@ -56,16 +56,16 @@ drm_private void gsgpu_vamgr_init(struct gsgpu_bo_va_mgr *mgr, uint64_t start,
 	list_inithead(&mgr->va_holes);
 	pthread_mutex_init(&mgr->bo_va_mutex, NULL);
 	pthread_mutex_lock(&mgr->bo_va_mutex);
-	n = calloc(1, sizeof(struct gsgpu_bo_va_hole));
+	n = calloc(1, sizeof(struct loonggpu_bo_va_hole));
 	n->size = mgr->va_max - start;
 	n->offset = start;
 	list_add(&n->list, &mgr->va_holes);
 	pthread_mutex_unlock(&mgr->bo_va_mutex);
 }
 
-drm_private void gsgpu_vamgr_deinit(struct gsgpu_bo_va_mgr *mgr)
+drm_private void loonggpu_vamgr_deinit(struct loonggpu_bo_va_mgr *mgr)
 {
-	struct gsgpu_bo_va_hole *hole, *tmp;
+	struct loonggpu_bo_va_hole *hole, *tmp;
 	LIST_FOR_EACH_ENTRY_SAFE(hole, tmp, &mgr->va_holes, list) {
 		list_del(&hole->list);
 		free(hole);
@@ -74,10 +74,10 @@ drm_private void gsgpu_vamgr_deinit(struct gsgpu_bo_va_mgr *mgr)
 }
 
 static drm_private uint64_t
-gsgpu_vamgr_find_va(struct gsgpu_bo_va_mgr *mgr, uint64_t size,
+loonggpu_vamgr_find_va(struct loonggpu_bo_va_mgr *mgr, uint64_t size,
 		     uint64_t alignment, uint64_t base_required)
 {
-	struct gsgpu_bo_va_hole *hole, *n;
+	struct loonggpu_bo_va_hole *hole, *n;
 	uint64_t offset = 0, waste = 0;
 
 
@@ -85,7 +85,7 @@ gsgpu_vamgr_find_va(struct gsgpu_bo_va_mgr *mgr, uint64_t size,
 	size = ALIGN(size, mgr->va_alignment);
 
 	if (base_required % alignment)
-		return GSGPU_INVALID_VA_ADDRESS;
+		return LOONGGPU_INVALID_VA_ADDRESS;
 
 	pthread_mutex_lock(&mgr->bo_va_mutex);
 	LIST_FOR_EACH_ENTRY_SAFE_REV(hole, n, &mgr->va_holes, list) {
@@ -113,7 +113,7 @@ gsgpu_vamgr_find_va(struct gsgpu_bo_va_mgr *mgr, uint64_t size,
 		}
 		if ((hole->size - waste) > size) {
 			if (waste) {
-				n = calloc(1, sizeof(struct gsgpu_bo_va_hole));
+				n = calloc(1, sizeof(struct loonggpu_bo_va_hole));
 				n->size = waste;
 				n->offset = hole->offset;
 				list_add(&n->list, &hole->list);
@@ -131,15 +131,15 @@ gsgpu_vamgr_find_va(struct gsgpu_bo_va_mgr *mgr, uint64_t size,
 	}
 
 	pthread_mutex_unlock(&mgr->bo_va_mutex);
-	return GSGPU_INVALID_VA_ADDRESS;
+	return LOONGGPU_INVALID_VA_ADDRESS;
 }
 
 static drm_private void
-gsgpu_vamgr_free_va(struct gsgpu_bo_va_mgr *mgr, uint64_t va, uint64_t size)
+loonggpu_vamgr_free_va(struct loonggpu_bo_va_mgr *mgr, uint64_t va, uint64_t size)
 {
-	struct gsgpu_bo_va_hole *hole, *next;
+	struct loonggpu_bo_va_hole *hole, *next;
 
-	if (va == GSGPU_INVALID_VA_ADDRESS)
+	if (va == LOONGGPU_INVALID_VA_ADDRESS)
 		return;
 
 	size = ALIGN(size, mgr->va_alignment);
@@ -179,7 +179,7 @@ gsgpu_vamgr_free_va(struct gsgpu_bo_va_mgr *mgr, uint64_t va, uint64_t size)
 	/* FIXME on allocation failure we just lose virtual address space
 	 * maybe print a warning
 	 */
-	next = calloc(1, sizeof(struct gsgpu_bo_va_hole));
+	next = calloc(1, sizeof(struct loonggpu_bo_va_hole));
 	if (next) {
 		next->size = size;
 		next->offset = va;
@@ -190,28 +190,28 @@ out:
 	pthread_mutex_unlock(&mgr->bo_va_mutex);
 }
 
-int gsgpu_va_range_alloc(gsgpu_device_handle dev,
-			  enum gsgpu_gpu_va_range va_range_type,
+int loonggpu_va_range_alloc(loonggpu_device_handle dev,
+			  enum loonggpu_gpu_va_range va_range_type,
 			  uint64_t size,
 			  uint64_t va_base_alignment,
 			  uint64_t va_base_required,
 			  uint64_t *va_base_allocated,
-			  gsgpu_va_handle *va_range_handle,
+			  loonggpu_va_handle *va_range_handle,
 			  uint64_t flags)
 {
-	struct gsgpu_bo_va_mgr *vamgr;
+	struct loonggpu_bo_va_mgr *vamgr;
 
 	/* Clear the flag when the high VA manager is not initialized */
-	if (flags & GSGPU_VA_RANGE_HIGH && !dev->vamgr_high_32.va_max)
-		flags &= ~GSGPU_VA_RANGE_HIGH;
+	if (flags & LOONGGPU_VA_RANGE_HIGH && !dev->vamgr_high_32.va_max)
+		flags &= ~LOONGGPU_VA_RANGE_HIGH;
 
-	if (flags & GSGPU_VA_RANGE_HIGH) {
-		if (flags & GSGPU_VA_RANGE_32_BIT)
+	if (flags & LOONGGPU_VA_RANGE_HIGH) {
+		if (flags & LOONGGPU_VA_RANGE_32_BIT)
 			vamgr = &dev->vamgr_high_32;
 		else
 			vamgr = &dev->vamgr_high;
 	} else {
-		if (flags & GSGPU_VA_RANGE_32_BIT)
+		if (flags & LOONGGPU_VA_RANGE_32_BIT)
 			vamgr = &dev->vamgr_32;
 		else
 			vamgr = &dev->vamgr;
@@ -220,25 +220,25 @@ int gsgpu_va_range_alloc(gsgpu_device_handle dev,
 	va_base_alignment = MAX2(va_base_alignment, vamgr->va_alignment);
 	size = ALIGN(size, vamgr->va_alignment);
 
-	*va_base_allocated = gsgpu_vamgr_find_va(vamgr, size,
+	*va_base_allocated = loonggpu_vamgr_find_va(vamgr, size,
 					va_base_alignment, va_base_required);
 
-	if (!(flags & GSGPU_VA_RANGE_32_BIT) &&
-	    (*va_base_allocated == GSGPU_INVALID_VA_ADDRESS)) {
+	if (!(flags & LOONGGPU_VA_RANGE_32_BIT) &&
+	    (*va_base_allocated == LOONGGPU_INVALID_VA_ADDRESS)) {
 		/* fallback to 32bit address */
-		if (flags & GSGPU_VA_RANGE_HIGH)
+		if (flags & LOONGGPU_VA_RANGE_HIGH)
 			vamgr = &dev->vamgr_high_32;
 		else
 			vamgr = &dev->vamgr_32;
-		*va_base_allocated = gsgpu_vamgr_find_va(vamgr, size,
+		*va_base_allocated = loonggpu_vamgr_find_va(vamgr, size,
 					va_base_alignment, va_base_required);
 	}
 
-	if (*va_base_allocated != GSGPU_INVALID_VA_ADDRESS) {
-		struct gsgpu_va* va;
-		va = calloc(1, sizeof(struct gsgpu_va));
+	if (*va_base_allocated != LOONGGPU_INVALID_VA_ADDRESS) {
+		struct loonggpu_va* va;
+		va = calloc(1, sizeof(struct loonggpu_va));
 		if(!va){
-			gsgpu_vamgr_free_va(vamgr, *va_base_allocated, size);
+			loonggpu_vamgr_free_va(vamgr, *va_base_allocated, size);
 			return -ENOMEM;
 		}
 		va->dev = dev;
@@ -254,12 +254,12 @@ int gsgpu_va_range_alloc(gsgpu_device_handle dev,
 	return 0;
 }
 
-int gsgpu_va_range_free(gsgpu_va_handle va_range_handle)
+int loonggpu_va_range_free(loonggpu_va_handle va_range_handle)
 {
 	if(!va_range_handle || !va_range_handle->address)
 		return 0;
 
-	gsgpu_vamgr_free_va(va_range_handle->vamgr,
+	loonggpu_vamgr_free_va(va_range_handle->vamgr,
 			va_range_handle->address,
 			va_range_handle->size);
 	free(va_range_handle);

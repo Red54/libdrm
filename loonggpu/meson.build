@@ -19,21 +19,21 @@
 # SOFTWARE.
 
 
-datadir_gsgpu = join_paths(get_option('prefix'), get_option('datadir'), 'libdrm')
+datadir_loonggpu = join_paths(get_option('prefix'), get_option('datadir'), 'libdrm')
 
-libdrm_gsgpu = shared_library(
-  'drm_gsgpu',
+libdrm_loonggpu = shared_library(
+  'drm_loonggpu',
   [
     files(
-      'gsgpu_asic_id.c', 'gsgpu_bo.c', 'gsgpu_cs.c', 'gsgpu_device.c',
-      'gsgpu_gpu_info.c', 'gsgpu_vamgr.c', 'gsgpu_vm.c', 'util_hash.c',
-      'util_hash_table.c', 'gsgpu_hw_sema.c',
+      'loonggpu_asic_id.c', 'loonggpu_bo.c', 'loonggpu_cs.c', 'loonggpu_device.c',
+      'loonggpu_gpu_info.c', 'loonggpu_vamgr.c', 'loonggpu_vm.c', 'util_hash.c',
+      'util_hash_table.c', 'loonggpu_hw_sema.c',
     ),
     config_file,
   ],
   c_args : [
     warn_c_args,
-    '-DGSGPU_ASIC_ID_TABLE="@0@"'.format(join_paths(datadir_gsgpu, 'gsgpu.ids')),
+    '-DLOONGGPU_ASIC_ID_TABLE="@0@"'.format(join_paths(datadir_loonggpu, 'loonggpu.ids')),
   ],
   include_directories : [inc_root, inc_drm],
   link_with : libdrm,
@@ -42,25 +42,25 @@ libdrm_gsgpu = shared_library(
   install : true,
 )
 
-install_headers('gsgpu.h', subdir : 'libdrm')
+install_headers('loonggpu.h', subdir : 'libdrm')
 
 pkg.generate(
-  name : 'libdrm_gsgpu',
-  libraries : libdrm_gsgpu,
+  name : 'libdrm_loonggpu',
+  libraries : libdrm_loonggpu,
   subdirs : ['.', 'libdrm'],
   version : meson.project_version(),
   requires_private : 'libdrm',
-  description : 'Userspace interface to kernel DRM services for gsgpu',
+  description : 'Userspace interface to kernel DRM services for loonggpu',
 )
 
-ext_libdrm_gsgpu = declare_dependency(
-  link_with : [libdrm, libdrm_gsgpu],
+ext_libdrm_loonggpu = declare_dependency(
+  link_with : [libdrm, libdrm_loonggpu],
   include_directories : [inc_drm, include_directories('.')],
 )
 
 test(
-  'gsgpu-symbol-check',
+  'loonggpu-symbol-check',
   prog_bash,
   env : env_test,
-  args : [files('gsgpu-symbol-check'), libdrm_gsgpu]
+  args : [files('loonggpu-symbol-check'), libdrm_loonggpu]
 )

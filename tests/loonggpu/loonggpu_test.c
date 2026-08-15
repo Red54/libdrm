@@ -48,8 +48,8 @@
 
 #include "CUnit/Basic.h"
 
-#include "gsgpu_test.h"
-#include "gsgpu_internal.h"
+#include "loonggpu_test.h"
+#include "loonggpu_internal.h"
 
 /* Test suite names */
 #define BASIC_TESTS_STR "Basic Tests"
@@ -60,10 +60,10 @@
 #define VM_TESTS_STR "VM Tests"
 
 /**
- *  Open handles for gsgpu devices
+ *  Open handles for loonggpu devices
  *
  */
-int drm_gsgpu[MAX_CARDS_SUPPORTED];
+int drm_loonggpu[MAX_CARDS_SUPPORTED];
 
 /** Open render node to test */
 int open_render_node = 0;	/* By default run most tests on primary node */
@@ -199,7 +199,7 @@ static const char usage[] =
 	"       r - Run the tests on render node\n"
 	"       b - Specify device's PCI bus id to run tests\n"
 	"       d - Specify device's PCI device id to run tests (optional)\n"
-	"       p - Display information of GSGPU devices in system\n"
+	"       p - Display information of LOONGGPU devices in system\n"
 	"       f - Force executing inactive suite or test\n"
 	"       h - Display this help\n";
 /** Specified options strings for getopt */
@@ -208,12 +208,12 @@ static const char options[]   = "hlrps:t:b:d:f";
 /* Open GPU devices.
  * Return the number of GPU device openned.
  */
-static int gsgpu_open_devices(int open_render_node)
+static int loonggpu_open_devices(int open_render_node)
 {
 	drmDevicePtr devices[MAX_CARDS_SUPPORTED];
 	int i;
 	int drm_node;
-	int gsgpu_index = 0;
+	int loonggpu_index = 0;
 	int drm_count;
 	int fd;
 	drmVersionPtr version;
@@ -261,8 +261,8 @@ static int gsgpu_open_devices(int open_render_node)
 			continue;
 		}
 
-		if (strcmp(version->name, "gsgpu")) {
-			/* This is not GSGPU driver, skip.*/
+		if (strcmp(version->name, "loonggpu")) {
+			/* This is not LOONGGPU driver, skip.*/
 			drmFreeVersion(version);
 			close(fd);
 			continue;
@@ -270,37 +270,37 @@ static int gsgpu_open_devices(int open_render_node)
 
 		drmFreeVersion(version);
 
-		drm_gsgpu[gsgpu_index] = fd;
-		gsgpu_index++;
+		drm_loonggpu[loonggpu_index] = fd;
+		loonggpu_index++;
 	}
 
 	drmFreeDevices(devices, drm_count);
-	return gsgpu_index;
+	return loonggpu_index;
 }
 
 /* Close GPU devices.
  */
-static void gsgpu_close_devices()
+static void loonggpu_close_devices()
 {
 	int i;
 	for (i = 0; i < MAX_CARDS_SUPPORTED; i++)
-		if (drm_gsgpu[i] >=0)
-			close(drm_gsgpu[i]);
+		if (drm_loonggpu[i] >=0)
+			close(drm_loonggpu[i]);
 }
 
 /* Print GPU devices information */
-static void gsgpu_print_devices()
+static void loonggpu_print_devices()
 {
 	int i;
 	drmDevicePtr device;
 
 	/* Open the first GPU devcie to print driver information. */
-	if (drm_gsgpu[0] >=0) {
+	if (drm_loonggpu[0] >=0) {
 		/* Display GPU driver version information.*/
-		drmVersionPtr retval = drmGetVersion(drm_gsgpu[0]);
+		drmVersionPtr retval = drmGetVersion(drm_loonggpu[0]);
 
 		if (retval == NULL) {
-			perror("Cannot get version for GSGPU device");
+			perror("Cannot get version for LOONGGPU device");
 			return;
 		}
 
@@ -311,8 +311,8 @@ static void gsgpu_print_devices()
 
 	/* Display information of GPU devices */
 	printf("Devices:\n");
-	for (i = 0; i < MAX_CARDS_SUPPORTED && drm_gsgpu[i] >=0; i++)
-		if (drmGetDevice2(drm_gsgpu[i],
+	for (i = 0; i < MAX_CARDS_SUPPORTED && drm_loonggpu[i] >=0; i++)
+		if (drmGetDevice2(drm_loonggpu[i],
 			DRM_DEVICE_GET_PCI_REVISION,
 			&device) == 0) {
 			if (device->bustype == DRM_BUS_PCI) {
@@ -344,13 +344,13 @@ static void gsgpu_print_devices()
 /* Find a match GPU device in PCI bus
  * Return the index of the device or -1 if not found
  */
-static int gsgpu_find_device(uint8_t bus, uint16_t dev)
+static int loonggpu_find_device(uint8_t bus, uint16_t dev)
 {
 	int i;
 	drmDevicePtr device;
 
-	for (i = 0; i < MAX_CARDS_SUPPORTED && drm_gsgpu[i] >= 0; i++) {
-		if (drmGetDevice2(drm_gsgpu[i],
+	for (i = 0; i < MAX_CARDS_SUPPORTED && drm_loonggpu[i] >= 0; i++) {
+		if (drmGetDevice2(drm_loonggpu[i],
 			DRM_DEVICE_GET_PCI_REVISION,
 			&device) == 0) {
 			if (device->bustype == DRM_BUS_PCI)
@@ -367,25 +367,25 @@ static int gsgpu_find_device(uint8_t bus, uint16_t dev)
 	return -1;
 }
 
-static void gsgpu_disable_suites()
+static void loonggpu_disable_suites()
 {
-	gsgpu_device_handle device_handle;
-	uint32_t major_version, minor_version, family_id = GSGPU_FAMILY_UNKNOWN;
+	loonggpu_device_handle device_handle;
+	uint32_t major_version, minor_version, family_id = LOONGGPU_FAMILY_UNKNOWN;
 	int i;
 	int size = sizeof(suites_active_stat) / sizeof(suites_active_stat[0]);
 
-	if (gsgpu_device_initialize(drm_gsgpu[0], &major_version,
+	if (loonggpu_device_initialize(drm_loonggpu[0], &major_version,
 				   &minor_version, &device_handle))
 		return;
 
 	family_id = device_handle->info.family_id;
 
-	if (gsgpu_device_deinitialize(device_handle))
+	if (loonggpu_device_deinitialize(device_handle))
 		return;
 
 	/* Set active status for suites based on their policies */
 	for (i = 0; i < size; ++i)
-		if (gsgpu_set_suite_active(suites_active_stat[i].pName,
+		if (loonggpu_set_suite_active(suites_active_stat[i].pName,
 				suites_active_stat[i].pActive()))
 			fprintf(stderr, "suite deactivation failed - %s\n", CU_get_error_msg());
 
@@ -394,10 +394,10 @@ static void gsgpu_disable_suites()
 	* BUG: Compute ring stalls and never recovers when the address is
 	* written after the command already submitted
 	*/
-	if (gsgpu_set_test_active(BASIC_TESTS_STR, "Sync dependency Test", CU_FALSE))
+	if (loonggpu_set_test_active(BASIC_TESTS_STR, "Sync dependency Test", CU_FALSE))
 		fprintf(stderr, "test Sync dependency Test failed - %s\n", CU_get_error_msg());
 
-	/* if (gsgpu_set_test_active(BO_TESTS_STR, "Metadata", CU_FALSE)) */
+	/* if (loonggpu_set_test_active(BO_TESTS_STR, "Metadata", CU_FALSE)) */
 		/* fprintf(stderr, "test Metadata Test failed - %s\n", CU_get_error_msg()); */
 
 }
@@ -422,7 +422,7 @@ int main(int argc, char **argv)
 	int force_run = 0;
 
 	for (i = 0; i < MAX_CARDS_SUPPORTED; i++)
-		drm_gsgpu[i] = -1;
+		drm_loonggpu[i] = -1;
 
 
 	/* Parse command line string */
@@ -463,34 +463,34 @@ int main(int argc, char **argv)
 		}
 	}
 
-	if (gsgpu_open_devices(open_render_node) <= 0) {
-		perror("Cannot open GSGPU device");
+	if (loonggpu_open_devices(open_render_node) <= 0) {
+		perror("Cannot open LOONGGPU device");
 		exit(EXIT_FAILURE);
 	}
 
-	if (drm_gsgpu[0] < 0) {
-		perror("Cannot open GSGPU device");
+	if (drm_loonggpu[0] < 0) {
+		perror("Cannot open LOONGGPU device");
 		exit(EXIT_FAILURE);
 	}
 
 	if (display_devices) {
-		gsgpu_print_devices();
-		gsgpu_close_devices();
+		loonggpu_print_devices();
+		loonggpu_close_devices();
 		exit(EXIT_SUCCESS);
 	}
 
 	if (pci_bus_id > 0 || pci_device_id) {
 		/* A device was specified to run the test */
-		test_device_index = gsgpu_find_device(pci_bus_id,
+		test_device_index = loonggpu_find_device(pci_bus_id,
 						       pci_device_id);
 
 		if (test_device_index >= 0) {
-			/* Most tests run on device of drm_gsgpu[0].
-			 * Swap the chosen device to drm_gsgpu[0].
+			/* Most tests run on device of drm_loonggpu[0].
+			 * Swap the chosen device to drm_loonggpu[0].
 			 */
-			i = drm_gsgpu[0];
-			drm_gsgpu[0] = drm_gsgpu[test_device_index];
-			drm_gsgpu[test_device_index] = i;
+			i = drm_loonggpu[0];
+			drm_loonggpu[0] = drm_loonggpu[test_device_index];
+			drm_loonggpu[test_device_index] = i;
 		} else {
 			fprintf(stderr,
 				"The specified GPU device does not exist.\n");
@@ -502,7 +502,7 @@ int main(int argc, char **argv)
 
 	/* initialize the CUnit test registry */
 	if (CUE_SUCCESS != CU_initialize_registry()) {
-		gsgpu_close_devices();
+		loonggpu_close_devices();
 		return CU_get_error();
 	}
 
@@ -511,7 +511,7 @@ int main(int argc, char **argv)
 		fprintf(stderr, "suite registration failed - %s\n",
 				CU_get_error_msg());
 		CU_cleanup_registry();
-		gsgpu_close_devices();
+		loonggpu_close_devices();
 		exit(EXIT_FAILURE);
 	}
 
@@ -519,7 +519,7 @@ int main(int argc, char **argv)
 	CU_basic_set_mode(CU_BRM_VERBOSE);
 
 	/* Disable suites and individual tests based on misc. conditions */
-	gsgpu_disable_suites();
+	loonggpu_disable_suites();
 
 	if (display_list) {
 		display_test_suites();
@@ -549,7 +549,7 @@ int main(int argc, char **argv)
 					fprintf(stderr, "Invalid test id: %d\n",
 								test_id);
 					CU_cleanup_registry();
-					gsgpu_close_devices();
+					loonggpu_close_devices();
 					exit(EXIT_FAILURE);
 				}
 			} else
@@ -558,7 +558,7 @@ int main(int argc, char **argv)
 			fprintf(stderr, "Invalid suite id : %d\n",
 					suite_id);
 			CU_cleanup_registry();
-			gsgpu_close_devices();
+			loonggpu_close_devices();
 			exit(EXIT_FAILURE);
 		}
 	} else
@@ -566,6 +566,6 @@ int main(int argc, char **argv)
 
 end:
 	CU_cleanup_registry();
-	gsgpu_close_devices();
+	loonggpu_close_devices();
 	return CU_get_error();
 }

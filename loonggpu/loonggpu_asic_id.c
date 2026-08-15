@@ -35,10 +35,10 @@
 #include <errno.h>
 
 #include "xf86drm.h"
-#include "gsgpu_drm.h"
-#include "gsgpu_internal.h"
+#include "loonggpu_drm.h"
+#include "loonggpu_internal.h"
 
-static int parse_one_line(struct gsgpu_device *dev, const char *line)
+static int parse_one_line(struct loonggpu_device *dev, const char *line)
 {
 	char *buf, *saveptr;
 	char *s_did;
@@ -108,7 +108,7 @@ out:
 	return r;
 }
 
-void gsgpu_parse_asic_ids(struct gsgpu_device *dev)
+void loonggpu_parse_asic_ids(struct loonggpu_device *dev)
 {
 	FILE *fp;
 	char *line = NULL;
@@ -117,9 +117,9 @@ void gsgpu_parse_asic_ids(struct gsgpu_device *dev)
 	int line_num = 1;
 	int r = 0;
 
-	fp = fopen(GSGPU_ASIC_ID_TABLE, "r");
+	fp = fopen(LOONGGPU_ASIC_ID_TABLE, "r");
 	if (!fp) {
-		fprintf(stderr, "%s: %s\n", GSGPU_ASIC_ID_TABLE,
+		fprintf(stderr, "%s: %s\n", LOONGGPU_ASIC_ID_TABLE,
 			strerror(errno));
 		return;
 	}
@@ -136,7 +136,7 @@ void gsgpu_parse_asic_ids(struct gsgpu_device *dev)
 			continue;
 		}
 
-		drmMsg("%s version: %s\n", GSGPU_ASIC_ID_TABLE, line);
+		drmMsg("%s version: %s\n", LOONGGPU_ASIC_ID_TABLE, line);
 		break;
 	}
 
@@ -154,7 +154,7 @@ void gsgpu_parse_asic_ids(struct gsgpu_device *dev)
 
 	if (r == -EINVAL) {
 		fprintf(stderr, "Invalid format: %s: line %d: %s\n",
-			GSGPU_ASIC_ID_TABLE, line_num, line);
+			LOONGGPU_ASIC_ID_TABLE, line_num, line);
 	} else if (r && r != -EAGAIN) {
 		fprintf(stderr, "%s: Cannot parse ASIC IDs: %s\n",
 			__func__, strerror(-r));

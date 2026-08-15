@@ -39,12 +39,12 @@
 
 #include "libdrm_macros.h"
 #include "xf86drm.h"
-#include "gsgpu_drm.h"
-#include "gsgpu_internal.h"
+#include "loonggpu_drm.h"
+#include "loonggpu_internal.h"
 #include "util_hash_table.h"
 #include "util_math.h"
 
-static void gsgpu_close_kms_handle(gsgpu_device_handle dev,
+static void loonggpu_close_kms_handle(loonggpu_device_handle dev,
 				     uint32_t handle)
 {
 	struct drm_gem_close args = {};
@@ -53,20 +53,20 @@ static void gsgpu_close_kms_handle(gsgpu_device_handle dev,
 	drmIoctl(dev->fd, DRM_IOCTL_GEM_CLOSE, &args);
 }
 
-int gsgpu_bo_alloc(gsgpu_device_handle dev,
-		    struct gsgpu_bo_alloc_request *alloc_buffer,
-		    gsgpu_bo_handle *buf_handle)
+int loonggpu_bo_alloc(loonggpu_device_handle dev,
+		    struct loonggpu_bo_alloc_request *alloc_buffer,
+		    loonggpu_bo_handle *buf_handle)
 {
-	struct gsgpu_bo *bo;
-	union drm_gsgpu_gem_create args;
+	struct loonggpu_bo *bo;
+	union drm_loonggpu_gem_create args;
 	unsigned heap = alloc_buffer->preferred_heap;
 	int r = 0;
 
 	/* It's an error if the heap is not specified */
-	if (!(heap & (GSGPU_GEM_DOMAIN_GTT | GSGPU_GEM_DOMAIN_VRAM)))
+	if (!(heap & (LOONGGPU_GEM_DOMAIN_GTT | LOONGGPU_GEM_DOMAIN_VRAM)))
 		return -EINVAL;
 
-	bo = calloc(1, sizeof(struct gsgpu_bo));
+	bo = calloc(1, sizeof(struct loonggpu_bo));
 	if (!bo)
 		return -ENOMEM;
 
@@ -83,7 +83,7 @@ int gsgpu_bo_alloc(gsgpu_device_handle dev,
 	args.in.domain_flags = alloc_buffer->flags;
 
 	/* Allocate the buffer with the preferred heap. */
-	r = drmCommandWriteRead(dev->fd, DRM_GSGPU_GEM_CREATE,
+	r = drmCommandWriteRead(dev->fd, DRM_LOONGGPU_GEM_CREATE,
 				&args, sizeof(args));
 	if (r) {
 		free(bo);
@@ -98,13 +98,13 @@ int gsgpu_bo_alloc(gsgpu_device_handle dev,
 	return 0;
 }
 
-int gsgpu_bo_set_metadata(gsgpu_bo_handle bo,
-			   struct gsgpu_bo_metadata *info)
+int loonggpu_bo_set_metadata(loonggpu_bo_handle bo,
+			   struct loonggpu_bo_metadata *info)
 {
-	struct drm_gsgpu_gem_metadata args = {};
+	struct drm_loonggpu_gem_metadata args = {};
 
 	args.handle = bo->handle;
-	args.op = GSGPU_GEM_METADATA_OP_SET_METADATA;
+	args.op = LOONGGPU_GEM_METADATA_OP_SET_METADATA;
 	args.data.flags = info->flags;
 	args.data.tiling_info = info->tiling_info;
 
@@ -117,16 +117,16 @@ int gsgpu_bo_set_metadata(gsgpu_bo_handle bo,
 	}
 
 	return drmCommandWriteRead(bo->dev->fd,
-				   DRM_GSGPU_GEM_METADATA,
+				   DRM_LOONGGPU_GEM_METADATA,
 				   &args, sizeof(args));
 }
 
-int gsgpu_bo_query_info(gsgpu_bo_handle bo,
-			 struct gsgpu_bo_info *info)
+int loonggpu_bo_query_info(loonggpu_bo_handle bo,
+			 struct loonggpu_bo_info *info)
 {
-	struct drm_gsgpu_gem_metadata metadata = {};
-	struct drm_gsgpu_gem_create_in bo_info = {};
-	struct drm_gsgpu_gem_op gem_op = {};
+	struct drm_loonggpu_gem_metadata metadata = {};
+	struct drm_loonggpu_gem_create_in bo_info = {};
+	struct drm_loonggpu_gem_op gem_op = {};
 	int r;
 
 	/* Validate the BO passed in */
@@ -135,9 +135,9 @@ int gsgpu_bo_query_info(gsgpu_bo_handle bo,
 
 	/* Query metadata. */
 	metadata.handle = bo->handle;
-	metadata.op = GSGPU_GEM_METADATA_OP_GET_METADATA;
+	metadata.op = LOONGGPU_GEM_METADATA_OP_GET_METADATA;
 
-	r = drmCommandWriteRead(bo->dev->fd, DRM_GSGPU_GEM_METADATA,
+	r = drmCommandWriteRead(bo->dev->fd, DRM_LOONGGPU_GEM_METADATA,
 				&metadata, sizeof(metadata));
 	if (r)
 		return r;
@@ -148,10 +148,10 @@ int gsgpu_bo_query_info(gsgpu_bo_handle bo,
 
 	/* Query buffer info. */
 	gem_op.handle = bo->handle;
-	gem_op.op = GSGPU_GEM_OP_GET_GEM_CREATE_INFO;
+	gem_op.op = LOONGGPU_GEM_OP_GET_GEM_CREATE_INFO;
 	gem_op.value = (uintptr_t)&bo_info;
 
-	r = drmCommandWriteRead(bo->dev->fd, DRM_GSGPU_GEM_OP,
+	r = drmCommandWriteRead(bo->dev->fd, DRM_LOONGGPU_GEM_OP,
 				&gem_op, sizeof(gem_op));
 	if (r)
 		return r;
@@ -172,7 +172,7 @@ int gsgpu_bo_query_info(gsgpu_bo_handle bo,
 	return 0;
 }
 
-static void gsgpu_add_handle_to_table(gsgpu_bo_handle bo)
+static void loonggpu_add_handle_to_table(loonggpu_bo_handle bo)
 {
 	pthread_mutex_lock(&bo->dev->bo_table_mutex);
 	util_hash_table_set(bo->dev->bo_handles,
@@ -180,7 +180,7 @@ static void gsgpu_add_handle_to_table(gsgpu_bo_handle bo)
 	pthread_mutex_unlock(&bo->dev->bo_table_mutex);
 }
 
-static int gsgpu_bo_export_flink(gsgpu_bo_handle bo)
+static int loonggpu_bo_export_flink(loonggpu_bo_handle bo)
 {
 	struct drm_gem_flink flink;
 	int fd, dma_fd;
@@ -228,51 +228,51 @@ static int gsgpu_bo_export_flink(gsgpu_bo_handle bo)
 	return 0;
 }
 
-int gsgpu_bo_export(gsgpu_bo_handle bo,
-		     enum gsgpu_bo_handle_type type,
+int loonggpu_bo_export(loonggpu_bo_handle bo,
+		     enum loonggpu_bo_handle_type type,
 		     uint32_t *shared_handle)
 {
 	int r;
 
 	switch (type) {
-	case gsgpu_bo_handle_type_gem_flink_name:
-		r = gsgpu_bo_export_flink(bo);
+	case loonggpu_bo_handle_type_gem_flink_name:
+		r = loonggpu_bo_export_flink(bo);
 		if (r)
 			return r;
 
 		*shared_handle = bo->flink_name;
 		return 0;
 
-	case gsgpu_bo_handle_type_kms:
-		gsgpu_add_handle_to_table(bo);
+	case loonggpu_bo_handle_type_kms:
+		loonggpu_add_handle_to_table(bo);
 		*shared_handle = bo->handle;
 		return 0;
 
-	case gsgpu_bo_handle_type_dma_buf_fd:
-		gsgpu_add_handle_to_table(bo);
+	case loonggpu_bo_handle_type_dma_buf_fd:
+		loonggpu_add_handle_to_table(bo);
 		return drmPrimeHandleToFD(bo->dev->fd, bo->handle, DRM_CLOEXEC,
 				       (int*)shared_handle);
 	}
 	return -EINVAL;
 }
 
-int gsgpu_bo_import(gsgpu_device_handle dev,
-		     enum gsgpu_bo_handle_type type,
+int loonggpu_bo_import(loonggpu_device_handle dev,
+		     enum loonggpu_bo_handle_type type,
 		     uint32_t shared_handle,
-		     struct gsgpu_bo_import_result *output)
+		     struct loonggpu_bo_import_result *output)
 {
 	struct drm_gem_open open_arg = {};
-	struct gsgpu_bo *bo = NULL;
+	struct loonggpu_bo *bo = NULL;
 	int r;
 	int dma_fd;
 	uint64_t dma_buf_size = 0;
 
 	/* We must maintain a list of pairs <handle, bo>, so that we always
-	 * return the same gsgpu_bo instance for the same handle. */
+	 * return the same loonggpu_bo instance for the same handle. */
 	pthread_mutex_lock(&dev->bo_table_mutex);
 
 	/* Convert a DMA buf handle to a KMS handle now. */
-	if (type == gsgpu_bo_handle_type_dma_buf_fd) {
+	if (type == loonggpu_bo_handle_type_dma_buf_fd) {
 		uint32_t handle;
 		off_t size;
 
@@ -287,7 +287,7 @@ int gsgpu_bo_import(gsgpu_device_handle dev,
 		size = lseek(shared_handle, 0, SEEK_END);
 		if (size == (off_t)-1) {
 			pthread_mutex_unlock(&dev->bo_table_mutex);
-			gsgpu_close_kms_handle(dev, handle);
+			loonggpu_close_kms_handle(dev, handle);
 			return -errno;
 		}
 		lseek(shared_handle, 0, SEEK_SET);
@@ -298,17 +298,17 @@ int gsgpu_bo_import(gsgpu_device_handle dev,
 
 	/* If we have already created a buffer with this handle, find it. */
 	switch (type) {
-	case gsgpu_bo_handle_type_gem_flink_name:
+	case loonggpu_bo_handle_type_gem_flink_name:
 		bo = util_hash_table_get(dev->bo_flink_names,
 					 (void*)(uintptr_t)shared_handle);
 		break;
 
-	case gsgpu_bo_handle_type_dma_buf_fd:
+	case loonggpu_bo_handle_type_dma_buf_fd:
 		bo = util_hash_table_get(dev->bo_handles,
 					 (void*)(uintptr_t)shared_handle);
 		break;
 
-	case gsgpu_bo_handle_type_kms:
+	case loonggpu_bo_handle_type_kms:
 		/* Importing a KMS handle in not allowed. */
 		pthread_mutex_unlock(&dev->bo_table_mutex);
 		return -EPERM;
@@ -328,18 +328,18 @@ int gsgpu_bo_import(gsgpu_device_handle dev,
 		return 0;
 	}
 
-	bo = calloc(1, sizeof(struct gsgpu_bo));
+	bo = calloc(1, sizeof(struct loonggpu_bo));
 	if (!bo) {
 		pthread_mutex_unlock(&dev->bo_table_mutex);
-		if (type == gsgpu_bo_handle_type_dma_buf_fd) {
-			gsgpu_close_kms_handle(dev, shared_handle);
+		if (type == loonggpu_bo_handle_type_dma_buf_fd) {
+			loonggpu_close_kms_handle(dev, shared_handle);
 		}
 		return -ENOMEM;
 	}
 
 	/* Open the handle. */
 	switch (type) {
-	case gsgpu_bo_handle_type_gem_flink_name:
+	case loonggpu_bo_handle_type_gem_flink_name:
 		open_arg.name = shared_handle;
 		r = drmIoctl(dev->flink_fd, DRM_IOCTL_GEM_OPEN, &open_arg);
 		if (r) {
@@ -372,12 +372,12 @@ int gsgpu_bo_import(gsgpu_device_handle dev,
 				    (void*)(uintptr_t)bo->flink_name, bo);
 		break;
 
-	case gsgpu_bo_handle_type_dma_buf_fd:
+	case loonggpu_bo_handle_type_dma_buf_fd:
 		bo->handle = shared_handle;
 		bo->alloc_size = dma_buf_size;
 		break;
 
-	case gsgpu_bo_handle_type_kms:
+	case loonggpu_bo_handle_type_kms:
 		assert(0); /* unreachable */
 	}
 
@@ -394,10 +394,10 @@ int gsgpu_bo_import(gsgpu_device_handle dev,
 	return 0;
 }
 
-int gsgpu_bo_free(gsgpu_bo_handle buf_handle)
+int loonggpu_bo_free(loonggpu_bo_handle buf_handle)
 {
-	struct gsgpu_device *dev;
-	struct gsgpu_bo *bo = buf_handle;
+	struct loonggpu_device *dev;
+	struct loonggpu_bo *bo = buf_handle;
 
 	assert(bo != NULL);
 	dev = bo->dev;
@@ -416,10 +416,10 @@ int gsgpu_bo_free(gsgpu_bo_handle buf_handle)
 		/* Release CPU access. */
 		if (bo->cpu_map_count > 0) {
 			bo->cpu_map_count = 1;
-			gsgpu_bo_cpu_unmap(bo);
+			loonggpu_bo_cpu_unmap(bo);
 		}
 
-		gsgpu_close_kms_handle(dev, bo->handle);
+		loonggpu_close_kms_handle(dev, bo->handle);
 		pthread_mutex_destroy(&bo->cpu_access_mutex);
 		free(bo);
 	}
@@ -428,9 +428,9 @@ int gsgpu_bo_free(gsgpu_bo_handle buf_handle)
 	return 0;
 }
 
-int gsgpu_bo_cpu_map(gsgpu_bo_handle bo, void **cpu)
+int loonggpu_bo_cpu_map(loonggpu_bo_handle bo, void **cpu)
 {
-	union drm_gsgpu_gem_mmap args;
+	union drm_loonggpu_gem_mmap args;
 	void *ptr;
 	int r;
 
@@ -453,7 +453,7 @@ int gsgpu_bo_cpu_map(gsgpu_bo_handle bo, void **cpu)
 	 * The kernel driver ignores the offset and size parameters. */
 	args.in.handle = bo->handle;
 
-	r = drmCommandWriteRead(bo->dev->fd, DRM_GSGPU_GEM_MMAP, &args,
+	r = drmCommandWriteRead(bo->dev->fd, DRM_LOONGGPU_GEM_MMAP, &args,
 				sizeof(args));
 	if (r) {
 		pthread_mutex_unlock(&bo->cpu_access_mutex);
@@ -476,7 +476,7 @@ int gsgpu_bo_cpu_map(gsgpu_bo_handle bo, void **cpu)
 	return 0;
 }
 
-int gsgpu_bo_cpu_unmap(gsgpu_bo_handle bo)
+int loonggpu_bo_cpu_unmap(loonggpu_bo_handle bo)
 {
 	int r;
 
@@ -502,56 +502,56 @@ int gsgpu_bo_cpu_unmap(gsgpu_bo_handle bo)
 	return r;
 }
 
-int gsgpu_query_buffer_size_alignment(gsgpu_device_handle dev,
-				struct gsgpu_buffer_size_alignments *info)
+int loonggpu_query_buffer_size_alignment(loonggpu_device_handle dev,
+				struct loonggpu_buffer_size_alignments *info)
 {
 	info->size_local = dev->dev_info.pte_fragment_size;
 	info->size_remote = dev->dev_info.gart_page_size;
 	return 0;
 }
 
-int gsgpu_bo_wait_for_idle(gsgpu_bo_handle bo,
+int loonggpu_bo_wait_for_idle(loonggpu_bo_handle bo,
 			    uint64_t timeout_ns,
 			    bool *busy)
 {
-	union drm_gsgpu_gem_wait_idle args;
+	union drm_loonggpu_gem_wait_idle args;
 	int r;
 
 	memset(&args, 0, sizeof(args));
 	args.in.handle = bo->handle;
-	args.in.timeout = gsgpu_cs_calculate_timeout(timeout_ns);
+	args.in.timeout = loonggpu_cs_calculate_timeout(timeout_ns);
 
-	r = drmCommandWriteRead(bo->dev->fd, DRM_GSGPU_GEM_WAIT_IDLE,
+	r = drmCommandWriteRead(bo->dev->fd, DRM_LOONGGPU_GEM_WAIT_IDLE,
 				&args, sizeof(args));
 
 	if (r == 0) {
 		*busy = args.out.status;
 		return 0;
 	} else {
-		fprintf(stderr, "gsgpu: GEM_WAIT_IDLE failed with %i\n", r);
+		fprintf(stderr, "loonggpu: GEM_WAIT_IDLE failed with %i\n", r);
 		return r;
 	}
 }
 
-int gsgpu_create_bo_from_user_mem(gsgpu_device_handle dev,
+int loonggpu_create_bo_from_user_mem(loonggpu_device_handle dev,
 				    void *cpu,
 				    uint64_t size,
-				    gsgpu_bo_handle *buf_handle)
+				    loonggpu_bo_handle *buf_handle)
 {
 	int r;
-	struct gsgpu_bo *bo;
-	struct drm_gsgpu_gem_userptr args;
+	struct loonggpu_bo *bo;
+	struct drm_loonggpu_gem_userptr args;
 
 	args.addr = (uintptr_t)cpu;
-	args.flags = GSGPU_GEM_USERPTR_ANONONLY | GSGPU_GEM_USERPTR_REGISTER |
-		GSGPU_GEM_USERPTR_VALIDATE;
+	args.flags = LOONGGPU_GEM_USERPTR_ANONONLY | LOONGGPU_GEM_USERPTR_REGISTER |
+		LOONGGPU_GEM_USERPTR_VALIDATE;
 	args.size = size;
-	r = drmCommandWriteRead(dev->fd, DRM_GSGPU_GEM_USERPTR,
+	r = drmCommandWriteRead(dev->fd, DRM_LOONGGPU_GEM_USERPTR,
 				&args, sizeof(args));
 	if (r)
 		return r;
 
-	bo = calloc(1, sizeof(struct gsgpu_bo));
+	bo = calloc(1, sizeof(struct loonggpu_bo));
 	if (!bo)
 		return -ENOMEM;
 
@@ -565,14 +565,14 @@ int gsgpu_create_bo_from_user_mem(gsgpu_device_handle dev,
 	return r;
 }
 
-int gsgpu_bo_list_create(gsgpu_device_handle dev,
+int loonggpu_bo_list_create(loonggpu_device_handle dev,
 			  uint32_t number_of_resources,
-			  gsgpu_bo_handle *resources,
+			  loonggpu_bo_handle *resources,
 			  uint8_t *resource_prios,
-			  gsgpu_bo_list_handle *result)
+			  loonggpu_bo_list_handle *result)
 {
-	struct drm_gsgpu_bo_list_entry *list;
-	union drm_gsgpu_bo_list args;
+	struct drm_loonggpu_bo_list_entry *list;
+	union drm_loonggpu_bo_list args;
 	unsigned i;
 	int r;
 
@@ -580,23 +580,23 @@ int gsgpu_bo_list_create(gsgpu_device_handle dev,
 		return -EINVAL;
 
 	/* overflow check for multiplication */
-	if (number_of_resources > UINT32_MAX / sizeof(struct drm_gsgpu_bo_list_entry))
+	if (number_of_resources > UINT32_MAX / sizeof(struct drm_loonggpu_bo_list_entry))
 		return -EINVAL;
 
-	list = malloc(number_of_resources * sizeof(struct drm_gsgpu_bo_list_entry));
+	list = malloc(number_of_resources * sizeof(struct drm_loonggpu_bo_list_entry));
 	if (!list)
 		return -ENOMEM;
 
-	*result = malloc(sizeof(struct gsgpu_bo_list));
+	*result = malloc(sizeof(struct loonggpu_bo_list));
 	if (!*result) {
 		free(list);
 		return -ENOMEM;
 	}
 
 	memset(&args, 0, sizeof(args));
-	args.in.operation = GSGPU_BO_LIST_OP_CREATE;
+	args.in.operation = LOONGGPU_BO_LIST_OP_CREATE;
 	args.in.bo_number = number_of_resources;
-	args.in.bo_info_size = sizeof(struct drm_gsgpu_bo_list_entry);
+	args.in.bo_info_size = sizeof(struct drm_loonggpu_bo_list_entry);
 	args.in.bo_info_ptr = (uint64_t)(uintptr_t)list;
 
 	for (i = 0; i < number_of_resources; i++) {
@@ -607,7 +607,7 @@ int gsgpu_bo_list_create(gsgpu_device_handle dev,
 			list[i].bo_priority = 0;
 	}
 
-	r = drmCommandWriteRead(dev->fd, DRM_GSGPU_BO_LIST,
+	r = drmCommandWriteRead(dev->fd, DRM_LOONGGPU_BO_LIST,
 				&args, sizeof(args));
 	free(list);
 	if (r) {
@@ -620,16 +620,16 @@ int gsgpu_bo_list_create(gsgpu_device_handle dev,
 	return 0;
 }
 
-int gsgpu_bo_list_destroy(gsgpu_bo_list_handle list)
+int loonggpu_bo_list_destroy(loonggpu_bo_list_handle list)
 {
-	union drm_gsgpu_bo_list args;
+	union drm_loonggpu_bo_list args;
 	int r;
 
 	memset(&args, 0, sizeof(args));
-	args.in.operation = GSGPU_BO_LIST_OP_DESTROY;
+	args.in.operation = LOONGGPU_BO_LIST_OP_DESTROY;
 	args.in.list_handle = list->handle;
 
-	r = drmCommandWriteRead(list->dev->fd, DRM_GSGPU_BO_LIST,
+	r = drmCommandWriteRead(list->dev->fd, DRM_LOONGGPU_BO_LIST,
 				&args, sizeof(args));
 
 	if (!r)
@@ -638,13 +638,13 @@ int gsgpu_bo_list_destroy(gsgpu_bo_list_handle list)
 	return r;
 }
 
-int gsgpu_bo_list_update(gsgpu_bo_list_handle handle,
+int loonggpu_bo_list_update(loonggpu_bo_list_handle handle,
 			  uint32_t number_of_resources,
-			  gsgpu_bo_handle *resources,
+			  loonggpu_bo_handle *resources,
 			  uint8_t *resource_prios)
 {
-	struct drm_gsgpu_bo_list_entry *list;
-	union drm_gsgpu_bo_list args;
+	struct drm_loonggpu_bo_list_entry *list;
+	union drm_loonggpu_bo_list args;
 	unsigned i;
 	int r;
 
@@ -652,17 +652,17 @@ int gsgpu_bo_list_update(gsgpu_bo_list_handle handle,
 		return -EINVAL;
 
 	/* overflow check for multiplication */
-	if (number_of_resources > UINT32_MAX / sizeof(struct drm_gsgpu_bo_list_entry))
+	if (number_of_resources > UINT32_MAX / sizeof(struct drm_loonggpu_bo_list_entry))
 		return -EINVAL;
 
-	list = malloc(number_of_resources * sizeof(struct drm_gsgpu_bo_list_entry));
+	list = malloc(number_of_resources * sizeof(struct drm_loonggpu_bo_list_entry));
 	if (!list)
 		return -ENOMEM;
 
-	args.in.operation = GSGPU_BO_LIST_OP_UPDATE;
+	args.in.operation = LOONGGPU_BO_LIST_OP_UPDATE;
 	args.in.list_handle = handle->handle;
 	args.in.bo_number = number_of_resources;
-	args.in.bo_info_size = sizeof(struct drm_gsgpu_bo_list_entry);
+	args.in.bo_info_size = sizeof(struct drm_loonggpu_bo_list_entry);
 	args.in.bo_info_ptr = (uintptr_t)list;
 
 	for (i = 0; i < number_of_resources; i++) {
@@ -673,42 +673,42 @@ int gsgpu_bo_list_update(gsgpu_bo_list_handle handle,
 			list[i].bo_priority = 0;
 	}
 
-	r = drmCommandWriteRead(handle->dev->fd, DRM_GSGPU_BO_LIST,
+	r = drmCommandWriteRead(handle->dev->fd, DRM_LOONGGPU_BO_LIST,
 				&args, sizeof(args));
 	free(list);
 	return r;
 }
 
-int gsgpu_bo_va_op(gsgpu_bo_handle bo,
+int loonggpu_bo_va_op(loonggpu_bo_handle bo,
 		     uint64_t offset,
 		     uint64_t size,
 		     uint64_t addr,
 		     uint64_t flags,
 		     uint32_t ops)
 {
-	gsgpu_device_handle dev = bo->dev;
+	loonggpu_device_handle dev = bo->dev;
 
 	size = ALIGN(size, getpagesize());
 
-	return gsgpu_bo_va_op_raw(dev, bo, offset, size, addr,
-				   GSGPU_VM_PAGE_READABLE |
-				   GSGPU_VM_PAGE_WRITEABLE |
-				   GSGPU_VM_PAGE_EXECUTABLE, ops);
+	return loonggpu_bo_va_op_raw(dev, bo, offset, size, addr,
+				   LOONGGPU_VM_PAGE_READABLE |
+				   LOONGGPU_VM_PAGE_WRITEABLE |
+				   LOONGGPU_VM_PAGE_EXECUTABLE, ops);
 }
 
-int gsgpu_bo_va_op_raw(gsgpu_device_handle dev,
-			gsgpu_bo_handle bo,
+int loonggpu_bo_va_op_raw(loonggpu_device_handle dev,
+			loonggpu_bo_handle bo,
 			uint64_t offset,
 			uint64_t size,
 			uint64_t addr,
 			uint64_t flags,
 			uint32_t ops)
 {
-	struct drm_gsgpu_gem_va va;
+	struct drm_loonggpu_gem_va va;
 	int r;
 
-	if (ops != GSGPU_VA_OP_MAP && ops != GSGPU_VA_OP_UNMAP &&
-	    ops != GSGPU_VA_OP_REPLACE && ops != GSGPU_VA_OP_CLEAR)
+	if (ops != LOONGGPU_VA_OP_MAP && ops != LOONGGPU_VA_OP_UNMAP &&
+	    ops != LOONGGPU_VA_OP_REPLACE && ops != LOONGGPU_VA_OP_CLEAR)
 		return -EINVAL;
 
 	memset(&va, 0, sizeof(va));
@@ -719,7 +719,7 @@ int gsgpu_bo_va_op_raw(gsgpu_device_handle dev,
 	va.offset_in_bo = offset;
 	va.map_size = size;
 
-	r = drmCommandWriteRead(dev->fd, DRM_GSGPU_GEM_VA, &va, sizeof(va));
+	r = drmCommandWriteRead(dev->fd, DRM_LOONGGPU_GEM_VA, &va, sizeof(va));
 
 	return r;
 }

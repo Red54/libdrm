@@ -19,15 +19,15 @@
 # SOFTWARE.
 
 if dep_cunit.found()
-  gsgpu_test = executable(
-    'gsgpu_test',
+  loonggpu_test = executable(
+    'loonggpu_test',
     files(
-      'gsgpu_test.c', 'basic_tests.c', 'bo_tests.c',
+      'loonggpu_test.c', 'basic_tests.c', 'bo_tests.c',
       'deadlock_tests.c', 'vm_tests.c','dma_tests.c'
     ),
     dependencies : [dep_cunit, dep_threads],
-    include_directories : [inc_root, inc_drm, include_directories('../../gsgpu')],
-    link_with : [libdrm, libdrm_gsgpu],
+    include_directories : [inc_root, inc_drm, include_directories('../../loonggpu')],
+    link_with : [libdrm, libdrm_loonggpu],
     install : with_install_tests,
   )
 endif

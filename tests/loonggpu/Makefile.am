@@ -1,26 +1,26 @@
 AM_CFLAGS = \
 	-I $(top_srcdir)/include/drm \
-	-I $(top_srcdir)/gsgpu \
+	-I $(top_srcdir)/loonggpu \
 	-I $(top_srcdir) \
 	-pthread
 
 LDADD = $(top_builddir)/libdrm.la \
-	$(top_builddir)/gsgpu/libdrm_gsgpu.la \
+	$(top_builddir)/loonggpu/libdrm_loonggpu.la \
 	$(CUNIT_LIBS)
 
 if HAVE_INSTALL_TESTS
 bin_PROGRAMS = \
-	gsgpu_test
+	loonggpu_test
 else
 noinst_PROGRAMS = \
-	gsgpu_test
+	loonggpu_test
 endif
 
-gsgpu_test_CPPFLAGS = $(CUNIT_CFLAGS)
+loonggpu_test_CPPFLAGS = $(CUNIT_CFLAGS)
 
-gsgpu_test_SOURCES = \
-	gsgpu_test.c \
-	gsgpu_test.h \
+loonggpu_test_SOURCES = \
+	loonggpu_test.c \
+	loonggpu_test.h \
 	basic_tests.c \
 	bo_tests.c \
 	dma_tests.c \

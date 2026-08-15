@@ -24,7 +24,7 @@ if HAVE_AMDGPU
 dist_libdrmdata_DATA = amdgpu.ids
 endif
 
-libdrmgsgpudatadir = @libdrmdatadir@
-if HAVE_GSGPU
-dist_libdrmgsgpudata_DATA = gsgpu.ids
+libdrmloonggpudatadir = @libdrmdatadir@
+if HAVE_LOONGGPU
+dist_libdrmloonggpudata_DATA = loonggpu.ids
 endif

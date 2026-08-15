@@ -25,29 +25,29 @@
 #include "config.h"
 #endif
 
-#include "gsgpu.h"
-#include "gsgpu_drm.h"
+#include "loonggpu.h"
+#include "loonggpu_drm.h"
 #include "xf86drm.h"
-#include "gsgpu_internal.h"
+#include "loonggpu_internal.h"
 
-int gsgpu_vm_reserve_vmid(gsgpu_device_handle dev, uint32_t flags)
+int loonggpu_vm_reserve_vmid(loonggpu_device_handle dev, uint32_t flags)
 {
-	union drm_gsgpu_vm vm;
+	union drm_loonggpu_vm vm;
 
-	vm.in.op = GSGPU_VM_OP_RESERVE_VMID;
+	vm.in.op = LOONGGPU_VM_OP_RESERVE_VMID;
 	vm.in.flags = flags;
 
-	return drmCommandWriteRead(dev->fd, DRM_GSGPU_VM,
+	return drmCommandWriteRead(dev->fd, DRM_LOONGGPU_VM,
 				   &vm, sizeof(vm));
 }
 
-int gsgpu_vm_unreserve_vmid(gsgpu_device_handle dev, uint32_t flags)
+int loonggpu_vm_unreserve_vmid(loonggpu_device_handle dev, uint32_t flags)
 {
-	union drm_gsgpu_vm vm;
+	union drm_loonggpu_vm vm;
 
-	vm.in.op = GSGPU_VM_OP_UNRESERVE_VMID;
+	vm.in.op = LOONGGPU_VM_OP_UNRESERVE_VMID;
 	vm.in.flags = flags;
 
-	return drmCommandWriteRead(dev->fd, DRM_GSGPU_VM,
+	return drmCommandWriteRead(dev->fd, DRM_LOONGGPU_VM,
 				   &vm, sizeof(vm));
 }

@@ -32,21 +32,21 @@ AM_CFLAGS = \
 	-I$(top_srcdir)/include/drm
 
 libdrmdatadir = @libdrmdatadir@
-AM_CPPFLAGS = -DGSGPU_ASIC_ID_TABLE=\"${libdrmdatadir}/gsgpu.ids\"
+AM_CPPFLAGS = -DLOONGGPU_ASIC_ID_TABLE=\"${libdrmdatadir}/loonggpu.ids\"
 
-libdrm_gsgpu_la_LTLIBRARIES = libdrm_gsgpu.la
-libdrm_gsgpu_ladir = $(libdir)
-libdrm_gsgpu_la_LDFLAGS = -version-number 1:0:0 -no-undefined
-libdrm_gsgpu_la_LIBADD = ../libdrm.la @PTHREADSTUBS_LIBS@
+libdrm_loonggpu_la_LTLIBRARIES = libdrm_loonggpu.la
+libdrm_loonggpu_ladir = $(libdir)
+libdrm_loonggpu_la_LDFLAGS = -version-number 1:0:0 -no-undefined
+libdrm_loonggpu_la_LIBADD = ../libdrm.la @PTHREADSTUBS_LIBS@
 
-libdrm_gsgpu_la_SOURCES = $(LIBDRM_GSGPU_FILES)
-gsgpu_asic_id.lo: $(top_srcdir)/data/gsgpu.ids
+libdrm_loonggpu_la_SOURCES = $(LIBDRM_LOONGGPU_FILES)
+loonggpu_asic_id.lo: $(top_srcdir)/data/loonggpu.ids
 
-libdrm_gsgpuincludedir = ${includedir}/libdrm
-libdrm_gsgpuinclude_HEADERS = $(LIBDRM_GSGPU_H_FILES)
+libdrm_loonggpuincludedir = ${includedir}/libdrm
+libdrm_loonggpuinclude_HEADERS = $(LIBDRM_LOONGGPU_H_FILES)
 
 pkgconfigdir = @pkgconfigdir@
-pkgconfig_DATA = libdrm_gsgpu.pc
+pkgconfig_DATA = libdrm_loonggpu.pc
 
-TESTS = gsgpu-symbol-check
+TESTS = loonggpu-symbol-check
 EXTRA_DIST = $(TESTS)

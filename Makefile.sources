@@ -36,7 +36,7 @@ LIBDRM_INCLUDE_H_FILES := \
 	include/drm/vc4_drm.h \
 	include/drm/via_drm.h \
 	include/drm/virtgpu_drm.h \
-	include/drm/gsgpu_drm.h
+	include/drm/loonggpu_drm.h
 
 LIBDRM_INCLUDE_ANDROID_H_FILES := \
 	android/gralloc_handle.h

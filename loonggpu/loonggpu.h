@@ -22,17 +22,17 @@
  */
 
 /**
- * \file gsgpu.h
+ * \file loonggpu.h
  *
- * Declare public libdrm_gsgpu API
+ * Declare public libdrm_loonggpu API
  *
- * This file define API exposed by libdrm_gsgpu library.
- * User wanted to use libdrm_gsgpu functionality must include
+ * This file define API exposed by libdrm_loonggpu library.
+ * User wanted to use libdrm_loonggpu functionality must include
  * this file.
  *
  */
-#ifndef _GSGPU_H_
-#define _GSGPU_H_
+#ifndef _LOONGGPU_H_
+#define _LOONGGPU_H_
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -41,7 +41,7 @@
 extern "C" {
 #endif
 
-struct drm_gsgpu_info_hw_ip;
+struct drm_loonggpu_info_hw_ip;
 
 /*--------------------------------------------------------------------------*/
 /* --------------------------- Defines ------------------------------------ */
@@ -51,20 +51,20 @@ struct drm_gsgpu_info_hw_ip;
  * Define max. number of Command Buffers (IB) which could be sent to the single
  * hardware IP to accommodate CE/DE requirements
  *
- * \sa gsgpu_cs_ib_info
+ * \sa loonggpu_cs_ib_info
 */
-#define GSGPU_CS_MAX_IBS_PER_SUBMIT		4
+#define LOONGGPU_CS_MAX_IBS_PER_SUBMIT		4
 
 /**
  * Special timeout value meaning that the timeout is infinite.
  */
-#define GSGPU_TIMEOUT_INFINITE			0xffffffffffffffffull
+#define LOONGGPU_TIMEOUT_INFINITE			0xffffffffffffffffull
 
 /**
- * Used in gsgpu_cs_query_fence_status(), meaning that the given timeout
+ * Used in loonggpu_cs_query_fence_status(), meaning that the given timeout
  * is absolute.
  */
-#define GSGPU_QUERY_FENCE_TIMEOUT_IS_ABSOLUTE     (1 << 0)
+#define LOONGGPU_QUERY_FENCE_TIMEOUT_IS_ABSOLUTE     (1 << 0)
 
 /*--------------------------------------------------------------------------*/
 /* ----------------------------- Enums ------------------------------------ */
@@ -73,29 +73,29 @@ struct drm_gsgpu_info_hw_ip;
 /**
  * Enum describing possible handle types
  *
- * \sa gsgpu_bo_import, gsgpu_bo_export
+ * \sa loonggpu_bo_import, loonggpu_bo_export
  *
 */
-enum gsgpu_bo_handle_type {
+enum loonggpu_bo_handle_type {
 	/** GEM flink name (needs DRM authentication, used by DRI2) */
-	gsgpu_bo_handle_type_gem_flink_name = 0,
+	loonggpu_bo_handle_type_gem_flink_name = 0,
 
 	/** KMS handle which is used by all driver ioctls */
-	gsgpu_bo_handle_type_kms = 1,
+	loonggpu_bo_handle_type_kms = 1,
 
 	/** DMA-buf fd handle */
-	gsgpu_bo_handle_type_dma_buf_fd = 2
+	loonggpu_bo_handle_type_dma_buf_fd = 2
 };
 
 /** Define known types of GPU VM VA ranges */
-enum gsgpu_gpu_va_range
+enum loonggpu_gpu_va_range
 {
 	/** Allocate from "normal"/general range */
-	gsgpu_gpu_va_range_general = 0
+	loonggpu_gpu_va_range_general = 0
 };
 
-enum gsgpu_sw_info {
-	gsgpu_sw_info_address32_hi = 0,
+enum loonggpu_sw_info {
+	loonggpu_sw_info_address32_hi = 0,
 };
 
 /*--------------------------------------------------------------------------*/
@@ -108,34 +108,34 @@ enum gsgpu_sw_info {
  * "initialize" function and should be pass as the first
  * parameter to any API call
  */
-typedef struct gsgpu_device *gsgpu_device_handle;
+typedef struct loonggpu_device *loonggpu_device_handle;
 
 /**
  * Define GPU Context type as pointer to opaque structure
  * Example of GPU Context is the "rendering" context associated
  * with OpenGL context (glCreateContext)
  */
-typedef struct gsgpu_context *gsgpu_context_handle;
+typedef struct loonggpu_context *loonggpu_context_handle;
 
 /**
- * Define handle for gsgpu resources: buffer, GDS, etc.
+ * Define handle for loonggpu resources: buffer, GDS, etc.
  */
-typedef struct gsgpu_bo *gsgpu_bo_handle;
+typedef struct loonggpu_bo *loonggpu_bo_handle;
 
 /**
  * Define handle for list of BOs
  */
-typedef struct gsgpu_bo_list *gsgpu_bo_list_handle;
+typedef struct loonggpu_bo_list *loonggpu_bo_list_handle;
 
 /**
  * Define handle to be used to work with VA(virtual address) allocated ranges
  */
-typedef struct gsgpu_va *gsgpu_va_handle;
+typedef struct loonggpu_va *loonggpu_va_handle;
 
 /**
  * Define handle for semaphore
  */
-typedef struct gsgpu_semaphore *gsgpu_semaphore_handle;
+typedef struct loonggpu_semaphore *loonggpu_semaphore_handle;
 
 /*--------------------------------------------------------------------------*/
 /* -------------------------- Structures ---------------------------------- */
@@ -144,10 +144,10 @@ typedef struct gsgpu_semaphore *gsgpu_semaphore_handle;
 /**
  * Structure describing memory allocation request
  *
- * \sa gsgpu_bo_alloc()
+ * \sa loonggpu_bo_alloc()
  *
 */
-struct gsgpu_bo_alloc_request {
+struct loonggpu_bo_alloc_request {
 	/** Allocation request. It must be aligned correctly. */
 	uint64_t alloc_size;
 
@@ -173,19 +173,19 @@ struct gsgpu_bo_alloc_request {
  *
  * It may be need to pass some buffer charactersitic as part
  * of buffer sharing. Such information are defined UMD and
- * opaque for libdrm_gsgpu as well for kernel driver.
+ * opaque for libdrm_loonggpu as well for kernel driver.
  *
- * \sa gsgpu_bo_set_metadata(), gsgpu_bo_query_info,
- *     gsgpu_bo_import(), gsgpu_bo_export
+ * \sa loonggpu_bo_set_metadata(), loonggpu_bo_query_info,
+ *     loonggpu_bo_import(), loonggpu_bo_export
  *
 */
-struct gsgpu_bo_metadata {
+struct loonggpu_bo_metadata {
 	/** Special flag associated with surface */
 	uint64_t flags;
 
 	/**
 	 * ASIC-specific tiling information (also used by DCE).
-	 * The encoding is defined by the GSGPU_TILING_* definitions.
+	 * The encoding is defined by the LOONGGPU_TILING_* definitions.
 	 */
 	uint64_t tiling_info;
 
@@ -200,10 +200,10 @@ struct gsgpu_bo_metadata {
  * Structure describing allocated buffer. Client may need
  * to query such information as part of 'sharing' buffers mechanism
  *
- * \sa gsgpu_bo_set_metadata(), gsgpu_bo_query_info(),
- *     gsgpu_bo_import(), gsgpu_bo_export()
+ * \sa loonggpu_bo_set_metadata(), loonggpu_bo_query_info(),
+ *     loonggpu_bo_import(), loonggpu_bo_export()
 */
-struct gsgpu_bo_info {
+struct loonggpu_bo_info {
 	/** Allocated memory size */
 	uint64_t alloc_size;
 
@@ -220,18 +220,18 @@ struct gsgpu_bo_info {
 	uint64_t alloc_flags;
 
 	/** Metadata associated with buffer if any. */
-	struct gsgpu_bo_metadata metadata;
+	struct loonggpu_bo_metadata metadata;
 };
 
 /**
  * Structure with information about "imported" buffer
  *
- * \sa gsgpu_bo_import()
+ * \sa loonggpu_bo_import()
  *
  */
-struct gsgpu_bo_import_result {
+struct loonggpu_bo_import_result {
 	/** Handle of memory/buffer to use */
-	gsgpu_bo_handle buf_handle;
+	loonggpu_bo_handle buf_handle;
 
 	 /** Buffer size */
 	uint64_t alloc_size;
@@ -242,10 +242,10 @@ struct gsgpu_bo_import_result {
  * Structure to describe GDS partitioning information.
  * \note OA and GWS resources are asscoiated with GDS partition
  *
- * \sa gsgpu_gpu_resource_query_gds_info
+ * \sa loonggpu_gpu_resource_query_gds_info
  *
 */
-struct gsgpu_gds_resource_info {
+struct loonggpu_gds_resource_info {
 	uint32_t gds_gfx_partition_size;
 	uint32_t compute_partition_size;
 	uint32_t gds_total_size;
@@ -258,13 +258,13 @@ struct gsgpu_gds_resource_info {
 /**
  * Structure describing CS fence
  *
- * \sa gsgpu_cs_query_fence_status(), gsgpu_cs_request, gsgpu_cs_submit()
+ * \sa loonggpu_cs_query_fence_status(), loonggpu_cs_request, loonggpu_cs_submit()
  *
 */
-struct gsgpu_cs_fence {
+struct loonggpu_cs_fence {
 
 	/** In which context IB was sent to execution */
-	gsgpu_context_handle context;
+	loonggpu_context_handle context;
 
 	/** To which HW IP type the fence belongs */
 	uint32_t ip_type;
@@ -282,10 +282,10 @@ struct gsgpu_cs_fence {
 /**
  * Structure describing IB
  *
- * \sa gsgpu_cs_request, gsgpu_cs_submit()
+ * \sa loonggpu_cs_request, loonggpu_cs_submit()
  *
 */
-struct gsgpu_cs_ib_info {
+struct loonggpu_cs_ib_info {
 	/** Special flags */
 	uint64_t flags;
 
@@ -303,12 +303,12 @@ struct gsgpu_cs_ib_info {
 /**
  * Structure describing fence information
  *
- * \sa gsgpu_cs_request, gsgpu_cs_query_fence,
- *     gsgpu_cs_submit(), gsgpu_cs_query_fence_status()
+ * \sa loonggpu_cs_request, loonggpu_cs_query_fence,
+ *     loonggpu_cs_submit(), loonggpu_cs_query_fence_status()
 */
-struct gsgpu_cs_fence_info {
+struct loonggpu_cs_fence_info {
 	/** buffer object for the fence */
-	gsgpu_bo_handle handle;
+	loonggpu_bo_handle handle;
 
 	/** fence offset in the unit of sizeof(uint64_t) */
 	uint64_t offset;
@@ -319,9 +319,9 @@ struct gsgpu_cs_fence_info {
  *
  * \note We could have several IBs as packet. e.g. CE, CE, DE case for gfx
  *
- * \sa gsgpu_cs_submit()
+ * \sa loonggpu_cs_submit()
 */
-struct gsgpu_cs_request {
+struct loonggpu_cs_request {
 	/** Specify flags with additional information */
 	uint64_t flags;
 
@@ -340,7 +340,7 @@ struct gsgpu_cs_request {
 	/**
 	 * List handle with resources used by this request.
 	 */
-	gsgpu_bo_list_handle resources;
+	loonggpu_bo_list_handle resources;
 
 	/**
 	 * Number of dependencies this Command submission needs to
@@ -352,7 +352,7 @@ struct gsgpu_cs_request {
 	 * Array of dependencies which need to be met before
 	 * execution can start.
 	 */
-	struct gsgpu_cs_fence *dependencies;
+	struct loonggpu_cs_fence *dependencies;
 
 	/** Number of IBs to submit in the field ibs. */
 	uint32_t number_of_ibs;
@@ -360,7 +360,7 @@ struct gsgpu_cs_request {
 	/**
 	 * IBs to submit. Those IBs will be submit together as single entity
 	 */
-	struct gsgpu_cs_ib_info *ibs;
+	struct loonggpu_cs_ib_info *ibs;
 
 	/**
 	 * The returned sequence number for the command submission
@@ -370,16 +370,16 @@ struct gsgpu_cs_request {
 	/**
 	 * The fence information
 	 */
-	struct gsgpu_cs_fence_info fence_info;
+	struct loonggpu_cs_fence_info fence_info;
 };
 
 /**
  * Structure which provide information about GPU VM MC Address space
  * alignments requirements
  *
- * \sa gsgpu_query_buffer_size_alignment
+ * \sa loonggpu_query_buffer_size_alignment
  */
-struct gsgpu_buffer_size_alignments {
+struct loonggpu_buffer_size_alignments {
 	/** Size alignment requirement for allocation in
 	 * local memory */
 	uint64_t size_local;
@@ -393,10 +393,10 @@ struct gsgpu_buffer_size_alignments {
 /**
  * Structure which provide information about heap
  *
- * \sa gsgpu_query_heap_info()
+ * \sa loonggpu_query_heap_info()
  *
  */
-struct gsgpu_heap_info {
+struct loonggpu_heap_info {
 	/** Theoretical max. available memory in the given heap */
 	uint64_t heap_size;
 
@@ -418,9 +418,9 @@ struct gsgpu_heap_info {
 /**
  * Describe GPU h/w info needed for UMD correct initialization
  *
- * \sa gsgpu_query_gpu_info()
+ * \sa loonggpu_query_gpu_info()
 */
-struct gsgpu_gpu_info {
+struct loonggpu_gpu_info {
 	/** Asic id */
 	uint32_t asic_id;
 	/** Chip revision */
@@ -514,12 +514,12 @@ struct gsgpu_gpu_info {
  *          <0 - Negative POSIX Error code
  *
  *
- * \sa gsgpu_device_deinitialize()
+ * \sa loonggpu_device_deinitialize()
 */
-int gsgpu_device_initialize(int fd,
+int loonggpu_device_initialize(int fd,
 			     uint32_t *major_version,
 			     uint32_t *minor_version,
-			     gsgpu_device_handle *device_handle);
+			     loonggpu_device_handle *device_handle);
 
 /**
  *
@@ -535,10 +535,10 @@ int gsgpu_device_initialize(int fd,
  * \return  0 on success\n
  *         <0 - Negative POSIX Error code
  *
- * \sa gsgpu_device_initialize()
+ * \sa loonggpu_device_initialize()
  *
 */
-int gsgpu_device_deinitialize(gsgpu_device_handle device_handle);
+int loonggpu_device_deinitialize(loonggpu_device_handle device_handle);
 
 /*
  * Memory Management
@@ -549,7 +549,7 @@ int gsgpu_device_deinitialize(gsgpu_device_handle device_handle);
  * Allocate memory to be used by UMD for GPU related operations
  *
  * \param   dev		 - \c [in] Device handle.
- *				   See #gsgpu_device_initialize()
+ *				   See #loonggpu_device_initialize()
  * \param   alloc_buffer - \c [in] Pointer to the structure describing an
  *				   allocation request
  * \param   buf_handle	- \c [out] Allocated buffer handle
@@ -557,47 +557,47 @@ int gsgpu_device_deinitialize(gsgpu_device_handle device_handle);
  * \return   0 on success\n
  *          <0 - Negative POSIX Error code
  *
- * \sa gsgpu_bo_free()
+ * \sa loonggpu_bo_free()
 */
-int gsgpu_bo_alloc(gsgpu_device_handle dev,
-		    struct gsgpu_bo_alloc_request *alloc_buffer,
-		    gsgpu_bo_handle *buf_handle);
+int loonggpu_bo_alloc(loonggpu_device_handle dev,
+		    struct loonggpu_bo_alloc_request *alloc_buffer,
+		    loonggpu_bo_handle *buf_handle);
 
 /**
  * Associate opaque data with buffer to be queried by another UMD
  *
- * \param   dev	       - \c [in] Device handle. See #gsgpu_device_initialize()
+ * \param   dev	       - \c [in] Device handle. See #loonggpu_device_initialize()
  * \param   buf_handle - \c [in] Buffer handle
  * \param   info       - \c [in] Metadata to associated with buffer
  *
  * \return   0 on success\n
  *          <0 - Negative POSIX Error code
 */
-int gsgpu_bo_set_metadata(gsgpu_bo_handle buf_handle,
-			   struct gsgpu_bo_metadata *info);
+int loonggpu_bo_set_metadata(loonggpu_bo_handle buf_handle,
+			   struct loonggpu_bo_metadata *info);
 
 /**
  * Query buffer information including metadata previusly associated with
  * buffer.
  *
  * \param   dev	       - \c [in] Device handle.
- *				 See #gsgpu_device_initialize()
+ *				 See #loonggpu_device_initialize()
  * \param   buf_handle - \c [in]   Buffer handle
  * \param   info       - \c [out]  Structure describing buffer
  *
  * \return   0 on success\n
  *          <0 - Negative POSIX Error code
  *
- * \sa gsgpu_bo_set_metadata(), gsgpu_bo_alloc()
+ * \sa loonggpu_bo_set_metadata(), loonggpu_bo_alloc()
 */
-int gsgpu_bo_query_info(gsgpu_bo_handle buf_handle,
-			 struct gsgpu_bo_info *info);
+int loonggpu_bo_query_info(loonggpu_bo_handle buf_handle,
+			 struct loonggpu_bo_info *info);
 
 /**
  * Allow others to get access to buffer
  *
  * \param   dev		  - \c [in] Device handle.
- *				    See #gsgpu_device_initialize()
+ *				    See #loonggpu_device_initialize()
  * \param   buf_handle    - \c [in] Buffer handle
  * \param   type          - \c [in] Type of handle requested
  * \param   shared_handle - \c [out] Special "shared" handle
@@ -605,18 +605,18 @@ int gsgpu_bo_query_info(gsgpu_bo_handle buf_handle,
  * \return   0 on success\n
  *          <0 - Negative POSIX Error code
  *
- * \sa gsgpu_bo_import()
+ * \sa loonggpu_bo_import()
  *
 */
-int gsgpu_bo_export(gsgpu_bo_handle buf_handle,
-		     enum gsgpu_bo_handle_type type,
+int loonggpu_bo_export(loonggpu_bo_handle buf_handle,
+		     enum loonggpu_bo_handle_type type,
 		     uint32_t *shared_handle);
 
 /**
  * Request access to "shared" buffer
  *
  * \param   dev		  - \c [in] Device handle.
- *				    See #gsgpu_device_initialize()
+ *				    See #loonggpu_device_initialize()
  * \param   type	  - \c [in] Type of handle requested
  * \param   shared_handle - \c [in] Shared handle received as result "import"
  *				     operation
@@ -629,18 +629,18 @@ int gsgpu_bo_export(gsgpu_bo_handle buf_handle,
  * \note  Buffer must be "imported" only using new "fd" (different from
  *	  one used by "exporter").
  *
- * \sa gsgpu_bo_export()
+ * \sa loonggpu_bo_export()
  *
 */
-int gsgpu_bo_import(gsgpu_device_handle dev,
-		     enum gsgpu_bo_handle_type type,
+int loonggpu_bo_import(loonggpu_device_handle dev,
+		     enum loonggpu_bo_handle_type type,
 		     uint32_t shared_handle,
-		     struct gsgpu_bo_import_result *output);
+		     struct loonggpu_bo_import_result *output);
 
 /**
  * Request GPU access to user allocated memory e.g. via "malloc"
  *
- * \param dev - [in] Device handle. See #gsgpu_device_initialize()
+ * \param dev - [in] Device handle. See #loonggpu_device_initialize()
  * \param cpu - [in] CPU address of user allocated memory which we
  * want to map to GPU address space (make GPU accessible)
  * (This address must be correctly aligned).
@@ -668,14 +668,14 @@ int gsgpu_bo_import(gsgpu_device_handle dev,
  * It is responsibility of caller to correctly specify access rights
  * on VA assignment.
 */
-int gsgpu_create_bo_from_user_mem(gsgpu_device_handle dev,
+int loonggpu_create_bo_from_user_mem(loonggpu_device_handle dev,
 				    void *cpu, uint64_t size,
-				    gsgpu_bo_handle *buf_handle);
+				    loonggpu_bo_handle *buf_handle);
 
 /**
  * Free previosuly allocated memory
  *
- * \param   dev	       - \c [in] Device handle. See #gsgpu_device_initialize()
+ * \param   dev	       - \c [in] Device handle. See #loonggpu_device_initialize()
  * \param   buf_handle - \c [in]  Buffer handle to free
  *
  * \return   0 on success\n
@@ -687,10 +687,10 @@ int gsgpu_create_bo_from_user_mem(gsgpu_device_handle dev,
  * \note If is UMD responsibility to ‘free’ buffer only when there is no
  *	 more GPU access
  *
- * \sa gsgpu_bo_set_metadata(), gsgpu_bo_alloc()
+ * \sa loonggpu_bo_set_metadata(), loonggpu_bo_alloc()
  *
 */
-int gsgpu_bo_free(gsgpu_bo_handle buf_handle);
+int loonggpu_bo_free(loonggpu_bo_handle buf_handle);
 
 /**
  * Request CPU access to GPU accessible memory
@@ -701,10 +701,10 @@ int gsgpu_bo_free(gsgpu_bo_handle buf_handle);
  * \return   0 on success\n
  *          <0 - Negative POSIX Error code
  *
- * \sa gsgpu_bo_cpu_unmap()
+ * \sa loonggpu_bo_cpu_unmap()
  *
 */
-int gsgpu_bo_cpu_map(gsgpu_bo_handle buf_handle, void **cpu);
+int loonggpu_bo_cpu_map(loonggpu_bo_handle buf_handle, void **cpu);
 
 /**
  * Release CPU access to GPU memory
@@ -714,15 +714,15 @@ int gsgpu_bo_cpu_map(gsgpu_bo_handle buf_handle, void **cpu);
  * \return   0 on success\n
  *          <0 - Negative POSIX Error code
  *
- * \sa gsgpu_bo_cpu_map()
+ * \sa loonggpu_bo_cpu_map()
  *
 */
-int gsgpu_bo_cpu_unmap(gsgpu_bo_handle buf_handle);
+int loonggpu_bo_cpu_unmap(loonggpu_bo_handle buf_handle);
 
 /**
  * Wait until a buffer is not used by the device.
  *
- * \param   dev           - \c [in] Device handle. See #gsgpu_device_initialize()
+ * \param   dev           - \c [in] Device handle. See #loonggpu_device_initialize()
  * \param   buf_handle    - \c [in] Buffer handle.
  * \param   timeout_ns    - Timeout in nanoseconds.
  * \param   buffer_busy   - 0 if buffer is idle, all GPU access was completed
@@ -732,7 +732,7 @@ int gsgpu_bo_cpu_unmap(gsgpu_bo_handle buf_handle);
  * \return   0 - on success
  *          <0 - Negative POSIX Error code
  */
-int gsgpu_bo_wait_for_idle(gsgpu_bo_handle buf_handle,
+int loonggpu_bo_wait_for_idle(loonggpu_bo_handle buf_handle,
 			    uint64_t timeout_ns,
 			    bool *buffer_busy);
 
@@ -740,7 +740,7 @@ int gsgpu_bo_wait_for_idle(gsgpu_bo_handle buf_handle,
  * Creates a BO list handle for command submission.
  *
  * \param   dev			- \c [in] Device handle.
- *				   See #gsgpu_device_initialize()
+ *				   See #loonggpu_device_initialize()
  * \param   number_of_resources	- \c [in] Number of BOs in the list
  * \param   resources		- \c [in] List of BO handles
  * \param   resource_prios	- \c [in] Optional priority for each handle
@@ -749,13 +749,13 @@ int gsgpu_bo_wait_for_idle(gsgpu_bo_handle buf_handle,
  * \return   0 on success\n
  *          <0 - Negative POSIX Error code
  *
- * \sa gsgpu_bo_list_destroy()
+ * \sa loonggpu_bo_list_destroy()
 */
-int gsgpu_bo_list_create(gsgpu_device_handle dev,
+int loonggpu_bo_list_create(loonggpu_device_handle dev,
 			  uint32_t number_of_resources,
-			  gsgpu_bo_handle *resources,
+			  loonggpu_bo_handle *resources,
 			  uint8_t *resource_prios,
-			  gsgpu_bo_list_handle *result);
+			  loonggpu_bo_list_handle *result);
 
 /**
  * Destroys a BO list handle.
@@ -765,9 +765,9 @@ int gsgpu_bo_list_create(gsgpu_device_handle dev,
  * \return   0 on success\n
  *          <0 - Negative POSIX Error code
  *
- * \sa gsgpu_bo_list_create()
+ * \sa loonggpu_bo_list_create()
 */
-int gsgpu_bo_list_destroy(gsgpu_bo_list_handle handle);
+int loonggpu_bo_list_destroy(loonggpu_bo_list_handle handle);
 
 /**
  * Update resources for existing BO list
@@ -780,11 +780,11 @@ int gsgpu_bo_list_destroy(gsgpu_bo_list_handle handle);
  * \return   0 on success\n
  *          <0 - Negative POSIX Error code
  *
- * \sa gsgpu_bo_list_update()
+ * \sa loonggpu_bo_list_update()
 */
-int gsgpu_bo_list_update(gsgpu_bo_list_handle handle,
+int loonggpu_bo_list_update(loonggpu_bo_list_handle handle,
 			  uint32_t number_of_resources,
-			  gsgpu_bo_handle *resources,
+			  loonggpu_bo_handle *resources,
 			  uint8_t *resource_prios);
 
 /*
@@ -802,30 +802,30 @@ int gsgpu_bo_list_update(gsgpu_bo_list_handle handle,
  * context will always be executed in order (first come, first serve).
  *
  *
- * \param   dev      - \c [in] Device handle. See #gsgpu_device_initialize()
- * \param   priority - \c [in] Context creation flags. See GSGPU_CTX_PRIORITY_*
+ * \param   dev      - \c [in] Device handle. See #loonggpu_device_initialize()
+ * \param   priority - \c [in] Context creation flags. See LOONGGPU_CTX_PRIORITY_*
  * \param   context  - \c [out] GPU Context handle
  *
  * \return   0 on success\n
  *          <0 - Negative POSIX Error code
  *
- * \sa gsgpu_cs_ctx_free()
+ * \sa loonggpu_cs_ctx_free()
  *
 */
-int gsgpu_cs_ctx_create2(gsgpu_device_handle dev,
+int loonggpu_cs_ctx_create2(loonggpu_device_handle dev,
 			 uint32_t priority,
-			 gsgpu_context_handle *context);
+			 loonggpu_context_handle *context);
 /**
  * Create GPU execution Context
  *
- * Refer to gsgpu_cs_ctx_create2 for full documentation. This call
+ * Refer to loonggpu_cs_ctx_create2 for full documentation. This call
  * is missing the priority parameter.
  *
- * \sa gsgpu_cs_ctx_create2()
+ * \sa loonggpu_cs_ctx_create2()
  *
 */
-int gsgpu_cs_ctx_create(gsgpu_device_handle dev,
-			 gsgpu_context_handle *context);
+int loonggpu_cs_ctx_create(loonggpu_device_handle dev,
+			 loonggpu_context_handle *context);
 
 /**
  *
@@ -836,25 +836,25 @@ int gsgpu_cs_ctx_create(gsgpu_device_handle dev,
  * \return   0 on success\n
  *          <0 - Negative POSIX Error code
  *
- * \sa gsgpu_cs_ctx_create()
+ * \sa loonggpu_cs_ctx_create()
  *
 */
-int gsgpu_cs_ctx_free(gsgpu_context_handle context);
+int loonggpu_cs_ctx_free(loonggpu_context_handle context);
 
 /**
  * Query reset state for the specific GPU Context
  *
  * \param   context - \c [in]  GPU Context handle
- * \param   state   - \c [out] One of GSGPU_CTX_*_RESET
+ * \param   state   - \c [out] One of LOONGGPU_CTX_*_RESET
  * \param   hangs   - \c [out] Number of hangs caused by the context.
  *
  * \return   0 on success\n
  *          <0 - Negative POSIX Error code
  *
- * \sa gsgpu_cs_ctx_create()
+ * \sa loonggpu_cs_ctx_create()
  *
 */
-int gsgpu_cs_query_reset_state(gsgpu_context_handle context,
+int loonggpu_cs_query_reset_state(loonggpu_context_handle context,
 				uint32_t *state, uint32_t *hangs);
 
 /*
@@ -877,7 +877,7 @@ int gsgpu_cs_query_reset_state(gsgpu_context_handle context,
  *
  *
  * \param   dev		       - \c [in]  Device handle.
- *					  See #gsgpu_device_initialize()
+ *					  See #loonggpu_device_initialize()
  * \param   context            - \c [in]  GPU Context
  * \param   flags              - \c [in]  Global submission flags
  * \param   ibs_request        - \c [in/out] Pointer to submission requests.
@@ -894,13 +894,13 @@ int gsgpu_cs_query_reset_state(gsgpu_context_handle context,
  *	 This will allow kernel driver to correctly implement "paging".
  *	 Failure to do so will have unpredictable results.
  *
- * \sa gsgpu_command_buffer_alloc(), gsgpu_command_buffer_free(),
- *     gsgpu_cs_query_fence_status()
+ * \sa loonggpu_command_buffer_alloc(), loonggpu_command_buffer_free(),
+ *     loonggpu_cs_query_fence_status()
  *
 */
-int gsgpu_cs_submit(gsgpu_context_handle context,
+int loonggpu_cs_submit(loonggpu_context_handle context,
 		     uint64_t flags,
-		     struct gsgpu_cs_request *ibs_request,
+		     struct loonggpu_cs_request *ibs_request,
 		     uint32_t number_of_requests);
 
 /**
@@ -921,9 +921,9 @@ int gsgpu_cs_submit(gsgpu_context_handle context,
  *	 returned in the case if submission was completed or timeout error
  *	 code.
  *
- * \sa gsgpu_cs_submit()
+ * \sa loonggpu_cs_submit()
 */
-int gsgpu_cs_query_fence_status(struct gsgpu_cs_fence *fence,
+int loonggpu_cs_query_fence_status(struct loonggpu_cs_fence *fence,
 				 uint64_t timeout_ns,
 				 uint64_t flags,
 				 uint32_t *expired);
@@ -942,10 +942,10 @@ int gsgpu_cs_query_fence_status(struct gsgpu_cs_fence *fence,
  * \return  0 on success
  *          <0 - Negative POSIX Error code
  *
- * \note    Currently it supports only one gsgpu_device. All fences come from
- *          the same gsgpu_device with the same fd.
+ * \note    Currently it supports only one loonggpu_device. All fences come from
+ *          the same loonggpu_device with the same fd.
 */
-int gsgpu_cs_wait_fences(struct gsgpu_cs_fence *fences,
+int loonggpu_cs_wait_fences(struct loonggpu_cs_fence *fences,
 			  uint32_t fence_count,
 			  bool wait_all,
 			  uint64_t timeout_ns,
@@ -963,7 +963,7 @@ int gsgpu_cs_wait_fences(struct gsgpu_cs_fence *fences,
  * to be able correctly choose required allocation size and implement
  * internal optimization if needed.
  *
- * \param   dev  - \c [in] Device handle. See #gsgpu_device_initialize()
+ * \param   dev  - \c [in] Device handle. See #loonggpu_device_initialize()
  * \param   info - \c [out] Pointer to structure to get size alignment
  *			  requirements
  *
@@ -971,15 +971,15 @@ int gsgpu_cs_wait_fences(struct gsgpu_cs_fence *fences,
  *          <0 - Negative POSIX Error code
  *
 */
-int gsgpu_query_buffer_size_alignment(gsgpu_device_handle dev,
-				       struct gsgpu_buffer_size_alignments
+int loonggpu_query_buffer_size_alignment(loonggpu_device_handle dev,
+				       struct loonggpu_buffer_size_alignments
 						*info);
 
 /**
  * Query firmware versions
  *
- * \param   dev	        - \c [in] Device handle. See #gsgpu_device_initialize()
- * \param   fw_type     - \c [in] GSGPU_INFO_FW_*
+ * \param   dev	        - \c [in] Device handle. See #loonggpu_device_initialize()
+ * \param   fw_type     - \c [in] LOONGGPU_INFO_FW_*
  * \param   ip_instance - \c [in] Index of the IP block of the same type.
  * \param   index       - \c [in] Index of the engine. (for SDMA and MEC)
  * \param   version     - \c [out] Pointer to to the "version" return value
@@ -989,21 +989,21 @@ int gsgpu_query_buffer_size_alignment(gsgpu_device_handle dev,
  *          <0 - Negative POSIX Error code
  *
 */
-int gsgpu_query_firmware_version(gsgpu_device_handle dev, unsigned fw_type,
+int loonggpu_query_firmware_version(loonggpu_device_handle dev, unsigned fw_type,
 				  unsigned ip_instance, unsigned index,
 				  uint32_t *version, uint32_t *feature);
 
 /**
  * Query the number of HW IP instances of a certain type.
  *
- * \param   dev      - \c [in] Device handle. See #gsgpu_device_initialize()
- * \param   type     - \c [in] Hardware IP block type = GSGPU_HW_IP_*
+ * \param   dev      - \c [in] Device handle. See #loonggpu_device_initialize()
+ * \param   type     - \c [in] Hardware IP block type = LOONGGPU_HW_IP_*
  * \param   count    - \c [out] Pointer to structure to get information
  *
  * \return   0 on success\n
  *          <0 - Negative POSIX Error code
 */
-int gsgpu_query_hw_ip_count(gsgpu_device_handle dev, unsigned type,
+int loonggpu_query_hw_ip_count(loonggpu_device_handle dev, unsigned type,
 			     uint32_t *count);
 
 /**
@@ -1012,17 +1012,17 @@ int gsgpu_query_hw_ip_count(gsgpu_device_handle dev, unsigned type,
  * This query allows UMD to query information different engines and their
  * capabilities.
  *
- * \param   dev         - \c [in] Device handle. See #gsgpu_device_initialize()
- * \param   type        - \c [in] Hardware IP block type = GSGPU_HW_IP_*
+ * \param   dev         - \c [in] Device handle. See #loonggpu_device_initialize()
+ * \param   type        - \c [in] Hardware IP block type = LOONGGPU_HW_IP_*
  * \param   ip_instance - \c [in] Index of the IP block of the same type.
  * \param   info        - \c [out] Pointer to structure to get information
  *
  * \return   0 on success\n
  *          <0 - Negative POSIX Error code
 */
-int gsgpu_query_hw_ip_info(gsgpu_device_handle dev, unsigned type,
+int loonggpu_query_hw_ip_info(loonggpu_device_handle dev, unsigned type,
 			    unsigned ip_instance,
-			    struct drm_gsgpu_info_hw_ip *info);
+			    struct drm_loonggpu_info_hw_ip *info);
 
 /**
  * Query heap information
@@ -1030,7 +1030,7 @@ int gsgpu_query_hw_ip_info(gsgpu_device_handle dev, unsigned type,
  * This query allows UMD to query potentially available memory resources and
  * adjust their logic if necessary.
  *
- * \param   dev  - \c [in] Device handle. See #gsgpu_device_initialize()
+ * \param   dev  - \c [in] Device handle. See #loonggpu_device_initialize()
  * \param   heap - \c [in] Heap type
  * \param   info - \c [in] Pointer to structure to get needed information
  *
@@ -1038,13 +1038,13 @@ int gsgpu_query_hw_ip_info(gsgpu_device_handle dev, unsigned type,
  *          <0 - Negative POSIX Error code
  *
 */
-int gsgpu_query_heap_info(gsgpu_device_handle dev, uint32_t heap,
-			   uint32_t flags, struct gsgpu_heap_info *info);
+int loonggpu_query_heap_info(loonggpu_device_handle dev, uint32_t heap,
+			   uint32_t flags, struct loonggpu_heap_info *info);
 
 /**
  * Get the CRTC ID from the mode object ID
  *
- * \param   dev    - \c [in] Device handle. See #gsgpu_device_initialize()
+ * \param   dev    - \c [in] Device handle. See #loonggpu_device_initialize()
  * \param   id     - \c [in] Mode object ID
  * \param   result - \c [in] Pointer to the CRTC ID
  *
@@ -1052,7 +1052,7 @@ int gsgpu_query_heap_info(gsgpu_device_handle dev, uint32_t heap,
  *          <0 - Negative POSIX Error code
  *
 */
-int gsgpu_query_crtc_from_id(gsgpu_device_handle dev, unsigned id,
+int loonggpu_query_crtc_from_id(loonggpu_device_handle dev, unsigned id,
 			      int32_t *result);
 
 /**
@@ -1060,7 +1060,7 @@ int gsgpu_query_crtc_from_id(gsgpu_device_handle dev, unsigned id,
  *
  * Query hardware specific information
  *
- * \param   dev  - \c [in] Device handle. See #gsgpu_device_initialize()
+ * \param   dev  - \c [in] Device handle. See #loonggpu_device_initialize()
  * \param   heap - \c [in] Heap type
  * \param   info - \c [in] Pointer to structure to get needed information
  *
@@ -1068,8 +1068,8 @@ int gsgpu_query_crtc_from_id(gsgpu_device_handle dev, unsigned id,
  *          <0 - Negative POSIX Error code
  *
 */
-int gsgpu_query_gpu_info(gsgpu_device_handle dev,
-			   struct gsgpu_gpu_info *info);
+int loonggpu_query_gpu_info(loonggpu_device_handle dev,
+			   struct loonggpu_gpu_info *info);
 
 /**
  * Query hardware or driver information.
@@ -1077,8 +1077,8 @@ int gsgpu_query_gpu_info(gsgpu_device_handle dev,
  * The return size is query-specific and depends on the "info_id" parameter.
  * No more than "size" bytes is returned.
  *
- * \param   dev     - \c [in] Device handle. See #gsgpu_device_initialize()
- * \param   info_id - \c [in] GSGPU_INFO_*
+ * \param   dev     - \c [in] Device handle. See #loonggpu_device_initialize()
+ * \param   info_id - \c [in] LOONGGPU_INFO_*
  * \param   size    - \c [in] Size of the returned value.
  * \param   value   - \c [out] Pointer to the return value.
  *
@@ -1086,7 +1086,7 @@ int gsgpu_query_gpu_info(gsgpu_device_handle dev,
  *          <0 - Negative POSIX error code
  *
 */
-int gsgpu_query_info(gsgpu_device_handle dev, unsigned info_id,
+int loonggpu_query_info(loonggpu_device_handle dev, unsigned info_id,
 		      unsigned size, void *value);
 
 /**
@@ -1095,29 +1095,29 @@ int gsgpu_query_info(gsgpu_device_handle dev, unsigned info_id,
  * The return size is query-specific and depends on the "info_id" parameter.
  * No more than "size" bytes is returned.
  *
- * \param   dev     - \c [in] Device handle. See #gsgpu_device_initialize()
- * \param   info    - \c [in] gsgpu_sw_info_*
+ * \param   dev     - \c [in] Device handle. See #loonggpu_device_initialize()
+ * \param   info    - \c [in] loonggpu_sw_info_*
  * \param   value   - \c [out] Pointer to the return value.
  *
  * \return   0 on success\n
  *          <0 - Negative POSIX error code
  *
 */
-int gsgpu_query_sw_info(gsgpu_device_handle dev, enum gsgpu_sw_info info,
+int loonggpu_query_sw_info(loonggpu_device_handle dev, enum loonggpu_sw_info info,
 			 void *value);
 
 /**
  * Query information about GDS
  *
- * \param   dev	     - \c [in] Device handle. See #gsgpu_device_initialize()
+ * \param   dev	     - \c [in] Device handle. See #loonggpu_device_initialize()
  * \param   gds_info - \c [out] Pointer to structure to get GDS information
  *
  * \return   0 on success\n
  *          <0 - Negative POSIX Error code
  *
 */
-int gsgpu_query_gds_info(gsgpu_device_handle dev,
-			struct gsgpu_gds_resource_info *gds_info);
+int loonggpu_query_gds_info(loonggpu_device_handle dev,
+			struct loonggpu_gds_resource_info *gds_info);
 
 /**
  * Query information about sensor.
@@ -1125,8 +1125,8 @@ int gsgpu_query_gds_info(gsgpu_device_handle dev,
  * The return size is query-specific and depends on the "sensor_type"
  * parameter. No more than "size" bytes is returned.
  *
- * \param   dev         - \c [in] Device handle. See #gsgpu_device_initialize()
- * \param   sensor_type - \c [in] GSGPU_INFO_SENSOR_*
+ * \param   dev         - \c [in] Device handle. See #loonggpu_device_initialize()
+ * \param   sensor_type - \c [in] LOONGGPU_INFO_SENSOR_*
  * \param   size        - \c [in] Size of the returned value.
  * \param   value       - \c [out] Pointer to the return value.
  *
@@ -1134,14 +1134,14 @@ int gsgpu_query_gds_info(gsgpu_device_handle dev,
  *          <0 - Negative POSIX Error code
  *
 */
-int gsgpu_query_sensor_info(gsgpu_device_handle dev, unsigned sensor_type,
+int loonggpu_query_sensor_info(loonggpu_device_handle dev, unsigned sensor_type,
 			     unsigned size, void *value);
 
 /**
  * Read a set of consecutive memory-mapped registers.
  * Not all registers are allowed to be read by userspace.
  *
- * \param   dev          - \c [in] Device handle. See #gsgpu_device_initialize(
+ * \param   dev          - \c [in] Device handle. See #loonggpu_device_initialize(
  * \param   dword_offset - \c [in] Register offset in dwords
  * \param   count        - \c [in] The number of registers to read starting
  *                                 from the offset
@@ -1154,20 +1154,20 @@ int gsgpu_query_sensor_info(gsgpu_device_handle dev, unsigned sensor_type,
  *          <0 - Negative POSIX error code
  *
 */
-int gsgpu_read_mm_registers(gsgpu_device_handle dev, unsigned dword_offset,
+int loonggpu_read_mm_registers(loonggpu_device_handle dev, unsigned dword_offset,
 			     unsigned count, uint32_t instance, uint32_t flags,
 			     uint32_t *values);
 
 /**
  * Flag to request VA address range in the 32bit address space
 */
-#define GSGPU_VA_RANGE_32_BIT		0x1
-#define GSGPU_VA_RANGE_HIGH		0x2
+#define LOONGGPU_VA_RANGE_32_BIT		0x1
+#define LOONGGPU_VA_RANGE_HIGH		0x2
 
 /**
  * Allocate virtual address range
  *
- * \param dev - [in] Device handle. See #gsgpu_device_initialize()
+ * \param dev - [in] Device handle. See #loonggpu_device_initialize()
  * \param va_range_type - \c [in] Type of MC va range from which to allocate
  * \param size - \c [in] Size of range. Size must be correctly* aligned.
  * It is client responsibility to correctly aligned size based on the future
@@ -1175,7 +1175,7 @@ int gsgpu_read_mm_registers(gsgpu_device_handle dev, unsigned dword_offset,
  * \param va_base_alignment - \c [in] Overwrite base address alignment
  * requirement for GPU VM MC virtual
  * address assignment. Must be multiple of size alignments received as
- * 'gsgpu_buffer_size_alignments'.
+ * 'loonggpu_buffer_size_alignments'.
  * If 0 use the default one.
  * \param va_base_required - \c [in] Specified required va base address.
  * If 0 then library choose available one.
@@ -1200,13 +1200,13 @@ int gsgpu_read_mm_registers(gsgpu_device_handle dev, unsigned dword_offset,
  * be used.
  *
 */
-int gsgpu_va_range_alloc(gsgpu_device_handle dev,
-			   enum gsgpu_gpu_va_range va_range_type,
+int loonggpu_va_range_alloc(loonggpu_device_handle dev,
+			   enum loonggpu_gpu_va_range va_range_type,
 			   uint64_t size,
 			   uint64_t va_base_alignment,
 			   uint64_t va_base_required,
 			   uint64_t *va_base_allocated,
-			   gsgpu_va_handle *va_range_handle,
+			   loonggpu_va_handle *va_range_handle,
 			   uint64_t flags);
 
 /**
@@ -1220,7 +1220,7 @@ int gsgpu_va_range_alloc(gsgpu_device_handle dev,
  * <0 - Negative POSIX Error code
  *
 */
-int gsgpu_va_range_free(gsgpu_va_handle va_range_handle);
+int loonggpu_va_range_free(loonggpu_va_handle va_range_handle);
 
 /**
 * Query virtual address range
@@ -1228,7 +1228,7 @@ int gsgpu_va_range_free(gsgpu_va_handle va_range_handle);
 * UMD can query GPU VM range supported by each device
 * to initialize its own VAM accordingly.
 *
-* \param   dev    - [in] Device handle. See #gsgpu_device_initialize()
+* \param   dev    - [in] Device handle. See #loonggpu_device_initialize()
 * \param   type   - \c [in] Type of virtual address range
 * \param   offset - \c [out] Start offset of virtual address range
 * \param   size   - \c [out] Size of virtual address range
@@ -1238,8 +1238,8 @@ int gsgpu_va_range_free(gsgpu_va_handle va_range_handle);
 *
 */
 
-int gsgpu_va_range_query(gsgpu_device_handle dev,
-			  enum gsgpu_gpu_va_range type,
+int loonggpu_va_range_query(loonggpu_device_handle dev,
+			  enum loonggpu_gpu_va_range type,
 			  uint64_t *start,
 			  uint64_t *end);
 
@@ -1251,14 +1251,14 @@ int gsgpu_va_range_query(gsgpu_device_handle dev,
  * \param  size		- \c [in] Size to map
  * \param  addr		- \c [in] Start virtual address.
  * \param  flags	- \c [in] Supported flags for mapping/unmapping
- * \param  ops		- \c [in] GSGPU_VA_OP_MAP or GSGPU_VA_OP_UNMAP
+ * \param  ops		- \c [in] LOONGGPU_VA_OP_MAP or LOONGGPU_VA_OP_UNMAP
  *
  * \return   0 on success\n
  *          <0 - Negative POSIX Error code
  *
 */
 
-int gsgpu_bo_va_op(gsgpu_bo_handle bo,
+int loonggpu_bo_va_op(loonggpu_bo_handle bo,
 		    uint64_t offset,
 		    uint64_t size,
 		    uint64_t addr,
@@ -1268,7 +1268,7 @@ int gsgpu_bo_va_op(gsgpu_bo_handle bo,
 /**
  *  VA mapping/unmapping for a buffer object or PRT region.
  *
- * This is not a simple drop-in extension for gsgpu_bo_va_op; instead, all
+ * This is not a simple drop-in extension for loonggpu_bo_va_op; instead, all
  * parameters are treated "raw", i.e. size is not automatically aligned, and
  * all flags must be specified explicitly.
  *
@@ -1278,15 +1278,15 @@ int gsgpu_bo_va_op(gsgpu_bo_handle bo,
  * \param  size		- \c [in] Size to map
  * \param  addr		- \c [in] Start virtual address.
  * \param  flags	- \c [in] Supported flags for mapping/unmapping
- * \param  ops		- \c [in] GSGPU_VA_OP_MAP or GSGPU_VA_OP_UNMAP
+ * \param  ops		- \c [in] LOONGGPU_VA_OP_MAP or LOONGGPU_VA_OP_UNMAP
  *
  * \return   0 on success\n
  *          <0 - Negative POSIX Error code
  *
 */
 
-int gsgpu_bo_va_op_raw(gsgpu_device_handle dev,
-			gsgpu_bo_handle bo,
+int loonggpu_bo_va_op_raw(loonggpu_device_handle dev,
+			loonggpu_bo_handle bo,
 			uint64_t offset,
 			uint64_t size,
 			uint64_t addr,
@@ -1302,13 +1302,13 @@ int gsgpu_bo_va_op_raw(gsgpu_device_handle dev,
  *          <0 - Negative POSIX Error code
  *
 */
-int gsgpu_cs_create_semaphore(gsgpu_semaphore_handle *sem);
+int loonggpu_cs_create_semaphore(loonggpu_semaphore_handle *sem);
 
 /**
  *  signal semaphore
  *
  * \param   context        - \c [in] GPU Context
- * \param   ip_type        - \c [in] Hardware IP block type = GSGPU_HW_IP_*
+ * \param   ip_type        - \c [in] Hardware IP block type = LOONGGPU_HW_IP_*
  * \param   ip_instance    - \c [in] Index of the IP block of the same type
  * \param   ring           - \c [in] Specify ring index of the IP
  * \param   sem	           - \c [in] semaphore handle
@@ -1317,17 +1317,17 @@ int gsgpu_cs_create_semaphore(gsgpu_semaphore_handle *sem);
  *          <0 - Negative POSIX Error code
  *
 */
-int gsgpu_cs_signal_semaphore(gsgpu_context_handle ctx,
+int loonggpu_cs_signal_semaphore(loonggpu_context_handle ctx,
 			       uint32_t ip_type,
 			       uint32_t ip_instance,
 			       uint32_t ring,
-			       gsgpu_semaphore_handle sem);
+			       loonggpu_semaphore_handle sem);
 
 /**
  *  wait semaphore
  *
  * \param   context        - \c [in] GPU Context
- * \param   ip_type        - \c [in] Hardware IP block type = GSGPU_HW_IP_*
+ * \param   ip_type        - \c [in] Hardware IP block type = LOONGGPU_HW_IP_*
  * \param   ip_instance    - \c [in] Index of the IP block of the same type
  * \param   ring           - \c [in] Specify ring index of the IP
  * \param   sem	           - \c [in] semaphore handle
@@ -1336,11 +1336,11 @@ int gsgpu_cs_signal_semaphore(gsgpu_context_handle ctx,
  *          <0 - Negative POSIX Error code
  *
 */
-int gsgpu_cs_wait_semaphore(gsgpu_context_handle ctx,
+int loonggpu_cs_wait_semaphore(loonggpu_context_handle ctx,
 			     uint32_t ip_type,
 			     uint32_t ip_instance,
 			     uint32_t ring,
-			     gsgpu_semaphore_handle sem);
+			     loonggpu_semaphore_handle sem);
 
 /**
  *  destroy semaphore
@@ -1351,17 +1351,17 @@ int gsgpu_cs_wait_semaphore(gsgpu_context_handle ctx,
  *          <0 - Negative POSIX Error code
  *
 */
-int gsgpu_cs_destroy_semaphore(gsgpu_semaphore_handle sem);
+int loonggpu_cs_destroy_semaphore(loonggpu_semaphore_handle sem);
 
 /**
  *  Get the ASIC marketing name
  *
- * \param   dev         - \c [in] Device handle. See #gsgpu_device_initialize()
+ * \param   dev         - \c [in] Device handle. See #loonggpu_device_initialize()
  *
  * \return  the constant string of the marketing name
  *          "NULL" means the ASIC is not found
 */
-const char *gsgpu_get_marketing_name(gsgpu_device_handle dev);
+const char *loonggpu_get_marketing_name(loonggpu_device_handle dev);
 
 /**
  *  Create kernel sync object
@@ -1374,7 +1374,7 @@ const char *gsgpu_get_marketing_name(gsgpu_device_handle dev);
  *          <0 - Negative POSIX Error code
  *
 */
-int gsgpu_cs_create_syncobj2(gsgpu_device_handle dev,
+int loonggpu_cs_create_syncobj2(loonggpu_device_handle dev,
 			      uint32_t  flags,
 			      uint32_t *syncobj);
 
@@ -1388,7 +1388,7 @@ int gsgpu_cs_create_syncobj2(gsgpu_device_handle dev,
  *          <0 - Negative POSIX Error code
  *
 */
-int gsgpu_cs_create_syncobj(gsgpu_device_handle dev,
+int loonggpu_cs_create_syncobj(loonggpu_device_handle dev,
 			     uint32_t *syncobj);
 /**
  *  Destroy kernel sync object
@@ -1400,7 +1400,7 @@ int gsgpu_cs_create_syncobj(gsgpu_device_handle dev,
  *          <0 - Negative POSIX Error code
  *
 */
-int gsgpu_cs_destroy_syncobj(gsgpu_device_handle dev,
+int loonggpu_cs_destroy_syncobj(loonggpu_device_handle dev,
 			      uint32_t syncobj);
 
 /**
@@ -1414,7 +1414,7 @@ int gsgpu_cs_destroy_syncobj(gsgpu_device_handle dev,
  *          <0 - Negative POSIX Error code
  *
 */
-int gsgpu_cs_syncobj_reset(gsgpu_device_handle dev,
+int loonggpu_cs_syncobj_reset(loonggpu_device_handle dev,
 			    const uint32_t *syncobjs, uint32_t syncobj_count);
 
 /**
@@ -1428,7 +1428,7 @@ int gsgpu_cs_syncobj_reset(gsgpu_device_handle dev,
  *          <0 - Negative POSIX Error code
  *
 */
-int gsgpu_cs_syncobj_signal(gsgpu_device_handle dev,
+int loonggpu_cs_syncobj_signal(loonggpu_device_handle dev,
 			     const uint32_t *syncobjs, uint32_t syncobj_count);
 
 /**
@@ -1446,7 +1446,7 @@ int gsgpu_cs_syncobj_signal(gsgpu_device_handle dev,
  *          <0 - Negative POSIX Error code
  *
  */
-int gsgpu_cs_syncobj_wait(gsgpu_device_handle dev,
+int loonggpu_cs_syncobj_wait(loonggpu_device_handle dev,
 			   uint32_t *handles, unsigned num_handles,
 			   int64_t timeout_nsec, unsigned flags,
 			   uint32_t *first_signaled);
@@ -1462,7 +1462,7 @@ int gsgpu_cs_syncobj_wait(gsgpu_device_handle dev,
  *          <0 - Negative POSIX Error code
  *
 */
-int gsgpu_cs_export_syncobj(gsgpu_device_handle dev,
+int loonggpu_cs_export_syncobj(loonggpu_device_handle dev,
 			     uint32_t syncobj,
 			     int *shared_fd);
 /**
@@ -1476,7 +1476,7 @@ int gsgpu_cs_export_syncobj(gsgpu_device_handle dev,
  *          <0 - Negative POSIX Error code
  *
 */
-int gsgpu_cs_import_syncobj(gsgpu_device_handle dev,
+int loonggpu_cs_import_syncobj(loonggpu_device_handle dev,
 			     int shared_fd,
 			     uint32_t *syncobj);
 
@@ -1491,7 +1491,7 @@ int gsgpu_cs_import_syncobj(gsgpu_device_handle dev,
  *          <0 - Negative POSIX Error code
  *
  */
-int gsgpu_cs_syncobj_export_sync_file(gsgpu_device_handle dev,
+int loonggpu_cs_syncobj_export_sync_file(loonggpu_device_handle dev,
 				       uint32_t syncobj,
 				       int *sync_file_fd);
 
@@ -1506,21 +1506,21 @@ int gsgpu_cs_syncobj_export_sync_file(gsgpu_device_handle dev,
  *          <0 - Negative POSIX Error code
  *
  */
-int gsgpu_cs_syncobj_import_sync_file(gsgpu_device_handle dev,
+int loonggpu_cs_syncobj_import_sync_file(loonggpu_device_handle dev,
 				       uint32_t syncobj,
 				       int sync_file_fd);
 
 /**
- * Export an gsgpu fence as a handle (syncobj or fd).
+ * Export an loonggpu fence as a handle (syncobj or fd).
  *
- * \param what		GSGPU_FENCE_TO_HANDLE_GET_{SYNCOBJ, FD}
+ * \param what		LOONGGPU_FENCE_TO_HANDLE_GET_{SYNCOBJ, FD}
  * \param out_handle	returned handle
  *
  * \return   0 on success\n
  *          <0 - Negative POSIX Error code
  */
-int gsgpu_cs_fence_to_handle(gsgpu_device_handle dev,
-			      struct gsgpu_cs_fence *fence,
+int loonggpu_cs_fence_to_handle(loonggpu_device_handle dev,
+			      struct loonggpu_cs_fence *fence,
 			      uint32_t what,
 			      uint32_t *out_handle);
 
@@ -1538,21 +1538,21 @@ int gsgpu_cs_fence_to_handle(gsgpu_device_handle dev,
  *          <0 - Negative POSIX Error code
  *
  */
-struct drm_gsgpu_cs_chunk;
-struct drm_gsgpu_cs_chunk_dep;
-struct drm_gsgpu_cs_chunk_data;
+struct drm_loonggpu_cs_chunk;
+struct drm_loonggpu_cs_chunk_dep;
+struct drm_loonggpu_cs_chunk_data;
 
-int gsgpu_cs_submit_raw(gsgpu_device_handle dev,
-			 gsgpu_context_handle context,
-			 gsgpu_bo_list_handle bo_list_handle,
+int loonggpu_cs_submit_raw(loonggpu_device_handle dev,
+			 loonggpu_context_handle context,
+			 loonggpu_bo_list_handle bo_list_handle,
 			 int num_chunks,
-			 struct drm_gsgpu_cs_chunk *chunks,
+			 struct drm_loonggpu_cs_chunk *chunks,
 			 uint64_t *seq_no);
 
-void gsgpu_cs_chunk_fence_to_dep(struct gsgpu_cs_fence *fence,
-				  struct drm_gsgpu_cs_chunk_dep *dep);
-void gsgpu_cs_chunk_fence_info_to_data(struct gsgpu_cs_fence_info *fence_info,
-					struct drm_gsgpu_cs_chunk_data *data);
+void loonggpu_cs_chunk_fence_to_dep(struct loonggpu_cs_fence *fence,
+				  struct drm_loonggpu_cs_chunk_dep *dep);
+void loonggpu_cs_chunk_fence_info_to_data(struct loonggpu_cs_fence_info *fence_info,
+					struct drm_loonggpu_cs_chunk_data *data);
 
 /**
  * Reserve VMID
@@ -1561,7 +1561,7 @@ void gsgpu_cs_chunk_fence_info_to_data(struct gsgpu_cs_fence_info *fence_info,
  *
  * \return  0 on success otherwise POSIX Error code
 */
-int gsgpu_vm_reserve_vmid(gsgpu_device_handle dev, uint32_t flags);
+int loonggpu_vm_reserve_vmid(loonggpu_device_handle dev, uint32_t flags);
 
 /**
  * Free reserved VMID
@@ -1570,7 +1570,7 @@ int gsgpu_vm_reserve_vmid(gsgpu_device_handle dev, uint32_t flags);
  *
  * \return  0 on success otherwise POSIX Error code
 */
-int gsgpu_vm_unreserve_vmid(gsgpu_device_handle dev, uint32_t flags);
+int loonggpu_vm_unreserve_vmid(loonggpu_device_handle dev, uint32_t flags);
 
 /**
  * Get avalible Hardware semaphore from device
@@ -1581,7 +1581,7 @@ int gsgpu_vm_unreserve_vmid(gsgpu_device_handle dev, uint32_t flags);
  *
  * \return: 0 on success otherwise POSIX Error Code
  */
-int gsgpu_hw_sema_get(gsgpu_device_handle dev, gsgpu_context_handle ctx, uint64_t *sema);
+int loonggpu_hw_sema_get(loonggpu_device_handle dev, loonggpu_context_handle ctx, uint64_t *sema);
 
 /**
  * Put using Hardware semaphore to device
@@ -1592,9 +1592,9 @@ int gsgpu_hw_sema_get(gsgpu_device_handle dev, gsgpu_context_handle ctx, uint64_
  *
  * \return: 0 on success otherwise POSIX Error Code
  */
-int gsgpu_hw_sema_put(gsgpu_device_handle dev, gsgpu_context_handle ctx, uint64_t sema);
+int loonggpu_hw_sema_put(loonggpu_device_handle dev, loonggpu_context_handle ctx, uint64_t sema);
 
 #ifdef __cplusplus
 }
 #endif
-#endif /* #ifdef _GSGPU_H_ */
+#endif /* #ifdef _LOONGGPU_H_ */

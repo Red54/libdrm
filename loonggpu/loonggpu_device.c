@@ -22,7 +22,7 @@
  */
 
 /**
- * \file gsgpu_device.c
+ * \file loonggpu_device.c
  *
  *  Implementation of functions for GS GPU device
  *
@@ -40,8 +40,8 @@
 #include <unistd.h>
 
 #include "xf86drm.h"
-#include "gsgpu_drm.h"
-#include "gsgpu_internal.h"
+#include "loonggpu_drm.h"
+#include "loonggpu_internal.h"
 #include "util_hash_table.h"
 #include "util_math.h"
 
@@ -112,7 +112,7 @@ static int fd_compare(void *key1, void *key2)
 *          >0 - GS specific error code\n
 *          <0 - Negative POSIX Error code
 */
-static int gsgpu_get_auth(int fd, int *auth)
+static int loonggpu_get_auth(int fd, int *auth)
 {
 	int r = 0;
 	drm_client_t client = {};
@@ -128,12 +128,12 @@ static int gsgpu_get_auth(int fd, int *auth)
 	return r;
 }
 
-static void gsgpu_device_free_internal(gsgpu_device_handle dev)
+static void loonggpu_device_free_internal(loonggpu_device_handle dev)
 {
-	gsgpu_vamgr_deinit(&dev->vamgr_32);
-	gsgpu_vamgr_deinit(&dev->vamgr);
-	gsgpu_vamgr_deinit(&dev->vamgr_high_32);
-	gsgpu_vamgr_deinit(&dev->vamgr_high);
+	loonggpu_vamgr_deinit(&dev->vamgr_32);
+	loonggpu_vamgr_deinit(&dev->vamgr);
+	loonggpu_vamgr_deinit(&dev->vamgr_high_32);
+	loonggpu_vamgr_deinit(&dev->vamgr_high);
 	util_hash_table_destroy(dev->bo_flink_names);
 	util_hash_table_destroy(dev->bo_handles);
 	pthread_mutex_destroy(&dev->bo_table_mutex);
@@ -146,33 +146,33 @@ static void gsgpu_device_free_internal(gsgpu_device_handle dev)
 }
 
 /**
- * Assignment between two gsgpu_device pointers with reference counting.
+ * Assignment between two loonggpu_device pointers with reference counting.
  *
  * Usage:
- *    struct gsgpu_device *dst = ... , *src = ...;
+ *    struct loonggpu_device *dst = ... , *src = ...;
  *
  *    dst = src;
  *    // No reference counting. Only use this when you need to move
  *    // a reference from one pointer to another.
  *
- *    gsgpu_device_reference(&dst, src);
+ *    loonggpu_device_reference(&dst, src);
  *    // Reference counters are updated. dst is decremented and src is
  *    // incremented. dst is freed if its reference counter is 0.
  */
-static void gsgpu_device_reference(struct gsgpu_device **dst,
-			     struct gsgpu_device *src)
+static void loonggpu_device_reference(struct loonggpu_device **dst,
+			     struct loonggpu_device *src)
 {
 	if (update_references(&(*dst)->refcount, &src->refcount))
-		gsgpu_device_free_internal(*dst);
+		loonggpu_device_free_internal(*dst);
 	*dst = src;
 }
 
-int gsgpu_device_initialize(int fd,
+int loonggpu_device_initialize(int fd,
 			     uint32_t *major_version,
 			     uint32_t *minor_version,
-			     gsgpu_device_handle *device_handle)
+			     loonggpu_device_handle *device_handle)
 {
-	struct gsgpu_device *dev;
+	struct loonggpu_device *dev;
 	drmVersionPtr version;
 	int r;
 	int flag_auth = 0;
@@ -185,18 +185,18 @@ int gsgpu_device_initialize(int fd,
 	pthread_mutex_lock(&fd_mutex);
 	if (!fd_tab)
 		fd_tab = util_hash_table_create(fd_hash, fd_compare);
-	r = gsgpu_get_auth(fd, &flag_auth);
+	r = loonggpu_get_auth(fd, &flag_auth);
 	if (r) {
-		fprintf(stderr, "%s: gsgpu_get_auth (1) failed (%i)\n",
+		fprintf(stderr, "%s: loonggpu_get_auth (1) failed (%i)\n",
 			__func__, r);
 		pthread_mutex_unlock(&fd_mutex);
 		return r;
 	}
 	dev = util_hash_table_get(fd_tab, UINT_TO_PTR(fd));
 	if (dev) {
-		r = gsgpu_get_auth(dev->fd, &flag_authexist);
+		r = loonggpu_get_auth(dev->fd, &flag_authexist);
 		if (r) {
-			fprintf(stderr, "%s: gsgpu_get_auth (2) failed (%i)\n",
+			fprintf(stderr, "%s: loonggpu_get_auth (2) failed (%i)\n",
 				__func__, r);
 			pthread_mutex_unlock(&fd_mutex);
 			return r;
@@ -206,12 +206,12 @@ int gsgpu_device_initialize(int fd,
 		}
 		*major_version = dev->major_version;
 		*minor_version = dev->minor_version;
-		gsgpu_device_reference(device_handle, dev);
+		loonggpu_device_reference(device_handle, dev);
 		pthread_mutex_unlock(&fd_mutex);
 		return 0;
 	}
 
-	dev = calloc(1, sizeof(struct gsgpu_device));
+	dev = calloc(1, sizeof(struct loonggpu_device));
 	if (!dev) {
 		fprintf(stderr, "%s: calloc failed\n", __func__);
 		pthread_mutex_unlock(&fd_mutex);
@@ -248,47 +248,47 @@ int gsgpu_device_initialize(int fd,
 	pthread_mutex_init(&dev->bo_table_mutex, NULL);
 
 	/* Check if acceleration is working. */
-	r = gsgpu_query_info(dev, GSGPU_INFO_ACCEL_WORKING, 4, &accel_working);
+	r = loonggpu_query_info(dev, LOONGGPU_INFO_ACCEL_WORKING, 4, &accel_working);
 	if (r) {
-		fprintf(stderr, "%s: gsgpu_query_info(ACCEL_WORKING) failed (%i)\n",
+		fprintf(stderr, "%s: loonggpu_query_info(ACCEL_WORKING) failed (%i)\n",
 			__func__, r);
 		goto cleanup;
 	}
 	if (!accel_working) {
-		fprintf(stderr, "%s: GSGPU_INFO_ACCEL_WORKING = 0\n", __func__);
+		fprintf(stderr, "%s: LOONGGPU_INFO_ACCEL_WORKING = 0\n", __func__);
 		r = -EBADF;
 		goto cleanup;
 	}
 
-	r = gsgpu_query_gpu_info_init(dev);
+	r = loonggpu_query_gpu_info_init(dev);
 	if (r) {
-		fprintf(stderr, "%s: gsgpu_query_gpu_info_init failed\n", __func__);
+		fprintf(stderr, "%s: loonggpu_query_gpu_info_init failed\n", __func__);
 		goto cleanup;
 	}
 
 	start = dev->dev_info.virtual_address_offset;
 	max = MIN2(dev->dev_info.virtual_address_max, 0x100000000ULL);
-	gsgpu_vamgr_init(&dev->vamgr_32, start, max,
+	loonggpu_vamgr_init(&dev->vamgr_32, start, max,
 			  dev->dev_info.virtual_address_alignment);
 
 	start = max;
 	max = MAX2(dev->dev_info.virtual_address_max, 0x100000000ULL);
-	gsgpu_vamgr_init(&dev->vamgr, start, max,
+	loonggpu_vamgr_init(&dev->vamgr, start, max,
 			  dev->dev_info.virtual_address_alignment);
 
 	start = dev->dev_info.high_va_offset;
 	max = MIN2(dev->dev_info.high_va_max, (start & ~0xffffffffULL) +
 		   0x100000000ULL);
-	gsgpu_vamgr_init(&dev->vamgr_high_32, start, max,
+	loonggpu_vamgr_init(&dev->vamgr_high_32, start, max,
 			  dev->dev_info.virtual_address_alignment);
 
 	start = max;
 	max = MAX2(dev->dev_info.high_va_max, (start & ~0xffffffffULL) +
 		   0x100000000ULL);
-	gsgpu_vamgr_init(&dev->vamgr_high, start, max,
+	loonggpu_vamgr_init(&dev->vamgr_high, start, max,
 			  dev->dev_info.virtual_address_alignment);
 
-	gsgpu_parse_asic_ids(dev);
+	loonggpu_parse_asic_ids(dev);
 
 	*major_version = dev->major_version;
 	*minor_version = dev->minor_version;
@@ -306,24 +306,24 @@ cleanup:
 	return r;
 }
 
-int gsgpu_device_deinitialize(gsgpu_device_handle dev)
+int loonggpu_device_deinitialize(loonggpu_device_handle dev)
 {
-	gsgpu_device_reference(&dev, NULL);
+	loonggpu_device_reference(&dev, NULL);
 	return 0;
 }
 
-const char *gsgpu_get_marketing_name(gsgpu_device_handle dev)
+const char *loonggpu_get_marketing_name(loonggpu_device_handle dev)
 {
 	return dev->marketing_name;
 }
 
-int gsgpu_query_sw_info(gsgpu_device_handle dev, enum gsgpu_sw_info info,
+int loonggpu_query_sw_info(loonggpu_device_handle dev, enum loonggpu_sw_info info,
 			 void *value)
 {
 	uint32_t *val32 = (uint32_t*)value;
 
 	switch (info) {
-	case gsgpu_sw_info_address32_hi:
+	case loonggpu_sw_info_address32_hi:
 		if (dev->vamgr_high_32.va_max)
 			*val32 = (dev->vamgr_high_32.va_max - 1) >> 32;
 		else

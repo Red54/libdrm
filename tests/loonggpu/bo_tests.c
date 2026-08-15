@@ -29,43 +29,43 @@
 
 #include "CUnit/Basic.h"
 
-#include "gsgpu_test.h"
-#include "gsgpu_drm.h"
+#include "loonggpu_test.h"
+#include "loonggpu_drm.h"
 
 #define BUFFER_SIZE (16*1024)
 #define BUFFER_ALIGN (16*1024)
 
-static gsgpu_device_handle device_handle;
+static loonggpu_device_handle device_handle;
 static uint32_t major_version;
 static uint32_t minor_version;
 
-static gsgpu_bo_handle buffer_handle;
+static loonggpu_bo_handle buffer_handle;
 static uint64_t virtual_mc_base_address;
-static gsgpu_va_handle va_handle;
+static loonggpu_va_handle va_handle;
 
-static void gsgpu_bo_export_import(void);
-static void gsgpu_bo_metadata(void);
-static void gsgpu_bo_map_unmap(void);
-static void gsgpu_memory_alloc(void);
-static void gsgpu_mem_fail_alloc(void);
+static void loonggpu_bo_export_import(void);
+static void loonggpu_bo_metadata(void);
+static void loonggpu_bo_map_unmap(void);
+static void loonggpu_memory_alloc(void);
+static void loonggpu_mem_fail_alloc(void);
 
 CU_TestInfo bo_tests[] = {
-	{ "Export/Import",  gsgpu_bo_export_import },
-	{ "Metadata",  gsgpu_bo_metadata },
-	{ "CPU map/unmap",  gsgpu_bo_map_unmap },
-	{ "Memory alloc Test",  gsgpu_memory_alloc },
-	{ "Memory fail alloc Test",  gsgpu_mem_fail_alloc },
+	{ "Export/Import",  loonggpu_bo_export_import },
+	{ "Metadata",  loonggpu_bo_metadata },
+	{ "CPU map/unmap",  loonggpu_bo_map_unmap },
+	{ "Memory alloc Test",  loonggpu_memory_alloc },
+	{ "Memory fail alloc Test",  loonggpu_mem_fail_alloc },
 	CU_TEST_INFO_NULL,
 };
 
 int suite_bo_tests_init(void)
 {
-	struct gsgpu_bo_alloc_request req = {0};
-	gsgpu_bo_handle buf_handle;
+	struct loonggpu_bo_alloc_request req = {0};
+	loonggpu_bo_handle buf_handle;
 	uint64_t va;
 	int r;
 
-	r = gsgpu_device_initialize(drm_gsgpu[0], &major_version,
+	r = loonggpu_device_initialize(drm_loonggpu[0], &major_version,
 				  &minor_version, &device_handle);
 	if (r) {
 		if ((r == -EACCES) && (errno == EACCES))
@@ -78,20 +78,20 @@ int suite_bo_tests_init(void)
 
 	req.alloc_size = BUFFER_SIZE;
 	req.phys_alignment = BUFFER_ALIGN;
-	req.preferred_heap = GSGPU_GEM_DOMAIN_GTT;
+	req.preferred_heap = LOONGGPU_GEM_DOMAIN_GTT;
 
-	r = gsgpu_bo_alloc(device_handle, &req, &buf_handle);
+	r = loonggpu_bo_alloc(device_handle, &req, &buf_handle);
 	if (r)
 		return CUE_SINIT_FAILED;
 
-	r = gsgpu_va_range_alloc(device_handle,
-				  gsgpu_gpu_va_range_general,
+	r = loonggpu_va_range_alloc(device_handle,
+				  loonggpu_gpu_va_range_general,
 				  BUFFER_SIZE, BUFFER_ALIGN, 0,
 				  &va, &va_handle, 0);
 	if (r)
 		goto error_va_alloc;
 
-	r = gsgpu_bo_va_op(buf_handle, 0, BUFFER_SIZE, va, 0, GSGPU_VA_OP_MAP);
+	r = loonggpu_bo_va_op(buf_handle, 0, BUFFER_SIZE, va, 0, LOONGGPU_VA_OP_MAP);
 	if (r)
 		goto error_va_map;
 
@@ -101,10 +101,10 @@ int suite_bo_tests_init(void)
 	return CUE_SUCCESS;
 
 error_va_map:
-	gsgpu_va_range_free(va_handle);
+	loonggpu_va_range_free(va_handle);
 
 error_va_alloc:
-	gsgpu_bo_free(buf_handle);
+	loonggpu_bo_free(buf_handle);
 	return CUE_SINIT_FAILED;
 }
 
@@ -112,105 +112,105 @@ int suite_bo_tests_clean(void)
 {
 	int r;
 
-	r = gsgpu_bo_va_op(buffer_handle, 0, BUFFER_SIZE,
+	r = loonggpu_bo_va_op(buffer_handle, 0, BUFFER_SIZE,
 			    virtual_mc_base_address, 0,
-			    GSGPU_VA_OP_UNMAP);
+			    LOONGGPU_VA_OP_UNMAP);
 	if (r)
 		return CUE_SCLEAN_FAILED;
 
-	r = gsgpu_va_range_free(va_handle);
+	r = loonggpu_va_range_free(va_handle);
 	if (r)
 		return CUE_SCLEAN_FAILED;
 
-	r = gsgpu_bo_free(buffer_handle);
+	r = loonggpu_bo_free(buffer_handle);
 	if (r)
 		return CUE_SCLEAN_FAILED;
 
-	r = gsgpu_device_deinitialize(device_handle);
+	r = loonggpu_device_deinitialize(device_handle);
 	if (r)
 		return CUE_SCLEAN_FAILED;
 
 	return CUE_SUCCESS;
 }
 
-static void gsgpu_bo_export_import_do_type(enum gsgpu_bo_handle_type type)
+static void loonggpu_bo_export_import_do_type(enum loonggpu_bo_handle_type type)
 {
-	struct gsgpu_bo_import_result res = {0};
+	struct loonggpu_bo_import_result res = {0};
 	uint32_t shared_handle;
 	int r;
 
-	r = gsgpu_bo_export(buffer_handle, type, &shared_handle);
+	r = loonggpu_bo_export(buffer_handle, type, &shared_handle);
 	CU_ASSERT_EQUAL(r, 0);
 
-	r = gsgpu_bo_import(device_handle, type, shared_handle, &res);
+	r = loonggpu_bo_import(device_handle, type, shared_handle, &res);
 	CU_ASSERT_EQUAL(r, 0);
 
 	CU_ASSERT_EQUAL(res.buf_handle, buffer_handle);
 	CU_ASSERT_EQUAL(res.alloc_size, BUFFER_SIZE);
 
-	r = gsgpu_bo_free(res.buf_handle);
+	r = loonggpu_bo_free(res.buf_handle);
 	CU_ASSERT_EQUAL(r, 0);
 }
 
-static void gsgpu_bo_export_import(void)
+static void loonggpu_bo_export_import(void)
 {
 	if (open_render_node) {
 		printf("(DRM render node is used. Skip export/Import test) ");
 		return;
 	}
 
-	gsgpu_bo_export_import_do_type(gsgpu_bo_handle_type_gem_flink_name);
-	gsgpu_bo_export_import_do_type(gsgpu_bo_handle_type_dma_buf_fd);
+	loonggpu_bo_export_import_do_type(loonggpu_bo_handle_type_gem_flink_name);
+	loonggpu_bo_export_import_do_type(loonggpu_bo_handle_type_dma_buf_fd);
 }
 
-static void gsgpu_bo_metadata(void)
+static void loonggpu_bo_metadata(void)
 {
-	struct gsgpu_bo_metadata meta = {0};
-	struct gsgpu_bo_info info = {0};
+	struct loonggpu_bo_metadata meta = {0};
+	struct loonggpu_bo_info info = {0};
 	int r;
 
 	meta.size_metadata = 4;
 	meta.umd_metadata[0] = 0xdeadbeef;
 	meta.flags= 3 << 9;
 
-	r = gsgpu_bo_set_metadata(buffer_handle, &meta);
+	r = loonggpu_bo_set_metadata(buffer_handle, &meta);
 	CU_ASSERT_EQUAL(r, 0);
 
-	r = gsgpu_bo_query_info(buffer_handle, &info);
+	r = loonggpu_bo_query_info(buffer_handle, &info);
 	CU_ASSERT_EQUAL(r, 0);
 
 	CU_ASSERT_EQUAL(info.metadata.size_metadata, 4);
 	CU_ASSERT_EQUAL(info.metadata.umd_metadata[0], 0xdeadbeef);
 }
 
-static void gsgpu_bo_map_unmap(void)
+static void loonggpu_bo_map_unmap(void)
 {
 	uint32_t *ptr;
 	int i, r;
 
-	r = gsgpu_bo_cpu_map(buffer_handle, (void **)&ptr);
+	r = loonggpu_bo_cpu_map(buffer_handle, (void **)&ptr);
 	CU_ASSERT_EQUAL(r, 0);
 	CU_ASSERT_NOT_EQUAL(ptr, NULL);
 
 	for (i = 0; i < (BUFFER_SIZE / 4); ++i)
 		ptr[i] = 0xdeadbeef;
 
-	r = gsgpu_bo_cpu_unmap(buffer_handle);
+	r = loonggpu_bo_cpu_unmap(buffer_handle);
 	CU_ASSERT_EQUAL(r, 0);
 }
 
-static void gsgpu_memory_alloc(void)
+static void loonggpu_memory_alloc(void)
 {
-	gsgpu_bo_handle bo;
-	gsgpu_va_handle va_handle;
+	loonggpu_bo_handle bo;
+	loonggpu_va_handle va_handle;
 	uint64_t bo_mc;
 	int r;
 
 	/* Test visible VRAM */
 	bo = gpu_mem_alloc(device_handle,
 			BUFFER_SIZE, BUFFER_ALIGN,
-			GSGPU_GEM_DOMAIN_VRAM,
-			GSGPU_GEM_CREATE_CPU_ACCESS_REQUIRED,
+			LOONGGPU_GEM_DOMAIN_VRAM,
+			LOONGGPU_GEM_CREATE_CPU_ACCESS_REQUIRED,
 			&bo_mc, &va_handle);
 
 	r = gpu_mem_free(bo, va_handle, bo_mc, BUFFER_SIZE);
@@ -219,8 +219,8 @@ static void gsgpu_memory_alloc(void)
 	/* Test invisible VRAM */
 	bo = gpu_mem_alloc(device_handle,
 			BUFFER_SIZE, BUFFER_ALIGN,
-			GSGPU_GEM_DOMAIN_VRAM,
-			GSGPU_GEM_CREATE_NO_CPU_ACCESS,
+			LOONGGPU_GEM_DOMAIN_VRAM,
+			LOONGGPU_GEM_CREATE_NO_CPU_ACCESS,
 			&bo_mc, &va_handle);
 
 	r = gpu_mem_free(bo, va_handle, bo_mc, BUFFER_SIZE);
@@ -229,7 +229,7 @@ static void gsgpu_memory_alloc(void)
 	/* Test GART Cacheable */
 	bo = gpu_mem_alloc(device_handle,
 			BUFFER_SIZE, BUFFER_ALIGN,
-			GSGPU_GEM_DOMAIN_GTT,
+			LOONGGPU_GEM_DOMAIN_GTT,
 			0, &bo_mc, &va_handle);
 
 	r = gpu_mem_free(bo, va_handle, bo_mc, BUFFER_SIZE);
@@ -238,32 +238,32 @@ static void gsgpu_memory_alloc(void)
 	/* Test GART USWC */
 	bo = gpu_mem_alloc(device_handle,
 			BUFFER_SIZE, BUFFER_ALIGN,
-			GSGPU_GEM_DOMAIN_GTT,
-			GSGPU_GEM_CREATE_CPU_GTT_USWC,
+			LOONGGPU_GEM_DOMAIN_GTT,
+			LOONGGPU_GEM_CREATE_CPU_GTT_USWC,
 			&bo_mc, &va_handle);
 
 	r = gpu_mem_free(bo, va_handle, bo_mc, BUFFER_SIZE);
 	CU_ASSERT_EQUAL(r, 0);
 }
 
-static void gsgpu_mem_fail_alloc(void)
+static void loonggpu_mem_fail_alloc(void)
 {
-	gsgpu_bo_handle bo = NULL;
+	loonggpu_bo_handle bo = NULL;
 	int r;
-	struct gsgpu_bo_alloc_request req = {0};
-	gsgpu_bo_handle buf_handle;
+	struct loonggpu_bo_alloc_request req = {0};
+	loonggpu_bo_handle buf_handle;
 
 	/* Test impossible mem allocation, 1TB */
 	req.alloc_size = 0xE8D4A51000;
 	req.phys_alignment = BUFFER_ALIGN;
-	req.preferred_heap = GSGPU_GEM_DOMAIN_VRAM;
-	req.flags = GSGPU_GEM_CREATE_NO_CPU_ACCESS;
+	req.preferred_heap = LOONGGPU_GEM_DOMAIN_VRAM;
+	req.flags = LOONGGPU_GEM_CREATE_NO_CPU_ACCESS;
 
-	r = gsgpu_bo_alloc(device_handle, &req, &buf_handle);
+	r = loonggpu_bo_alloc(device_handle, &req, &buf_handle);
 	CU_ASSERT_EQUAL(r, -ENOMEM);
 
 	if (!r) {
-		r = gsgpu_bo_free(bo);
+		r = loonggpu_bo_free(bo);
 		CU_ASSERT_EQUAL(r, 0);
 	}
 }
