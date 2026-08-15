@@ -44,8 +44,6 @@
 #include "util_hash_table.h"
 #include "util_math.h"
 
-#define BO_ALIGN_SIZE (16 * 1024)
-
 static void gsgpu_close_kms_handle(gsgpu_device_handle dev,
 				     uint32_t handle)
 {
@@ -690,7 +688,7 @@ int gsgpu_bo_va_op(gsgpu_bo_handle bo,
 {
 	gsgpu_device_handle dev = bo->dev;
 
-	size = ALIGN(size, BO_ALIGN_SIZE);
+	size = ALIGN(size, getpagesize());
 
 	return gsgpu_bo_va_op_raw(dev, bo, offset, size, addr,
 				   GSGPU_VM_PAGE_READABLE |
