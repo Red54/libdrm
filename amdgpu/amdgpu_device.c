@@ -240,9 +240,15 @@ static int _amdgpu_device_initialize(int fd,
 	atomic_set(&dev->refcount, 1);
 
 	version = drmGetVersion(fd);
+#ifdef LOONGGPU
+	if (version->version_major != 1) {
+		fprintf(stderr, "%s: DRM version is %d.%d.%d but this driver is "
+			"only compatible with 1.x.x.\n",
+#else
 	if (version->version_major != 3) {
 		fprintf(stderr, "%s: DRM version is %d.%d.%d but this driver is "
 			"only compatible with 3.x.x.\n",
+#endif
 			__func__,
 			version->version_major,
 			version->version_minor,
@@ -354,7 +360,11 @@ drm_public const char *amdgpu_get_marketing_name(amdgpu_device_handle dev)
 	if (dev->marketing_name)
 		return dev->marketing_name;
 	else
+#ifdef LOONGGPU
+		return "LOONGSON LoongGPU";
+#else
 		return "AMD Radeon Graphics";
+#endif
 }
 
 drm_public int amdgpu_query_sw_info(amdgpu_device_handle dev,
@@ -376,3 +386,51 @@ drm_public int amdgpu_query_sw_info(amdgpu_device_handle dev,
 	}
 	return -EINVAL;
 }
+
+#ifdef LOONGGPU
+drm_public int loonggpu_hw_sema_get(amdgpu_device_handle dev,
+				    amdgpu_context_handle ctx, uint64_t *sema);
+drm_public int loonggpu_hw_sema_put(amdgpu_device_handle dev,
+				    amdgpu_context_handle ctx, uint64_t sema);
+
+#define DRM_LOONGGPU_HWSEMA_OP		0x16
+#define LOONGGPU_HW_SEMA_GET		1
+#define LOONGGPU_HW_SEMA_PUT		2
+
+struct drm_loonggpu_hw_sema {
+	uint64_t id;
+	uint32_t ctx_id;
+	uint32_t ops;
+};
+
+drm_public int loonggpu_hw_sema_get(amdgpu_device_handle dev, amdgpu_context_handle ctx, uint64_t *sema)
+{
+	int r = 0;
+	struct drm_loonggpu_hw_sema args = {0};
+
+	args.ctx_id = ctx->id;
+	args.ops = LOONGGPU_HW_SEMA_GET;
+
+	r = drmCommandWriteRead(dev->fd, DRM_LOONGGPU_HWSEMA_OP,
+				&args, sizeof(args));
+	if (!r)
+		*sema = args.id;
+
+	return r;
+}
+
+drm_public int loonggpu_hw_sema_put(amdgpu_device_handle dev, amdgpu_context_handle ctx, uint64_t sema)
+{
+	int r = 0;
+	struct drm_loonggpu_hw_sema args = {0};
+
+	args.id = sema;
+	args.ctx_id = ctx->id;
+	args.ops = LOONGGPU_HW_SEMA_PUT;
+
+	r = drmCommandWriteRead(dev->fd, DRM_LOONGGPU_HWSEMA_OP,
+				&args, sizeof(args));
+
+	return r;
+}
+#endif /* LOONGGPU */

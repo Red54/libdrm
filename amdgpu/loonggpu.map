@@ -1,0 +1,6 @@
+LOONGGPU_1.0 {
+    global:
+        loonggpu_*;
+    local:
+        *;
+};

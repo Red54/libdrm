@@ -99,7 +99,11 @@ static int amdgpu_open_device(void)
 			continue;
 
 		/* If this is not AMD GPU vender ID, skip*/
+#ifdef LOONGGPU
+		if (devices[i]->deviceinfo.pci->vendor_id != 0x0014)
+#else
 		if (devices[i]->deviceinfo.pci->vendor_id != 0x1002)
+#endif
 			continue;
 
 		if (!(devices[i]->available_nodes & 1 << DRM_NODE_RENDER))
@@ -121,7 +125,12 @@ static int amdgpu_open_device(void)
 			continue;
 		}
 
+#ifdef LOONGGPU
+		if (strcmp(version->name, "gsgpu") &&
+		    strcmp(version->name, "loonggpu")) {
+#else
 		if (strcmp(version->name, "amdgpu")) {
+#endif
 			/* This is not AMDGPU driver, skip.*/
 			drmFreeVersion(version);
 			close(fd);

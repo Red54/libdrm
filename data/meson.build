@@ -24,4 +24,9 @@ if with_amdgpu
     install_mode : 'rw-r--r--',
     install_dir : datadir_amdgpu,
   )
+  install_data(
+    'loonggpu.ids',
+    install_mode : 'rw-r--r--',
+    install_dir : datadir_amdgpu,
+  )
 endif
